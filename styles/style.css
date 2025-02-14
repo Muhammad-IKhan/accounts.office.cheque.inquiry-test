@@ -1,9 +1,11 @@
 :root {
-    --primary-color: #2563eb;
-    --secondary-color: #1e40af;
-    --background-color: #f8fafc;
-    --text-color: #1e293b;
-    --border-color: #e2e8f0;
+    --primary-color: #2563eb; /* Blue */
+    --secondary-color: #1e40af; /* Dark Blue */
+    --background-color: #f8fafc; /* Light Gray */
+    --text-color: #1e293b; /* Dark Gray */
+    --border-color: #e2e8f0; /* Light Border */
+    --success-color: #10b981; /* Green */
+    --error-color: #ef4444; /* Red */
 }
 
 * {
@@ -13,7 +15,8 @@
 }
 
 body {
-    font-family: system-ui, -apple-system, sans-serif;
+  /* font-family: system-ui, -apple-system, sans-serif; */
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     line-height: 1.6;
     background-color: var(--background-color);
     color: var(--text-color);
