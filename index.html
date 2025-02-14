@@ -10,67 +10,202 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
     <style>
-        /* Custom styling for better mobile responsiveness */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
         .header {
-            padding: 2rem 0;
-            background: #f8f9fa;
-            margin-bottom: 2rem;
-        }
-        
-        .search-container {
-            margin-bottom: 2rem;
-        }
-        
-        .table-responsive {
-            margin-bottom: 2rem;
-        }
-        
-        /* Custom sorting icons */
-        .sort-icon {
-            margin-left: 0.5rem;
-            opacity: 0.5;
-        }
-        
-        th.sort-asc .sort-icon::after {
-            content: '↑';
-            opacity: 1;
-        }
-        
-        th.sort-desc .sort-icon::after {
-            content: '↓';
-            opacity: 1;
-        }
-        
-        /* Empty state styling */
-        .empty-state {
             text-align: center;
-            padding: 3rem 1rem;
-            background: #f8f9fa;
-            border-radius: 0.5rem;
+            margin-bottom: 2rem;
         }
-        
-        .empty-state i {
-            font-size: 3rem;
-            color: #6c757d;
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
             margin-bottom: 1rem;
         }
-        
-        /* Mobile optimizations */
+
+        .search-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--background-color);
+            border-radius: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-input input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #64748b;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        th:hover {
+            background-color: #f1f5f9;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--background-color);
+        }
+
+        .sort-icon {
+            display: inline-block;
+            margin-left: 0.5rem;
+            transition: transform 0.2s;
+        }
+
+        .sort-asc .sort-icon {
+            transform: rotate(180deg);
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            background-color: #f8fafc;
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-state img {
+            width: 150px;
+            margin-bottom: 1rem;
+        }
+
         @media (max-width: 768px) {
-            .table-responsive {
-                font-size: 0.875rem;
+            .container {
+                padding: 10px;
             }
-            
+
+            th, td {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+
             .btn {
                 width: 100%;
-                margin-bottom: 0.5rem;
+                justify-content: center;
             }
-            
-            .search-container .input-group {
-                margin-bottom: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            .search-container {
+                flex-direction: column;
+            }
+
+            .search-input {
+                width: 100%;
             }
         }
     </style>
@@ -85,45 +220,35 @@
         
         <!-- Search Section -->
         <div class="search-container">
-            <div class="row">
-                <div class="col-md-10 mb-3 mb-md-0">
-                    <div class="input-group">
-                        <input type="search" 
-                               id="search" 
-                               class="form-control" 
-                               placeholder="Search..."
-                               aria-label="Search transactions">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" id="searchBtn">
-                                <i class="fas fa-search"></i> Search
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <button id="resetBtn" class="btn btn-secondary btn-block">
-                        <i class="fas fa-redo"></i> Reset
-                    </button>
-                </div>
+            <div class="search-input">
+                <input type="search" 
+                       id="search" 
+                       class="form-control" 
+                       placeholder="Search..."
+                       aria-label="Search transactions">
             </div>
+            <button class="btn btn-primary" type="button" id="searchBtn">
+                <i class="fas fa-search"></i> Search
+                <span id="searchSpinner" class="spinner-border spinner-border-sm ml-2" style="display: none;"></span>
+            </button>
+            <button id="resetBtn" class="btn btn-secondary">
+                <i class="fas fa-redo"></i> Reset
+            </button>
         </div>
         
         <!-- Results Section -->
         <div id="result" class="alert" role="alert" style="display: none;"></div>
         
         <!-- Table Section -->
-        <div class="table-responsive" id="tableContainer" style="display: none;">
+        <div class="table-container" id="tableContainer">
             <table class="table table-hover" id="chequeTable">
                 <thead class="thead-light">
                     <tr>
-                <!--   <th data-column="SNO">S.No <span class="sort-icon"></span></th>  -->
                         <th data-column="NARRATION">Payee(s) Name and Address<span class="sort-icon"></span></th>
                         <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
                         <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
-                         <th data-column="NAR">In Care Of <span class="sort-icon"></span></th>
+                        <th data-column="NAR">In Care Of <span class="sort-icon"></span></th>
                         <th data-column="DD">Details Status<span class="sort-icon"></span></th>
-                <!--   <th data-column="BNO">BNO <span class="sort-icon"></span></th>
-                        <th data-column="PVN">PON <span class="sort-icon"></span></th> -->
                     </tr>
                 </thead>
                 <tbody id="checksTable"></tbody>
@@ -132,8 +257,9 @@
         
         <!-- Empty State -->
         <div class="empty-state" id="emptyState">
-            <i class="fas fa-search"></i>
+            <img src="https://via.placeholder.com/150" alt="No results">
             <p class="lead">Enter the name or school name to view search results</p>
+            <button class="btn btn-primary" onclick="resetTable()">Reset Search</button>
         </div>
     </div>
 
@@ -142,6 +268,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
     <script src="scripts/index.js"></script> 
-
 </body>
 </html>
