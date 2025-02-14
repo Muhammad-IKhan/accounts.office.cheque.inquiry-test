@@ -1,44 +1,42 @@
 class XMLTableHandler {
     constructor() {
-        // Initialize DOM elements
         this.tableBody = document.getElementById('checksTable');
         this.searchInput = document.getElementById('search');
         this.tableContainer = document.getElementById('tableContainer');
         this.emptyState = document.getElementById('emptyState');
         this.resultContainer = document.getElementById('result');
         
-        // Column configuration
         this.columns = {
-            // SNO: { index: 0, type: 'number' },
             NARRATION: { index: 0, type: 'string' },
             AMOUNT: { index: 1, type: 'number' },
             CHEQ_NO: { index: 2, type: 'number' },
             NAR: { index: 3, type: 'string' },
             DD: { index: 4, type: 'string' },
-            // BNO: { index: 5, type: 'number' },
-            // PVN: { index: 6, type: 'number' },
-            // XYZ: { index: 0, type: 'number' },
-        
         };
 
-        // Initialize event listeners
         this.initializeEventListeners();
     }
 
     initializeEventListeners() {
-        // Search input handler for Enter key
         this.searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.searchAndFilterXML();
-            }
+            if (e.key === 'Enter') this.searchAndFilterXML();
         });
 
-        // Search input handler for live updates
-        this.searchInput.addEventListener('input', () => {
+        this.searchInput.addEventListener('input', debounce(() => {
+            this.searchAndFilterXML();
+        }, 300));
+
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            document.getElementById('searchSpinner').style.display = 'inline-block';
             this.searchAndFilterXML();
         });
 
-        // Initialize sorting handlers for each column
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset the search?')) {
+                this.resetTable();
+            }
+        });
+
         Object.keys(this.columns).forEach(columnName => {
             const header = document.querySelector(`th[data-column="${columnName}"]`);
             if (header) {
@@ -249,7 +247,18 @@ class XMLTableHandler {
     }
 }
 
-// Initialize the handler when the DOM is ready
+}
+
+// Debounce function
+const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+};
+
+// Initialize the handler
 document.addEventListener('DOMContentLoaded', () => {
     const handler = new XMLTableHandler();
     handler.fetchXMLData().then(() => {
@@ -261,7 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         const swPath = '/accounts.office.cheque.inquiry/service-worker.js';
-        
         navigator.serviceWorker.register(swPath, {
             scope: '/accounts.office.cheque.inquiry/'
         })
@@ -273,3 +281,20 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
