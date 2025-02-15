@@ -43,13 +43,13 @@ class XMLTableHandler {
 
         this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                this.searchAndFilterXML();
+                this.search();
             }
         });
 
         this.searchInput.addEventListener('input', () => {
             if (this.enableLiveUpdate) {
-                this.searchAndFilterXML();
+                this.search();
             }
         });
     }
@@ -157,7 +157,7 @@ class XMLTableHandler {
         }
     }
 
-    searchAndFilterXML() {
+    search() {
         const searchTerm = this.searchInput.value.toLowerCase();
         if (!searchTerm) return this.resetTable();
         this.tableContainer.style.display = 'block';
