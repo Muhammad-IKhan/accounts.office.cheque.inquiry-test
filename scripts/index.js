@@ -28,7 +28,7 @@ class XMLTableHandler {
 
     initializeEventListeners() {
         // Search input handler for Enter key
-        this.searchInput.addEventListener('keypress', (e) => {
+        this.searchInput.addEventListener('Enter', (e) => {
             if (e.key === 'Enter') {
                 this.searchAndFilterXML();
             }
