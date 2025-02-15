@@ -299,7 +299,9 @@ createTableRow(element) {
     Object.keys(this.columns).forEach(field => {
         const cell = document.createElement('td');
         let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
-
+        
+          // Create a table cell with proper formatting
+         
         if (field === 'AMOUNT') {
             try {
                 value = parseFloat(value).toLocaleString('en-US');
@@ -313,18 +315,7 @@ createTableRow(element) {
         cell.setAttribute('data-field', field);
 
         if (field === 'DD') {
-            let ddValue = value.toLowerCase();
-            if (ddValue.includes('despatched through gpo')) {
-                cell.classList.add('status-orange');
-            } else if (ddValue.includes('ready but not signed yet') || ddValue.includes('cheque ready')) {
-                cell.classList.add('status-green');
-            } else if (ddValue.includes('despatched to lakki camp office')) {
-                cell.classList.add('status-red');
-            } else if (ddValue.includes('sent to chairman sb. for sign')) {
-                cell.classList.add('status-blue');
-            } else {
-                cell.classList.add('status-gray');
-            }
+            this.applyStatusStyles(cell, value);  // Use the separate function here
         }
 
         row.appendChild(cell);
@@ -333,27 +324,7 @@ createTableRow(element) {
     return row;
 }
     
-    /**
-     * Create a table cell with proper formatting
-     */
-    createTableCell(element, field) {
-        const cell = document.createElement('td');
-        let value = this.getElementContent(element, field);
-
-        if (field === 'AMOUNT') {
-            value = this.formatAmount(value);
-        }
-
-        cell.textContent = value;
-        cell.setAttribute('data-field', field);
-
-        if (field === 'DD') {
-            this.applyStatusStyles(cell, value);
-        }
-
-        return cell;
-    }
-
+    
     /**
      * Get and validate element content
      */
