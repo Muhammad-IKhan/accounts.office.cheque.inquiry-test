@@ -41,7 +41,7 @@ class XMLTableHandler {
     let tableReset = true; 
 
     // Reset table when Backspace is pressed and input is empty OR Reset table on first Backspace press, but allow normal text removal
-    this.searchInput.addEventListener(searchEvents., (e) => {
+    this.searchInput.addEventListener(searchEvents.tableReset, (e) => {
         if (e.key === 'Backspace') {
             console.log('Backspace pressed.');
             // Check if table reset has been done  OR Check if table reset has NOT been done yet
