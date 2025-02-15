@@ -1,321 +1,300 @@
-/**
- * XMLTableHandler Class
- * Manages XML data processing, table operations, filtering, and sorting functionality
- * Author: Muhammad-IKhan
- * Last Updated: 2025-02-15 16:47:29 UTC
- */
 class XMLTableHandler {
-    /**
-     * Initializes the XMLTableHandler with necessary DOM elements and configurations
-     * @constructor
-     */
     constructor() {
-        console.log('[XMLTableHandler] Initializing handler...', new Date().toISOString());
-        
-        // DOM Elements initialization
-        this.initializeDOMElements();
-        
-        // Column configuration with data types
-        this.initializeColumns();
-        
-        // Control flags
-        this.initializeFlags();
-        
-        // Set up event listeners
-        this.initializeEventListeners();
-        
-        console.log('[XMLTableHandler] Initialization complete');
-    }
-
-    /**
-     * Initializes all required DOM elements
-     * @private
-     */
-    initializeDOMElements() {
-        console.log('[XMLTableHandler] Setting up DOM elements...');
-        
+        // Initialize DOM elements
         this.tableBody = document.getElementById('checksTable');
         this.searchInput = document.getElementById('search');
         this.narFilter = document.getElementById('narCategory');
         this.tableContainer = document.getElementById('tableContainer');
         this.emptyState = document.getElementById('emptyState');
         this.resultContainer = document.getElementById('result');
-        
-        // Validate critical DOM elements
-        if (!this.tableBody || !this.searchInput || !this.narFilter) {
-            console.error('[XMLTableHandler] Critical DOM elements missing');
-            throw new Error('Required DOM elements not found');
+
+        // Check if DOM elements are found
+        if (!this.tableBody || !this.searchInput || !this.narFilter || !this.tableContainer || !this.emptyState || !this.resultContainer) {
+            console.error("One or more DOM elements are missing. Check your HTML structure.");
+            return;
         }
-    }
 
-    /**
-     * Initializes column definitions and their data types
-     * @private
-     */
-    initializeColumns() {
-        console.log('[XMLTableHandler] Configuring table columns...');
-        
+        // Define table columns and their types
         this.columns = {
-            NARRATION: { index: 0, type: 'string', sortable: true },
-            AMOUNT: { index: 1, type: 'number', sortable: true },
-            CHEQ_NO: { index: 2, type: 'number', sortable: true },
-            NAR: { index: 3, type: 'string', sortable: true },
-            DD: { index: 4, type: 'string', sortable: true }
+            NARRATION: { index: 0, type: 'string' },
+            AMOUNT: { index: 1, type: 'number' },
+            CHEQ_NO: { index: 2, type: 'number' },
+            NAR: { index: 3, type: 'string' },
+            DD: { index: 4, type: 'string' },
         };
-        
-        // Track current sort state
-        this.currentSortColumn = null;
-        this.sortDirection = 'asc';
+
+        // Flags for live updates and table reset behavior
+        this.enableLiveUpdate = false;
+        this.tableResetEnabled = true;
+        this.BackspaceDefault = true;
+
+        // Initialize event listeners
+        this.initializeEventListeners();
     }
 
-    /**
-     * Initializes control flags for table behavior
-     * @private
-     */
-    initializeFlags() {
-        this.enableLiveUpdate = false;  // Control live search updates
-        this.tableResetEnabled = true;  // Control table reset behavior
-        this.BackspaceDefault = true;   // Control backspace behavior
-        console.log('[XMLTableHandler] Control flags initialized');
-    }
-
-    /**
-     * Sets up all event listeners for table interactions
-     * @private
-     */
     initializeEventListeners() {
-        console.log('[XMLTableHandler] Setting up event listeners...');
+        console.log("Initializing event listeners...");
 
-        // Search input event handlers
-        this.setupSearchEvents();
-        
-        // NAR filter events
-        this.setupNarFilterEvents();
-        
-        // Table sorting events
-        this.setupSortingEvents();
-        
-        console.log('[XMLTableHandler] Event listeners setup complete');
-    }
-
-    /**
-     * Configures search input related events
-     * @private
-     */
-    setupSearchEvents() {
-        console.log('[XMLTableHandler] Configuring search events...');
-        
-        // Backspace handling
+        // Backspace handling for search input
         this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && this.tableResetEnabled) {
-                console.log('[Search] Backspace pressed');
-                this.handleBackspace();
+                let inputBefore = this.searchInput.value.trim();
+                setTimeout(() => {
+                    let inputAfter = this.searchInput.value.trim();
+                    if (this.BackspaceDefault && inputBefore.length > 1) {
+                        let caretPosition = this.searchInput.selectionStart;
+                        this.resetTable();
+                        this.searchInput.value = inputAfter;
+                        this.searchInput.setSelectionRange(caretPosition, caretPosition);
+                        this.BackspaceDefault = false;
+                    }
+                    if (inputAfter.length > 0) {
+                        this.BackspaceDefault = true;
+                    }
+                }, 0);
             }
             if (e.key === 'Enter') {
-                console.log('[Search] Enter key pressed, performing search');
+                console.log("Enter key pressed. Performing search...");
                 this.search();
             }
         });
 
-        // Live search handling
+        // Live search on input
         this.searchInput.addEventListener('input', () => {
             if (this.enableLiveUpdate) {
-                console.log('[Search] Live update triggered');
+                console.log("Input detected. Performing live search...");
                 this.search();
             }
         });
-    }
 
-    /**
-     * Handles backspace functionality in search
-     * @private
-     */
-    handleBackspace() {
-        let inputBefore = this.searchInput.value.trim();
-        setTimeout(() => {
-            let inputAfter = this.searchInput.value.trim();
-            console.log(`[Search] Backspace: Before="${inputBefore}", After="${inputAfter}"`);
-            
-            if (this.BackspaceDefault && inputBefore.length > 1) {
-                let caretPosition = this.searchInput.selectionStart;
-                this.resetTable();
-                this.searchInput.value = inputAfter;
-                this.searchInput.setSelectionRange(caretPosition, caretPosition);
-                this.BackspaceDefault = false;
-            }
-            if (inputAfter.length > 0) {
-                this.BackspaceDefault = true;
-            }
-        }, 0);
-    }
-
-    /**
-     * Sets up NAR category filter events
-     * @private
-     */
-    setupNarFilterEvents() {
+        // Filter by NAR category
         this.narFilter.addEventListener('change', () => {
-            const selectedCategory = this.narFilter.value;
-            console.log(`[Filter] NAR category changed to: ${selectedCategory}`);
+            console.log("NAR category changed. Applying filter...");
             this.filterByNar();
             this.search(); // Reapply search after filtering
         });
-    }
 
-    /**
-     * Sets up table column sorting events
-     * @private
-     */
-    setupSortingEvents() {
+        // Add sorting event listeners to table headers
         const headers = this.tableBody.querySelectorAll('th');
-        headers.forEach((header, index) => {
-            const columnKey = Object.keys(this.columns)[index];
-            console.log(`[Sort] Setting up sort listener for column: ${columnKey}`);
-            
-            header.addEventListener('click', () => {
-                console.log(`[Sort] Sorting by ${columnKey}`);
-                this.sortTable(index);
+        if (headers.length > 0) {
+            headers.forEach((header, index) => {
+                header.addEventListener('click', () => {
+                    console.log(`Sorting by column index: ${index}`);
+                    this.sortTable(index);
+                });
             });
-        });
+        } else {
+            console.error("No table headers found. Check your HTML structure.");
+        }
     }
 
-    /**
-     * Performs the search operation based on current input and filters
-     * @public
-     */
+    async fetchXMLData() {
+        console.log("Fetching XML data...");
+        try {
+            // Fetch list of XML files
+            const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
+            if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
+            const xmlFiles = await filesResponse.json();
+            console.log("Fetched XML file list:", xmlFiles);
+
+            // Combine XML data from all files
+            let combinedXMLData = '<root>';
+            for (const file of xmlFiles) {
+                const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
+                if (!fileResponse.ok) throw new Error(`Error fetching ${file}`);
+                combinedXMLData += await fileResponse.text();
+            }
+            combinedXMLData += '</root>';
+
+            // Store combined XML data in localStorage
+            localStorage.setItem('xmlData', combinedXMLData);
+            this.xmlData = combinedXMLData;
+            console.log("XML data fetched and stored successfully.");
+
+            // Parse and display the table
+            return this.parseXMLToTable(combinedXMLData);
+        } catch (error) {
+            console.error('Error fetching XML:', error);
+            const storedXML = localStorage.getItem('xmlData');
+            if (storedXML) {
+                console.log("Using cached XML data from localStorage.");
+                return this.parseXMLToTable(storedXML);
+            }
+            this.showError('Failed to load XML data');
+            return false;
+        }
+    }
+
+    parseXMLToTable(xmlString = null) {
+        console.log("Parsing XML data...");
+        try {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString || this.xmlData, "text/xml");
+
+            // Check for XML parsing errors
+            if (xmlDoc.querySelector('parsererror')) {
+                throw new Error('XML parsing error');
+            }
+
+            // Get all <G_PVN> elements
+            const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
+            if (!gPvnElements || gPvnElements.length === 0) {
+                throw new Error('No <G_PVN> elements found in XML data.');
+            }
+
+            // Clear existing table rows
+            this.tableBody.innerHTML = '';
+
+            // Create and append rows for each <G_PVN> element
+            Array.from(gPvnElements).forEach((element) => {
+                const row = this.createTableRow(element);
+                this.tableBody.appendChild(row);
+            });
+
+            console.log("XML data successfully parsed and displayed.");
+            this.tableContainer.style.display = 'block';
+            this.emptyState.style.display = 'none';
+            return true;
+        } catch (error) {
+            console.error('Error in parseXMLToTable:', error);
+            this.showError('Failed to parse XML data');
+            return false;
+        }
+    }
+
+    createTableRow(element) {
+        console.log("Creating table row...");
+        const row = document.createElement('tr');
+        let narValue = element.getElementsByTagName('NAR')[0]?.textContent?.trim() || '';
+        row.setAttribute('data-nar', narValue.toLowerCase());
+
+        // Create cells for each column
+        Object.keys(this.columns).forEach(field => {
+            const cell = document.createElement('td');
+            let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+
+            // Format AMOUNT as a number
+            if (field === 'AMOUNT') {
+                try {
+                    value = parseFloat(value).toLocaleString('en-US');
+                } catch (error) {
+                    console.warn(`Invalid amount value: ${value}`);
+                    value = '0';
+                }
+            }
+
+            cell.textContent = value;
+            cell.setAttribute('data-field', field);
+
+            // Apply status colors based on DD field
+            if (field === 'DD') {
+                let ddValue = value.toLowerCase();
+                if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
+                    cell.classList.add('status-orange');
+                } else if (ddValue.includes('ready but not signed yet') || ddValue.includes('cheque ready')) {
+                    cell.classList.add('status-green');
+                } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
+                    cell.classList.add('status-red');
+                } else if (ddValue.includes('sent to chairman sb. for sign')) {
+                    cell.classList.add('status-blue');
+                } else {
+                    cell.classList.add('status-gray');
+                }
+            }
+
+            row.appendChild(cell);
+        });
+
+        return row;
+    }
+
     search() {
         const searchTerm = this.searchInput.value.toLowerCase();
         const selectedCategory = this.narFilter.value.toLowerCase();
-        console.log(`[Search] Term="${searchTerm}", Category="${selectedCategory}"`);
+        console.log(`Searching for "${searchTerm}" in category "${selectedCategory}"...`);
 
         let matchCount = 0;
-        const rows = this.tableBody.querySelectorAll('tr');
-        
-        rows.forEach(row => {
+        this.tableBody.querySelectorAll('tr').forEach(row => {
             const narValue = row.getAttribute('data-nar');
-            
-            // Category filtering
-            const matchesCategory = selectedCategory === "all" || 
-                                  (narValue && narValue.includes(selectedCategory));
-            
-            // Search term filtering
+            const matchesCategory = selectedCategory === "all" || narValue.includes(selectedCategory);
             const matchesSearch = Array.from(row.getElementsByTagName('td'))
                 .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
 
-            // Combined visibility check
-            const isVisible = matchesCategory && matchesSearch;
-            row.style.display = isVisible ? '' : 'none';
-            
-            if (isVisible) matchCount++;
+            row.style.display = matchesCategory && matchesSearch ? '' : 'none';
+            if (matchesCategory && matchesSearch) matchCount++;
         });
 
-        console.log(`[Search] Found ${matchCount} matches`);
         this.updateSearchResults(searchTerm, matchCount);
     }
 
-    /**
-     * Sorts the table by specified column
-     * @param {number} columnIndex - The index of the column to sort by
-     * @public
-     */
+    filterByNar() {
+        const selectedCategory = this.narFilter.value.toLowerCase();
+        console.log(`Filtering by NAR category: ${selectedCategory}`);
+        this.tableBody.querySelectorAll('tr').forEach(row => {
+            const narValue = row.getAttribute('data-nar');
+            row.style.display = (selectedCategory === "all" || narValue.includes(selectedCategory)) ? '' : 'none';
+        });
+    }
+
     sortTable(columnIndex) {
-        const columnKey = Object.keys(this.columns)[columnIndex];
-        console.log(`[Sort] Sorting by ${columnKey}`);
-
-        // Toggle sort direction if same column
-        if (this.currentSortColumn === columnIndex) {
-            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-        } else {
-            this.currentSortColumn = columnIndex;
-            this.sortDirection = 'asc';
-        }
-
+        console.log(`Sorting table by column index: ${columnIndex}`);
         const rows = Array.from(this.tableBody.querySelectorAll('tr'));
+        const columnKey = Object.keys(this.columns)[columnIndex];
         const columnType = this.columns[columnKey].type;
 
         rows.sort((a, b) => {
-            const aValue = a.querySelectorAll('td')[columnIndex]?.textContent.trim() || '';
-            const bValue = b.querySelectorAll('td')[columnIndex]?.textContent.trim() || '';
+            const aValue = a.querySelectorAll('td')[columnIndex].textContent.trim();
+            const bValue = b.querySelectorAll('td')[columnIndex].textContent.trim();
 
-            let comparison = 0;
             if (columnType === 'number') {
-                const aNum = parseFloat(aValue.replace(/,/g, '')) || 0;
-                const bNum = parseFloat(bValue.replace(/,/g, '')) || 0;
-                comparison = aNum - bNum;
+                return parseFloat(aValue) - parseFloat(bValue);
             } else {
-                comparison = aValue.localeCompare(bValue);
+                return aValue.localeCompare(bValue);
             }
-
-            return this.sortDirection === 'asc' ? comparison : -comparison;
         });
 
-        // Update table with sorted rows
+        // Clear and re-append sorted rows
         this.tableBody.innerHTML = '';
         rows.forEach(row => this.tableBody.appendChild(row));
-        
-        console.log(`[Sort] Table sorted ${this.sortDirection} by ${columnKey}`);
-        this.updateSortIndicators(columnIndex);
+        console.log("Table sorted successfully.");
     }
 
-    /**
-     * Updates visual indicators for sort state
-     * @param {number} columnIndex - The index of the sorted column
-     * @private
-     */
-    updateSortIndicators(columnIndex) {
-        const headers = this.tableBody.querySelectorAll('th');
-        headers.forEach((header, index) => {
-            header.classList.remove('sort-asc', 'sort-desc');
-            if (index === columnIndex) {
-                header.classList.add(`sort-${this.sortDirection}`);
-            }
-        });
-    }
-
-    /**
-     * Resets the table to its initial state
-     * @public
-     */
     resetTable() {
-        console.log('[Table] Resetting table state');
+        console.log("Resetting table...");
         this.searchInput.value = '';
         this.narFilter.value = 'all';
         this.tableContainer.style.display = 'none';
         this.emptyState.style.display = 'block';
         this.resultContainer.style.display = 'none';
-        
-        const rows = this.tableBody.querySelectorAll('tr');
-        rows.forEach(row => row.style.display = '');
-        
-        console.log('[Table] Table reset complete');
+        this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
+    }
+
+    updateSearchResults(searchTerm, matchCount) {
+        console.log(`Updating search results. Found ${matchCount} matches.`);
+        this.resultContainer.innerHTML = matchCount > 0
+            ? `Found ${matchCount} results for "${searchTerm}"`
+            : 'No results found.';
+    }
+
+    showError(message) {
+        console.error(`Error: ${message}`);
+        this.resultContainer.innerHTML = message;
+        this.resultContainer.style.display = 'block';
     }
 }
 
-// Initialize the handler when DOM is loaded
+// Initialize the handler when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('[Init] DOM loaded, initializing XMLTableHandler');
+    console.log("DOM fully loaded. Initializing XMLTableHandler...");
     const handler = new XMLTableHandler();
-    handler.fetchXMLData()
-        .then(() => {
-            console.log('[Init] XML data loaded successfully');
-            handler.resetTable();
-        })
-        .catch(error => {
-            console.error('[Init] Failed to load XML data:', error);
-        });
+    handler.fetchXMLData().then(() => handler.resetTable());
 });
 
-// Register service worker
+// Register service worker for offline capabilities
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', {
-            scope: '/accounts.office.cheque.inquiry/'
-        })
-        .then(registration => {
-            console.log('[ServiceWorker] Registered successfully:', registration.scope);
-        })
-        .catch(error => {
-            console.error('[ServiceWorker] Registration failed:', error);
-        });
+        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
+        .then(registration => console.log('ServiceWorker registered:', registration.scope))
+        .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
