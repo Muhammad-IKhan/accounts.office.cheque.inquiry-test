@@ -83,18 +83,45 @@ class XMLTableHandler {
     }
 
     createTableRow(element) {
-        const row = document.createElement('tr');
-        Object.keys(this.columns).forEach(field => {
-            const cell = document.createElement('td');
-            let value = element.getElementsByTagName(field)[0]?.textContent.trim() || '';
-            if (field === 'AMOUNT') {
-                value = parseFloat(value) ? parseFloat(value).toLocaleString('en-US') : '0';
+    const row = document.createElement('tr');
+
+    // Create and populate table cells for each column
+    Object.keys(this.columns).forEach(field => {
+        const cell = document.createElement('td');
+        let value = element.getElementsByTagName(field)[0]?.textContent.trim() || '';
+
+        // Format the AMOUNT field as a number
+        if (field === 'AMOUNT') {
+            try {
+                value = parseFloat(value).toLocaleString('en-US');
+            } catch (error) {
+                console.warn(`Invalid amount value: ${value}`);
+                value = '0';
             }
-            cell.textContent = value;
-            row.appendChild(cell);
-        });
-        return row;
+        }
+
+        cell.textContent = value;
+        cell.setAttribute('data-field', field);
+        row.appendChild(cell);
+    });
+
+    // **Apply Colors Based on Status (`DD` field)**
+    let ddValue = element.getElementsByTagName('DD')[0]?.textContent.trim().toLowerCase();
+    
+    if (ddValue.includes('Cheque Ready')) {
+        row.classList.add('status-green');  // ✅ Green for "Ready"
+    } else if (ddValue.includes('pending')) {
+        row.classList.add('Sent to Chairman Sb. for Sign');    // ❌ Red for "Pending"
+    } else if (ddValue.includes('signed')) {
+        row.classList.add('Ready but not signed yet');   // 🔵 Blue for "Signed"
+    } else {
+        row.classList.add('Despatched to Lakki Camp Office ( Aziz Ullah API #03159853076 ) on 27/01/25');   // ⚪ Gray for unknown status
     }
+
+    return row;
+}
+
+    
 
     async fetchXMLData() {
         try {
