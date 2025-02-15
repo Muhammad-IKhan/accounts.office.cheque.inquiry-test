@@ -2,12 +2,10 @@ class XMLTableHandler {
     constructor() {
         this.tableBody = document.getElementById('checksTable');
         this.searchInput = document.getElementById('search');
+        this.narFilter = document.getElementById('narCategory');
         this.tableContainer = document.getElementById('tableContainer');
         this.emptyState = document.getElementById('emptyState');
         this.resultContainer = document.getElementById('result');
-        this.narFilter = document.getElementById('narCategory');
-        this.tableHeaders = document.querySelectorAll('#checksTable th');
-        
         this.columns = {
             NARRATION: { index: 0, type: 'string' },
             AMOUNT: { index: 1, type: 'number' },
@@ -15,16 +13,17 @@ class XMLTableHandler {
             NAR: { index: 3, type: 'string' },
             DD: { index: 4, type: 'string' },
         };
-
         this.enableLiveUpdate = false;
         this.tableResetEnabled = true;
         this.BackspaceDefault = true;
-        this.sortDirection = {};
-
+        this.sortColumn = null;
+        this.sortOrder = 'asc';
+        this.isResetting = false; // Prevent recursion between resetTable and search
         this.initializeEventListeners();
     }
 
     initializeEventListeners() {
+        // Backspace key handling for table reset
         this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && this.tableResetEnabled) {
                 let inputBefore = this.searchInput.value.trim();
@@ -42,48 +41,46 @@ class XMLTableHandler {
                     }
                 }, 0);
             }
-        });
-
-        this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 this.search();
             }
         });
 
+        // Live update on input change
         this.searchInput.addEventListener('input', () => {
             if (this.enableLiveUpdate) {
                 this.search();
             }
         });
 
-        this.narFilter.addEventListener('change', () => {
-            this.filterByNar();
-        });
+        // Filter by NAR category
+        this.narFilter.addEventListener('change', () => this.filterByNar());
 
-        // Add sorting event listeners
-        this.tableHeaders.forEach((header, index) => {
-            header.addEventListener('click', () => this.sortTable(index));
+        // Sort table by column header click
+        const tableHeaderCells = this.tableBody.querySelectorAll('th');
+        tableHeaderCells.forEach(headerCell => {
+            headerCell.addEventListener('click', () => {
+                const columnName = headerCell.getAttribute('data-field');
+                if (columnName) {
+                    this.sortTable(columnName);
+                }
+            });
         });
     }
 
     async fetchXMLData() {
         try {
-            console.log("Fetching XML data...");
             const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
             if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
             const xmlFiles = await filesResponse.json();
-
-            let combinedXMLData = '<root>';
+            let combinedXMLData = '';
             for (const file of xmlFiles) {
                 const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 combinedXMLData += await fileResponse.text();
             }
-            combinedXMLData += '</root>';
-
             localStorage.setItem('xmlData', combinedXMLData);
             this.xmlData = combinedXMLData;
-            console.log("XML data fetched and stored successfully.");
             return this.parseXMLToTable(combinedXMLData);
         } catch (error) {
             console.error('Error fetching XML:', error);
@@ -94,27 +91,24 @@ class XMLTableHandler {
         }
     }
 
-    parseXMLToTable(xmlString) {
+    parseXMLToTable(xmlString = null) {
         try {
-            console.log("Parsing XML data...");
             const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+            const xmlDoc = parser.parseFromString(xmlString || this.xmlData, "text/xml");
             if (xmlDoc.querySelector('parsererror')) {
+                const parserError = xmlDoc.querySelector('parsererror');
+                console.error("XML Parsing Error:", parserError.textContent);
                 throw new Error('XML parsing error');
             }
-
             const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
-            if (!this.tableBody) {
-                throw new Error('Table body element not found');
-            }
-
+            if (!this.tableBody) throw new Error('Table body element not found');
             this.tableBody.innerHTML = '';
             Array.from(gPvnElements).forEach((element) => {
                 const row = this.createTableRow(element);
                 this.tableBody.appendChild(row);
             });
-            console.log("XML Data successfully parsed and displayed.");
-
+            this.tableContainer.style.display = 'block';
+            this.emptyState.style.display = 'none';
             return true;
         } catch (error) {
             console.error('Error in parseXMLToTable:', error);
@@ -123,46 +117,131 @@ class XMLTableHandler {
         }
     }
 
+    createTableRow(element) {
+        const row = document.createElement('tr');
+        let narValue = element.getElementsByTagName('NAR')[0]?.textContent?.trim() || '';
+        row.setAttribute('data-nar', narValue.toLowerCase());
+        Object.keys(this.columns).forEach(field => {
+            const cell = document.createElement('td');
+            let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+            if (field === 'AMOUNT') {
+                try {
+                    value = parseFloat(value).toLocaleString('en-US');
+                } catch (error) {
+                    console.warn(`Invalid amount value: ${value}`, error);
+                    value = '0';
+                }
+            }
+            cell.textContent = value;
+            cell.setAttribute('data-field', field);
+            if (field === 'DD') {
+                let ddValue = value.toLowerCase();
+                if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
+                    cell.classList.add('status-orange');
+                } else if (ddValue.includes('ready but not signed yet') || ddValue.includes('cheque ready')) {
+                    cell.classList.add('status-green');
+                } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
+                    cell.classList.add('status-red');
+                } else if (ddValue.includes('sent to chairman sb. for sign')) {
+                    cell.classList.add('status-blue');
+                } else {
+                    cell.classList.add('status-gray');
+                }
+            }
+            row.appendChild(cell);
+        });
+        return row; // Return the created row
+    }
+
     search() {
         const searchTerm = this.searchInput.value.toLowerCase();
-        if (!searchTerm) return this.resetTable();
-
+        console.log("Searching for:", searchTerm);
+        if (!searchTerm) {
+            this.resetTable();
+            return;
+        }
+        this.tableContainer.style.display = 'block';
+        this.emptyState.style.display = 'none';
+        this.resultContainer.style.display = 'block';
         let matchCount = 0;
         this.tableBody.querySelectorAll('tr').forEach(row => {
-            const narrationCell = row.cells[0];
-            const matchesSearch = narrationCell.textContent.toLowerCase().includes(searchTerm);
-            row.style.display = matchesSearch ? '' : 'none';
-            if (matchesSearch) matchCount++;
+            const matchesSearch = Array.from(row.getElementsByTagName('td')).some(
+                cell => cell.textContent.toLowerCase().includes(searchTerm)
+            );
+            const selectedCategory = this.narFilter.value.toLowerCase();
+            const narValue = row.getAttribute('data-nar');
+            const isVisibleByFilter = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
+            const isVisible = matchesSearch && isVisibleByFilter;
+            row.style.display = isVisible ? '' : 'none';
+            if (isVisible) {
+                matchCount++;
+            }
         });
-
         this.updateSearchResults(searchTerm, matchCount);
     }
 
-    sortTable(columnIndex) {
-        const rows = Array.from(this.tableBody.querySelectorAll('tr'));
-        const type = this.columns[Object.keys(this.columns)[columnIndex]].type;
-        const direction = this.sortDirection[columnIndex] = !this.sortDirection[columnIndex];
-
-        rows.sort((a, b) => {
-            let aValue = a.cells[columnIndex].textContent.trim();
-            let bValue = b.cells[columnIndex].textContent.trim();
-
-            if (type === 'number') {
-                aValue = parseFloat(aValue.replace(/,/g, '')) || 0;
-                bValue = parseFloat(bValue.replace(/,/g, '')) || 0;
+    filterByNar() {
+        const selectedCategory = this.narFilter.value.toLowerCase();
+        console.log("Filtering by NAR:", selectedCategory);
+        const searchTerm = this.searchInput.value.toLowerCase();
+        this.tableBody.querySelectorAll('tr').forEach(row => {
+            const narValue = row.getAttribute('data-nar');
+            const isVisibleByFilter = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
+            let isVisibleBySearch = true;
+            if (searchTerm) {
+                isVisibleBySearch = Array.from(row.getElementsByTagName('td')).some(
+                    cell => cell.textContent.toLowerCase().includes(searchTerm)
+                );
             }
-
-            return direction ? aValue.localeCompare(bValue, undefined, { numeric: true }) : bValue.localeCompare(aValue, undefined, { numeric: true });
+            const isVisible = isVisibleByFilter && isVisibleBySearch;
+            row.style.display = isVisible ? '' : 'none';
+            console.log(`Row with NAR: ${narValue} is ${isVisible ? 'visible' : 'hidden'} after filtering`);
         });
+    }
 
+    sortTable(columnName) {
+        console.log("Sorting by:", columnName);
+        if (this.sortColumn === columnName) {
+            this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            this.sortColumn = columnName;
+            this.sortOrder = 'asc';
+        }
+        const rows = Array.from(this.tableBody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const aValue = a.querySelector(`td[data-field="${columnName}"]`)?.textContent?.trim() || '';
+            const bValue = b.querySelector(`td[data-field="${columnName}"]`)?.textContent?.trim() || '';
+            let comparison = 0;
+            if (this.columns[columnName]?.type === 'number') {
+                const numA = parseFloat(aValue) || 0;
+                const numB = parseFloat(bValue) || 0;
+                comparison = numA - numB;
+            } else {
+                comparison = aValue.localeCompare(bValue);
+            }
+            return this.sortOrder === 'asc' ? comparison : -comparison;
+        });
         this.tableBody.innerHTML = '';
         rows.forEach(row => this.tableBody.appendChild(row));
+        console.log("Sorting complete.");
     }
 
     resetTable() {
+        if (this.isResetting) return; // Prevent recursion
+        this.isResetting = true;
+
         this.searchInput.value = '';
         this.narFilter.value = 'all';
+        this.tableContainer.style.display = 'block'; // Ensure table is visible
+        this.emptyState.style.display = 'none';
+        this.resultContainer.style.display = 'none';
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
+        this.sortColumn = null;
+        this.sortOrder = 'asc';
+
+        this.search(); // Call search with empty string to show all
+
+        this.isResetting = false; // Reset the flag
     }
 
     updateSearchResults(searchTerm, matchCount) {
@@ -170,10 +249,22 @@ class XMLTableHandler {
             ? `Found ${matchCount} results for "${searchTerm}"`
             : 'No results found.';
     }
+
+    showError(message) {
+        this.resultContainer.innerHTML = message;
+        this.resultContainer.style.display = 'block';
+    }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     const handler = new XMLTableHandler();
-    const dataLoaded = await handler.fetchXMLData();
-    if (dataLoaded) handler.resetTable();
+    handler.fetchXMLData().then(() => handler.resetTable());
 });
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
+            .then(registration => console.log('ServiceWorker registered:', registration.scope))
+            .catch(err => console.error('ServiceWorker registration failed:', err));
+    });
+}
