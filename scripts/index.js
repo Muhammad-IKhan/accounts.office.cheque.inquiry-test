@@ -103,26 +103,22 @@ class XMLTableHandler {
     }
     
     /**
-     * Filters rows based on the selected <NAR> category.
+     * Filters rows based on the selected <NAR> category, including grouped categories.
      */
     filterByNar() {
         const category = this.narFilter.value.toLowerCase();
-        console.log(`Filtering by category: ${category}`);
-        
         this.tableBody.querySelectorAll('tr').forEach(row => {
-            const categoryText = row.getAttribute('data-nar');
-            const matches = categoryText.includes(category);
+            let categoryText = row.querySelector('[data-column="NAR"]').textContent.toLowerCase();
+            let isVisible = false;
             
-            // Special handling for "SUPERVISORY STAFF EXAM"
             if (category === "supervisory staff exam") {
-                if (categoryText.includes("supervisory staff ssc exam") || categoryText.includes("supervisory staff hssc exam")) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
+                isVisible = categoryText.includes("supervisory staff ssc exam") || categoryText.includes("supervisory staff hssc exam");
+            } else if (category === "ta/da to supervisory staff ssc exam:" || category === "ta/da to supervisory staff hssc exam:") {
+                isVisible = categoryText.includes("ta/da to supervisory staff ssc exam:") || categoryText.includes("ta/da to supervisory staff hssc exam:");
             } else {
-                row.style.display = category === "all" || matches ? "" : "none";
+                isVisible = categoryText.includes(category);
             }
+            row.style.display = isVisible ? "" : "none";
         });
     }
     
@@ -131,7 +127,6 @@ class XMLTableHandler {
      */
     search() {
         const searchTerm = this.searchInput.value.toLowerCase();
-        console.log(`Searching for: ${searchTerm}`);
         if (!searchTerm) return this.resetTable();
         
         this.tableBody.querySelectorAll('tr').forEach(row => {
@@ -144,7 +139,6 @@ class XMLTableHandler {
      * Resets the table to show all rows.
      */
     resetTable() {
-        console.log("Resetting table...");
         this.searchInput.value = '';
         this.narFilter.value = 'all';
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
