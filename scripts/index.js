@@ -68,7 +68,7 @@ class XMLTableHandler {
             } else {
                 console.log(`[BACKSPACE] Input is empty, keeping reset flag.`);
             }
-        }, 0);
+        }, 2000);
     }
 });
 
