@@ -1,5 +1,5 @@
 class XMLTableHandler {
-     constructor() {
+    constructor() {
         this.tableBody = document.getElementById('checksTable');
         this.searchInput = document.getElementById('search');
         this.narFilter = document.getElementById('narCategory');
@@ -55,7 +55,6 @@ class XMLTableHandler {
 
         this.narFilter.addEventListener('change', () => this.filterByNar());
 
-        // Sorting event listeners
         const tableHeaderCells = this.tableBody.querySelectorAll('th');
         tableHeaderCells.forEach(headerCell => {
             headerCell.addEventListener('click', () => {
@@ -69,12 +68,12 @@ class XMLTableHandler {
 
     async fetchXMLData() {
         try {
-            const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json'); // Correct path
+            const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
             if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
             const xmlFiles = await filesResponse.json();
             let combinedXMLData = '<root>';
             for (const file of xmlFiles) {
-                const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`); // Correct path
+                const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 combinedXMLData += await fileResponse.text();
             }
@@ -97,7 +96,7 @@ class XMLTableHandler {
             const xmlDoc = parser.parseFromString(xmlString || this.xmlData, "text/xml");
             if (xmlDoc.querySelector('parsererror')) {
                 const parserError = xmlDoc.querySelector('parsererror');
-                console.error("XML Parsing Error:", parserError.textContent); // Log detailed error
+                console.error("XML Parsing Error:", parserError.textContent);
                 throw new Error('XML parsing error');
             }
 
@@ -133,7 +132,7 @@ class XMLTableHandler {
                 try {
                     value = parseFloat(value).toLocaleString('en-US');
                 } catch (error) {
-                    console.warn(`Invalid amount value: ${value}`, error); // Include the error object
+                    console.warn(`Invalid amount value: ${value}`, error);
                     value = '0';
                 }
             }
@@ -143,22 +142,28 @@ class XMLTableHandler {
 
             if (field === 'DD') {
                 let ddValue = value.toLowerCase();
-                // ... (Existing DD status styling code)
+                if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
+                    cell.classList.add('status-orange');
+                } else if (ddValue.includes('ready but not signed yet') || ddValue.includes('cheque ready')) {
+                    cell.classList.add('status-green');
+                } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
+                    cell.classList.add('status-red');
+                } else if (ddValue.includes('sent to chairman sb. for sign')) {
+                    cell.classList.add('status-blue');
+                } else {
+                    cell.classList.add('status-gray');
+                }
             }
 
             row.appendChild(cell);
-        });
-
-        return row;
     }
-    
+
     search() {
         const searchTerm = this.searchInput.value.toLowerCase();
-        console.log("Searching for:", searchTerm); // Log the search term
+        console.log("Searching for:", searchTerm);
 
-        // If search is empty, show all rows and reset the table
         if (!searchTerm) {
-            this.resetTable();  // Call resetTable to show all rows and clear search state
+            this.resetTable();
             return;
         }
 
@@ -171,12 +176,11 @@ class XMLTableHandler {
             const matchesSearch = Array.from(row.getElementsByTagName('td'))
                 .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
 
-            // Apply both search and filter
             const selectedCategory = this.narFilter.value.toLowerCase();
             const narValue = row.getAttribute('data-nar');
             const isVisibleByFilter = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
 
-            const isVisible = matchesSearch && isVisibleByFilter; // Both conditions must be true
+            const isVisible = matchesSearch && isVisibleByFilter;
             row.style.display = isVisible ? '' : 'none';
 
             if (isVisible) {
@@ -187,61 +191,28 @@ class XMLTableHandler {
         this.updateSearchResults(searchTerm, matchCount);
     }
 
-
-
     filterByNar() {
         const selectedCategory = this.narFilter.value.toLowerCase();
         console.log("Filtering by NAR:", selectedCategory);
 
-        const searchTerm = this.searchInput.value.toLowerCase(); // Get current search term
+        const searchTerm = this.searchInput.value.toLowerCase();
 
         this.tableBody.querySelectorAll('tr').forEach(row => {
             const narValue = row.getAttribute('data-nar');
             const isVisibleByFilter = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
 
-            let isVisibleBySearch = true; // Default to true if no search term
+            let isVisibleBySearch = true;
 
             if (searchTerm) {
                 isVisibleBySearch = Array.from(row.getElementsByTagName('td'))
                     .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
             }
 
-            const isVisible = isVisibleByFilter && isVisibleBySearch; // Combine filter and search
+            const isVisible = isVisibleByFilter && isVisibleBySearch;
             row.style.display = isVisible ? '' : 'none';
             console.log(`Row with NAR: ${narValue} is ${isVisible ? 'visible' : 'hidden'} after filtering`);
         });
     }
-
-
-    resetTable() {
-        this.searchInput.value = '';
-        this.narFilter.value = 'all';
-        this.tableContainer.style.display = 'none';
-        this.emptyState.style.display = 'block';
-        this.resultContainer.style.display = 'none';
-        this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
-        this.sortColumn = null;
-        this.sortOrder = 'asc';
-
-        // Crucial: Clear any previous search state
-        this.search(); // Call search with empty string to show all
-    }
-
-}
-
-
-
-    // filterByNar() {
-    //     const selectedCategory = this.narFilter.value.toLowerCase();
-    //     console.log("Selected NAR Category:", selectedCategory);
-
-    //     this.tableBody.querySelectorAll('tr').forEach(row => {
-    //         const narValue = row.getAttribute('data-nar');
-    //         const isVisible = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
-    //         row.style.display = isVisible ? '' : 'none';
-    //         console.log(`Row with NAR: ${narValue} is ${isVisible ? 'visible' : 'hidden'}`);
-    //     });
-    // }
 
     sortTable(columnName) {
         console.log("Sorting by:", columnName);
@@ -272,36 +243,11 @@ class XMLTableHandler {
             return this.sortOrder === 'asc' ? comparison : -comparison;
         });
 
-        this.tableBody.innerHTML = ''; // Clear the table body before adding sorted rows
+        this.tableBody.innerHTML = '';
         rows.forEach(row => this.tableBody.appendChild(row));
 
         console.log("Sorting complete.");
     }
-
-
-filterByNar() {
-        const selectedCategory = this.narFilter.value.toLowerCase();
-        console.log("Filtering by NAR:", selectedCategory);
-
-        const searchTerm = this.searchInput.value.toLowerCase(); // Get current search term
-
-        this.tableBody.querySelectorAll('tr').forEach(row => {
-            const narValue = row.getAttribute('data-nar');
-            const isVisibleByFilter = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
-
-            let isVisibleBySearch = true; // Default to true if no search term
-
-            if (searchTerm) {
-                isVisibleBySearch = Array.from(row.getElementsByTagName('td'))
-                    .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
-            }
-
-            const isVisible = isVisibleByFilter && isVisibleBySearch; // Combine filter and search
-            row.style.display = isVisible ? '' : 'none';
-            console.log(`Row with NAR: ${narValue} is ${isVisible ? 'visible' : 'hidden'} after filtering`);
-        });
-    }
-
 
     resetTable() {
         this.searchInput.value = '';
@@ -312,23 +258,8 @@ filterByNar() {
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
         this.sortColumn = null;
         this.sortOrder = 'asc';
-
-        // Crucial: Clear any previous search state
         this.search(); // Call search with empty string to show all
     }
-
-
-
-    // resetTable() {
-    //     this.searchInput.value = '';
-    //     this.narFilter.value = 'all';
-    //     this.tableContainer.style.display = 'none';
-    //     this.emptyState.style.display = 'block';
-    //     this.resultContainer.style.display = 'none';
-    //     this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = ''); // Show all rows
-    //     this.sortColumn = null; // Reset sort column
-    //     this.sortOrder = 'asc'; // Reset sort order
-    // }
 
     updateSearchResults(searchTerm, matchCount) {
         this.resultContainer.innerHTML = matchCount > 0
@@ -349,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' }) // Correct path
+        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
             .then(registration => console.log('ServiceWorker registered:', registration.scope))
             .catch(err => console.error('ServiceWorker registration failed:', err));
     });
