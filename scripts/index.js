@@ -33,6 +33,14 @@ class XMLTableHandler {
         liveUpdate: 'input' // Live update event
     };
 
+    // Reset table when Backspace is pressed and input is empty
+    this.searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && this.searchInput.value.trim() === '') {
+            this.resetTable();
+        }
+    });
+    
+
     // Flag to enable or disable live updates
     let enableLiveUpdate = false; // Set to `true` to enable live updates, `false` to disable
 
