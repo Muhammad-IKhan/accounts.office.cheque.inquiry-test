@@ -27,34 +27,50 @@ class XMLTableHandler {
     }
 
     initializeEventListeners() {
-            // Define event configurations for search input
-            const searchEvents = {
-                enter: 'keydown', // Change this to 'keypress' if needed
-                liveUpdate: 'input' // Live update event
-            };
-        
-            // Search input handler for Enter key (can change the event here)
-            this.searchInput.addEventListener(searchEvents.enter, (e) => {
-                if (e.key === 'Enter') {
-                    this.searchAndFilterXML();
-                }
-            });
-        
-        
-            // Search input handler for live updates (this stays the same)
-            this.searchInput.addEventListener(searchEvents.liveUpdate, () => {
-                e.preventDefault();
-            });
-        
-        
-            // Initialize sorting handlers for each column
-            Object.keys(this.columns).forEach(columnName => {
-                const header = document.querySelector(`th[data-column="${columnName}"]`);
-                if (header) {
-                    header.addEventListener('click', () => this.sortTable(columnName));
-                }
-            });
+    // Define event configurations for search input
+    const searchEvents = {
+        enter: 'keydown', // Change this to 'keypress' if needed
+        liveUpdate: 'input' // Live update event
+    };
+
+    // Flag to enable or disable live updates
+    let enableLiveUpdate = false; // Set to `true` to enable live updates, `false` to disable
+
+    // Search input handler for Enter key (can change the event here)
+    this.searchInput.addEventListener(searchEvents.enter, (e) => {
+        if (e.key === 'Enter') {
+            this.searchAndFilterXML();
         }
+    });
+
+    // Optional: you can have a different handler if you need 'keypress' event as well
+    this.searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            this.searchAndFilterXML();
+        }
+    });
+
+    // Search input handler for live updates (conditionally active based on the flag)
+    if (enableLiveUpdate) {
+        this.searchInput.addEventListener(searchEvents.liveUpdate, () => {
+            this.searchAndFilterXML();
+        });
+    } else {
+        // If the live update is disabled, we can optionally handle the event without performing any action
+        this.searchInput.addEventListener(searchEvents.liveUpdate, (e) => {
+            e.preventDefault(); // This prevents the live update action from executing
+        });
+    }
+
+    // Initialize sorting handlers for each column
+    Object.keys(this.columns).forEach(columnName => {
+        const header = document.querySelector(`th[data-column="${columnName}"]`);
+        if (header) {
+            header.addEventListener('click', () => this.sortTable(columnName));
+        }
+    });
+}
+
 
 
     parseXMLToTable(xmlString = null) {
