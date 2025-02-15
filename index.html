@@ -94,10 +94,16 @@
         <!-- Search Section -->
         <div class="search-container">
 
-            <label for="narFilter">Filter by NAR:</label>
-            <select id="narFilter">
-                <option value="">-- Select NAR --</option>
+            <label for="narCategory">Filter by Category:</label>
+            <select id="narCategory">
+                <option value="">-- Select Category --</option>
+                <option value="hssc marking">TA/DA TO PRACTICAL EXMR: SSC</option>
+                <option value="hssc marking">TA/DA TO INSEPCTORS SSC</option>
+                <option value="hssc marking">TA/DA TO INSEPCTORS SSC	</option>
             </select>
+            
+            <label for="narSearch">Search:</label>
+            <input type="text" id="narSearch" placeholder="Search NAR...">
             
             <table id="chequeTable">
                 <thead>
@@ -117,6 +123,7 @@
                 </thead>
                 <tbody></tbody>
             </table>
+
 
             <div class="row">
                 <div class="col-md-12 mb-3 mb-md-0">
