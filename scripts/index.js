@@ -41,25 +41,60 @@ class XMLTableHandler {
     let tableReset = true; 
 
     // Reset table when Backspace is pressed and input is empty OR Reset table on first Backspace press, but allow normal text removal
-    this.searchInput.addEventListener(searchEvents.tableReset, (e) => {
-        if (e.key === 'Backspace') {
-            console.log('Backspace pressed.');
-            // Check if table reset has been done  OR Check if table reset has NOT been done yet
-            if (!this.tableReset && this.searchInput.value.trim().length > 0) {
-                this.resetTable();
-                this.tableReset = true; // Prevent multiple resets
-                console.log('Table reset triggered.');
-            }
+
+        this.searchInput.addEventListener('keydown', (e) => {
+    console.log(`Key pressed: ${e.key}`);
     
-            // Allow normal character deletion by delaying flag reset
-            setTimeout(() => {
-                if (this.searchInput.value.trim() !== '') {
-                    this.tableReset = false; // Re-enable reset when input has text again
-                    console.log('Reset flag re-enabled.');
-                }
-            }, 10); // Small delay to ensure input value updates correctly
+    if (e.key === 'Backspace') {
+        console.log(`[BACKSPACE] Pressed, checking conditions...`);
+        
+        let inputValue = this.searchInput.value.trim();
+        console.log(`[BACKSPACE] Current input value: "${inputValue}"`);
+        
+        // Only reset if input had text before (i.e., first Backspace press)
+        if (!this.tableReset && inputValue.length > 0) {
+            console.log(`[BACKSPACE] Resetting table...`);
+            this.resetTable();
+            this.tableReset = true; // Prevent multiple resets
+            console.log(`[BACKSPACE] Table reset triggered.`);
+        } else {
+            console.log(`[BACKSPACE] No reset needed.`);
         }
-    });
+
+        // Allow normal text deletion, re-enable reset only if input is NOT empty
+        setTimeout(() => {
+            inputValue = this.searchInput.value.trim(); // Re-fetch updated value
+            console.log(`[BACKSPACE] After delay, new input value: "${inputValue}"`);
+
+            if (inputValue.length > 0) {
+                this.tableReset = false; // Allow reset again if input is retyped
+                console.log(`[BACKSPACE] Reset flag re-enabled.`);
+            } else {
+                console.log(`[BACKSPACE] Input is empty, keeping reset flag.`);
+            }
+        }, 0); // Zero delay ensures input value updates first
+    }
+});
+
+    // this.searchInput.addEventListener(searchEvents.tableReset, (e) => {
+    //     if (e.key === 'Backspace') {
+    //         console.log('Backspace pressed.');
+    //         // Check if table reset has been done  OR Check if table reset has NOT been done yet
+    //         if (!this.tableReset && this.searchInput.value.trim().length > 0) {
+    //             this.resetTable();
+    //             this.tableReset = true; // Prevent multiple resets
+    //             console.log('Table reset triggered.');
+    //         }
+    
+    //         // Allow normal character deletion by delaying flag reset
+    //         setTimeout(() => {
+    //             if (this.searchInput.value.trim() !== '') {
+    //                 this.tableReset = false; // Re-enable reset when input has text again
+    //                 console.log('Reset flag re-enabled.');
+    //             }
+    //         }, 10); // Small delay to ensure input value updates correctly
+    //     }
+    // });
 
 
     // Search input handler for Enter key (can change the event here)
