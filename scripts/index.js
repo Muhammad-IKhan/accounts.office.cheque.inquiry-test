@@ -34,24 +34,24 @@ class XMLTableHandler {
             }
         });
 
-       // this.searchInput.addEventListener('keypress', (e) => {
-       //     if (e.key === 'keypress') {
-       //         this.searchAndFilterXML();
-        }
-        });
-
-        // Search input handler for live updates
-        // this.searchInput.addEventListener('input', () => {
-        //  this.searchAndFilterXML();
-        });
-
-        // Initialize sorting handlers for each column
-        Object.keys(this.columns).forEach(columnName => {
-            const header = document.querySelector(`th[data-column="${columnName}"]`);
-            if (header) {
-                header.addEventListener('click', () => this.sortTable(columnName));
+           // this.searchInput.addEventListener('keypress', (e) => {
+           //     if (e.key === 'keypress') {
+           //         this.searchAndFilterXML();
             }
-        });
+            });
+    
+            // Search input handler for live updates
+            // this.searchInput.addEventListener('input', () => {
+            //  this.searchAndFilterXML();
+            });
+    
+            // Initialize sorting handlers for each column
+            Object.keys(this.columns).forEach(columnName => {
+                const header = document.querySelector(`th[data-column="${columnName}"]`);
+                if (header) {
+                    header.addEventListener('click', () => this.sortTable(columnName));
+                }
+            });
     }
 
     parseXMLToTable(xmlString = null) {
