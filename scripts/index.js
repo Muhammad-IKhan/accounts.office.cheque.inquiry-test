@@ -30,19 +30,22 @@ class XMLTableHandler {
     // Define event configurations for search input
     const searchEvents = {
         enter: 'keydown', // Change this to 'keypress' if needed
-        liveUpdate: 'input' // Live update event
+        liveUpdate: 'input', // Live update event
+        reseting:  'keydown', // reset the table
     };
 
-    // Reset table when Backspace is pressed and input is empty
-    this.searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && this.searchInput.value.trim() === '') {
-            this.resetTable();
-        }
-    });
     
 
     // Flag to enable or disable live updates
     let enableLiveUpdate = false; // Set to `true` to enable live updates, `false` to disable
+    let reseting = true; 
+
+    // Reset table when Backspace is pressed and input is empty
+    this.searchInput.addEventListener(searchEvents.reseting, (e) => {
+        if (e.key === 'Backspace'{
+            this.resetTable();
+        }
+    });
 
     // Search input handler for Enter key (can change the event here)
     this.searchInput.addEventListener(searchEvents.enter, (e) => {
