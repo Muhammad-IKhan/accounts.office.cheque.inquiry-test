@@ -1,5 +1,5 @@
 class XMLTableHandler {
-    constructor() {
+     constructor() {
         this.tableBody = document.getElementById('checksTable');
         this.searchInput = document.getElementById('search');
         this.narFilter = document.getElementById('narCategory');
@@ -151,22 +151,97 @@ class XMLTableHandler {
 
         return row;
     }
-
+    
     search() {
-        // ... (Existing search function code)
+        const searchTerm = this.searchInput.value.toLowerCase();
+        console.log("Searching for:", searchTerm); // Log the search term
+
+        // If search is empty, show all rows and reset the table
+        if (!searchTerm) {
+            this.resetTable();  // Call resetTable to show all rows and clear search state
+            return;
+        }
+
+        this.tableContainer.style.display = 'block';
+        this.emptyState.style.display = 'none';
+        this.resultContainer.style.display = 'block';
+        let matchCount = 0;
+
+        this.tableBody.querySelectorAll('tr').forEach(row => {
+            const matchesSearch = Array.from(row.getElementsByTagName('td'))
+                .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
+
+            // Apply both search and filter
+            const selectedCategory = this.narFilter.value.toLowerCase();
+            const narValue = row.getAttribute('data-nar');
+            const isVisibleByFilter = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
+
+            const isVisible = matchesSearch && isVisibleByFilter; // Both conditions must be true
+            row.style.display = isVisible ? '' : 'none';
+
+            if (isVisible) {
+                matchCount++;
+            }
+        });
+
+        this.updateSearchResults(searchTerm, matchCount);
     }
+
+
 
     filterByNar() {
         const selectedCategory = this.narFilter.value.toLowerCase();
-        console.log("Selected NAR Category:", selectedCategory);
+        console.log("Filtering by NAR:", selectedCategory);
+
+        const searchTerm = this.searchInput.value.toLowerCase(); // Get current search term
 
         this.tableBody.querySelectorAll('tr').forEach(row => {
             const narValue = row.getAttribute('data-nar');
-            const isVisible = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
+            const isVisibleByFilter = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
+
+            let isVisibleBySearch = true; // Default to true if no search term
+
+            if (searchTerm) {
+                isVisibleBySearch = Array.from(row.getElementsByTagName('td'))
+                    .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
+            }
+
+            const isVisible = isVisibleByFilter && isVisibleBySearch; // Combine filter and search
             row.style.display = isVisible ? '' : 'none';
-            console.log(`Row with NAR: ${narValue} is ${isVisible ? 'visible' : 'hidden'}`);
+            console.log(`Row with NAR: ${narValue} is ${isVisible ? 'visible' : 'hidden'} after filtering`);
         });
     }
+
+
+    resetTable() {
+        this.searchInput.value = '';
+        this.narFilter.value = 'all';
+        this.tableContainer.style.display = 'none';
+        this.emptyState.style.display = 'block';
+        this.resultContainer.style.display = 'none';
+        this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
+        this.sortColumn = null;
+        this.sortOrder = 'asc';
+
+        // Crucial: Clear any previous search state
+        this.search(); // Call search with empty string to show all
+    }
+
+}
+
+
+
+    // filterByNar() {
+    //     const selectedCategory = this.narFilter.value.toLowerCase();
+    //     console.log("Selected NAR Category:", selectedCategory);
+
+    //     this.tableBody.querySelectorAll('tr').forEach(row => {
+    //         const narValue = row.getAttribute('data-nar');
+    //         const isVisible = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
+    //         row.style.display = isVisible ? '' : 'none';
+    //         console.log(`Row with NAR: ${narValue} is ${isVisible ? 'visible' : 'hidden'}`);
+    //     });
+    // }
 
     sortTable(columnName) {
         console.log("Sorting by:", columnName);
@@ -204,6 +279,29 @@ class XMLTableHandler {
     }
 
 
+filterByNar() {
+        const selectedCategory = this.narFilter.value.toLowerCase();
+        console.log("Filtering by NAR:", selectedCategory);
+
+        const searchTerm = this.searchInput.value.toLowerCase(); // Get current search term
+
+        this.tableBody.querySelectorAll('tr').forEach(row => {
+            const narValue = row.getAttribute('data-nar');
+            const isVisibleByFilter = selectedCategory === "all" || (narValue && narValue.includes(selectedCategory));
+
+            let isVisibleBySearch = true; // Default to true if no search term
+
+            if (searchTerm) {
+                isVisibleBySearch = Array.from(row.getElementsByTagName('td'))
+                    .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
+            }
+
+            const isVisible = isVisibleByFilter && isVisibleBySearch; // Combine filter and search
+            row.style.display = isVisible ? '' : 'none';
+            console.log(`Row with NAR: ${narValue} is ${isVisible ? 'visible' : 'hidden'} after filtering`);
+        });
+    }
+
 
     resetTable() {
         this.searchInput.value = '';
@@ -211,10 +309,26 @@ class XMLTableHandler {
         this.tableContainer.style.display = 'none';
         this.emptyState.style.display = 'block';
         this.resultContainer.style.display = 'none';
-        this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = ''); // Show all rows
-        this.sortColumn = null; // Reset sort column
-        this.sortOrder = 'asc'; // Reset sort order
+        this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
+        this.sortColumn = null;
+        this.sortOrder = 'asc';
+
+        // Crucial: Clear any previous search state
+        this.search(); // Call search with empty string to show all
     }
+
+
+
+    // resetTable() {
+    //     this.searchInput.value = '';
+    //     this.narFilter.value = 'all';
+    //     this.tableContainer.style.display = 'none';
+    //     this.emptyState.style.display = 'block';
+    //     this.resultContainer.style.display = 'none';
+    //     this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = ''); // Show all rows
+    //     this.sortColumn = null; // Reset sort column
+    //     this.sortOrder = 'asc'; // Reset sort order
+    // }
 
     updateSearchResults(searchTerm, matchCount) {
         this.resultContainer.innerHTML = matchCount > 0
