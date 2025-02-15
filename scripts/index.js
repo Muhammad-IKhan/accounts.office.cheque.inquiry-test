@@ -14,7 +14,7 @@ class XMLTableHandler {
             DD: { index: 4, type: 'string' },
         };
 
-        this.enableLiveUpdate = true;
+        this.enableLiveUpdate = false;
         this.tableResetEnabled = true;
         this.firstBackspace = true;
 
