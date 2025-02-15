@@ -23,6 +23,12 @@ class XMLTableHandler {
             console.error('Constructor Error:', error);
             this.showError('Failed to initialize table handler');
         }
+      console.log('Table initialization:', {
+        tableBody: this.tableBody?.id,
+        tableVisible: this.tableBody?.offsetParent !== null,
+        tableParentDisplay: this.tableContainer?.style.display,
+        tableStyles: window.getComputedStyle(this.tableBody)
+    });  
     }
 
     /**
@@ -259,42 +265,69 @@ class XMLTableHandler {
     /**
      * Parse XML and create table
      */
-    parseXMLToTable(xmlString = null) {
-        console.log('Starting XML parsing...');
-        
-        try {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString || this.xmlData, "text/xml");
+   parseXMLToTable(xmlString = null) {
+    console.log('Starting XML parsing...');
+    
+    try {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString || this.xmlData, "text/xml");
 
-            if (xmlDoc.querySelector('parsererror')) {
-                throw new Error('XML parsing error');
-            }
+        // Debug XML structure
+        console.log('XML Structure:', {
+            rootElement: xmlDoc.documentElement.tagName,
+            firstChild: xmlDoc.documentElement.firstChild?.tagName,
+            totalNodes: xmlDoc.getElementsByTagName('*').length
+        });
 
-            const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
-            console.log(`Found ${gPvnElements.length} G_PVN elements`);
-
-            this.tableBody.innerHTML = '';
-            let successCount = 0;
-
-            Array.from(gPvnElements).forEach((element, index) => {
-                try {
-                    const row = this.createTableRow(element);
-                    this.tableBody.appendChild(row);
-                    successCount++;
-                } catch (rowError) {
-                    console.error(`Error creating row ${index}:`, rowError);
-                }
-            });
-
-            console.log(`Successfully created ${successCount}/${gPvnElements.length} rows`);
-            this.updateTableVisibility(true);
-            return true;
-        } catch (error) {
-            console.error('ParseXMLToTable Error:', error);
-            this.showError('Failed to parse XML data');
-            return false;
+        if (xmlDoc.querySelector('parsererror')) {
+            throw new Error('XML parsing error');
         }
+
+        const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
+        console.log(`Found ${gPvnElements.length} G_PVN elements`);
+
+        // Debug first element
+        if (gPvnElements.length > 0) {
+            console.log('First G_PVN element structure:', {
+                tagName: gPvnElements[0].tagName,
+                childNodes: Array.from(gPvnElements[0].children).map(child => child.tagName),
+                rawXML: gPvnElements[0].outerHTML
+            });
+        }
+
+        this.tableBody.innerHTML = '';
+        let successCount = 0;
+
+        Array.from(gPvnElements).forEach((element, index) => {
+            try {
+                const row = this.createTableRow(element);
+                if (index === 0) {
+                    console.log('First row created:', row.outerHTML);
+                }
+                this.tableBody.appendChild(row);
+                successCount++;
+            } catch (rowError) {
+                console.error(`Error creating row ${index}:`, rowError);
+            }
+        });
+
+        console.log(`Successfully created ${successCount}/${gPvnElements.length} rows`);
+        
+        // Verify table content
+        console.log('Table body content:', {
+            numberOfRows: this.tableBody.children.length,
+            firstRowHTML: this.tableBody.firstChild?.outerHTML,
+            tableVisible: this.tableBody.offsetParent !== null
+        });
+
+        this.updateTableVisibility(true);
+        return true;
+    } catch (error) {
+        console.error('ParseXMLToTable Error:', error);
+        this.showError('Failed to parse XML data');
+        return false;
     }
+}
 
     /**
      * Create a table row from XML element
@@ -336,13 +369,24 @@ class XMLTableHandler {
     /**
      * Get and validate element content
      */
-    getElementContent(element, field) {
-        const content = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
-        if (this.columns[field].required && !content) {
-            console.warn(`Required field ${field} is empty`);
-        }
-        return content;
+   getElementContent(element, field) {
+    const fieldElement = element.getElementsByTagName(field)[0];
+    console.log(`Processing field ${field}:`, {
+        elementExists: !!fieldElement,
+        value: fieldElement?.textContent,
+        parentElement: element.tagName
+    });
+    
+    const content = fieldElement?.textContent?.trim() || '';
+    
+    if (this.columns[field].required && !content) {
+        console.warn(`Required field ${field} is empty`, {
+            element: element,
+            availableFields: Array.from(element.children).map(child => child.tagName)
+        });
     }
+    return content;
+}
 
     /**
      * Format amount values
