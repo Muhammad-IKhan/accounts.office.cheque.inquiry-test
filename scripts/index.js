@@ -8,12 +8,6 @@ class XMLTableHandler {
         this.emptyState = document.getElementById('emptyState');
         this.resultContainer = document.getElementById('result');
 
-        // Check if DOM elements are found
-        if (!this.tableBody || !this.searchInput || !this.narFilter || !this.tableContainer || !this.emptyState || !this.resultContainer) {
-            console.error("One or more DOM elements are missing. Check your HTML structure.");
-            return;
-        }
-
         // Define table columns and their types
         this.columns = {
             NARRATION: { index: 0, type: 'string' },
@@ -75,17 +69,12 @@ class XMLTableHandler {
         });
 
         // Add sorting event listeners to table headers
-        const headers = this.tableBody.querySelectorAll('th');
-        if (headers.length > 0) {
-            headers.forEach((header, index) => {
-                header.addEventListener('click', () => {
-                    console.log(`Sorting by column index: ${index}`);
-                    this.sortTable(index);
-                });
+        this.tableBody.querySelectorAll('th').forEach((header, index) => {
+            header.addEventListener('click', () => {
+                console.log(`Sorting by column index: ${index}`);
+                this.sortTable(index);
             });
-        } else {
-            console.error("No table headers found. Check your HTML structure.");
-        }
+        });
     }
 
     async fetchXMLData() {
@@ -138,9 +127,7 @@ class XMLTableHandler {
 
             // Get all <G_PVN> elements
             const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
-            if (!gPvnElements || gPvnElements.length === 0) {
-                throw new Error('No <G_PVN> elements found in XML data.');
-            }
+            if (!this.tableBody) throw new Error('Table body element not found');
 
             // Clear existing table rows
             this.tableBody.innerHTML = '';
