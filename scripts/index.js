@@ -111,15 +111,20 @@ class XMLTableHandler {
 
     // **Apply Colors Based on Status (`DD` field)**
     if (ddValue.includes('Despatched through GPO (Manzoor Sb #03349797611) on 31/01/25')) {
+        
         row.classList.add('status-orange');  // 🟠 Orange for "Ready but not signed yet"
     } else if(ddValue.includes('Cheque Ready')) {
+        
         row.classList.add('status-green');  // ✅ Green for "Ready"
     } else if (ddValue.includes('pending')) {
-        row.classList.add('Sent to Chairman Sb. for Sign');    // ❌ Red for "Pending"
-    } else if (ddValue.includes('signed')) {
-        row.classList.add('Ready but not signed yet');   // 🔵 Blue for "Signed"
+        
+        row.classList.add('status-red');    // ❌ Red for "Pending"
+    } else if (ddValue.includes('Sent to Chairman Sb. for Sign')) {
+        
+        row.classList.add('status-blue');   // 🔵 Blue for "Signed"
     } else {
-        row.classList.add('Despatched to Lakki Camp Office ( Aziz Ullah API #03159853076 ) on 27/01/25');   // ⚪ Gray for unknown status
+        
+        row.classList.add('status-gray');   // ⚪ Gray for unknown status
     }
 
     return row;
