@@ -14,8 +14,8 @@ class XMLTableHandler {
             DD: { index: 4, type: 'string' },
         };
 
-        this.enableLiveUpdate = true;
-        this.tableResetEnabled = false;
+        this.enableLiveUpdate = false;
+        this.tableResetEnabled = true;
         this.BackspaceDefault = true;
 
         this.initializeEventListeners();
