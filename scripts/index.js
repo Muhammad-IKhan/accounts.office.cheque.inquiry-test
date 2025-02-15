@@ -117,7 +117,7 @@ class XMLTableHandler {
     async fetchXMLData() {
         try {
             console.log("Fetching XML data...");
-            const filesResponse = await fetch('/data/files.json');
+            const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
             if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
             const xmlFiles = await filesResponse.json();
 
