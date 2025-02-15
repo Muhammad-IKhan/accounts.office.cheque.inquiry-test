@@ -23,7 +23,8 @@ class XMLTableHandler {
 
     async fetchXMLData() {
         try {
-            const response = await fetch('/data/sample.xml'); // Replace with your XML file path
+           // const Fileresponse = await fetch('/data/sample.xml'); // Replace with your XML file path
+            const response = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
             const xmlString = await response.text();
             this.parseXMLToTable(xmlString);
         } catch (error) {
