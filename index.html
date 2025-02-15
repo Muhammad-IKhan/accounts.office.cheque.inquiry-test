@@ -13,6 +13,30 @@
 
     <!-- Custom CSS -->
     <style>
+
+        #tableContainer {
+    display: block; /* or display: table */
+    width: 100%;
+    margin-top: 20px;
+}
+
+#checksTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#checksTable td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Debug styles */
+#checksTable:empty {
+    border: 2px solid red;
+    min-height: 100px;
+}
+
+        
         .status-green { background-color: white; color: #155724; } /* Green */
         .status-red { background-color: white; color: #721c24; }   /* Red */
         .status-blue { background-color: white; color: #004085; }  /* Blue */
