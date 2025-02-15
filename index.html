@@ -1,183 +1,217 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Cheque List Viewer for BISE BANNU">
-    <title>A/cOFFICE BISEB</title>
+class XMLTableHandler {
+    constructor() {
+        this.tableBody = document.getElementById('checksTable');
+        this.searchInput = document.getElementById('search');
+        this.tableContainer = document.getElementById('tableContainer');
+        this.emptyState = document.getElementById('emptyState');
+        this.resultContainer = document.getElementById('result');
+        this.narFilter = document.getElementById('narCategory');
 
-    <!-- Bootstrap 4 CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        this.columns = {
+            NARRATION: { index: 0, type: 'string' },
+            AMOUNT: { index: 1, type: 'number' },
+            CHEQ_NO: { index: 2, type: 'number' },
+            NAR: { index: 3, type: 'string' },
+            DD: { index: 4, type: 'string' },
+        };
 
-    <!-- Custom CSS -->
-    <style>
+        this.enableLiveUpdate = false;
+        this.tableResetEnabled = true;
+        this.BackspaceDefault = true;
+        this.xmlData = ""; // Ensuring initialization before use
+
+        this.initializeEventListeners();
+    }
+
+    initializeEventListeners() {
+        this.searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && this.tableResetEnabled) {
+                let inputBefore = this.searchInput.value.trim();
+                setTimeout(() => {
+                    let inputAfter = this.searchInput.value.trim();
+                    if (this.BackspaceDefault && inputBefore.length > 1) {
+                        let caretPosition = this.searchInput.selectionStart;
+                        this.resetTable();
+                        this.searchInput.value = inputAfter;
+                        this.searchInput.setSelectionRange(caretPosition, caretPosition);
+                        this.BackspaceDefault = false;
+                    }
+                    if (inputAfter.length === 0) {
+                        this.BackspaceDefault = true;
+                    }
+                }, 0);
+            }
+        });
+
+        this.searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.search();
+            }
+        });
+
+        this.searchInput.addEventListener('input', () => {
+            if (this.enableLiveUpdate) {
+                this.search();
+            }
+        });
+
+        this.narFilter.addEventListener('change', () => {
+            this.filterByNar();
+        });
+    }
+
+    parseXMLToTable(xmlString) {
+        if (!xmlString) {
+            this.showError('No XML data available.');
+            return false;
+        }
+
+        try {
+            console.log("Parsing XML data...");
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+            if (xmlDoc.querySelector('parsererror')) {
+                throw new Error('XML parsing error');
+            }
+
+            const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
+            if (!this.tableBody) {
+                throw new Error('Table body element not found');
+            }
+
+            this.tableBody.innerHTML = '';
+            Array.from(gPvnElements).forEach((element) => {
+                const row = this.createTableRow(element);
+                this.tableBody.appendChild(row);
+            });
+            console.log("XML Data successfully parsed and displayed.");
+
+            return true;
+        } catch (error) {
+            console.error('Error in parseXMLToTable:', error);
+            this.showError('Failed to parse XML data');
+            return false;
+        }
+    }
+
+    createTableRow(element) {
+        const row = document.createElement('tr');
+        let narValue = element.getElementsByTagName('NAR')[0]?.textContent?.trim()?.toLowerCase() || '';
+        row.setAttribute('data-nar', narValue);
+        row.setAttribute('data-dd', element.getElementsByTagName('DD')[0]?.textContent?.trim()?.toLowerCase() || '');
+
+        Object.keys(this.columns).forEach(field => {
+            const cell = document.createElement('td');
+            let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+
+            if (field === 'AMOUNT') {
+                try {
+                    value = parseFloat(value).toLocaleString('en-US');
+                } catch (error) {
+                    console.warn(`Invalid amount value: ${value}`);
+                    value = '0';
+                }
+            }
+
+            cell.textContent = value;
+            cell.setAttribute('data-field', field);
+
+            if (field === 'DD') {
+                let ddValue = value.toLowerCase();
+                if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
+                    cell.classList.add('status-orange');
+                } else if (ddValue.includes('ready but not signed yet') || ddValue.includes('cheque ready')) {
+                    cell.classList.add('status-green');
+                } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
+                    cell.classList.add('status-red');
+                } else if (ddValue.includes('sent to chairman sb. for sign')) {
+                    cell.classList.add('status-blue');
+                } else {
+                    cell.classList.add('status-gray');
+                }
+            }
+
+            row.appendChild(cell);
+        });
+
+        return row;
+    }
+
+    async fetchXMLData() {
+        try {
+            console.log("Fetching XML data...");
+            const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
+            if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
+            const xmlFiles = await filesResponse.json();
+
+            let combinedXMLData = '<root>';
+            for (const file of xmlFiles) {
+                const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
+                if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
+                combinedXMLData += await fileResponse.text();
+            }
+            combinedXMLData += '</root>';
+
+            localStorage.setItem('xmlData', combinedXMLData);
+            this.xmlData = combinedXMLData;
+            console.log("XML data fetched and stored successfully.");
+
+            return this.parseXMLToTable(combinedXMLData);
+        } catch (error) {
+            console.error('Error fetching XML:', error);
+            const storedXML = localStorage.getItem('xmlData');
+            if (storedXML) return this.parseXMLToTable(storedXML);
+            this.showError('Failed to load XML data');
+            return false;
+        }
+    }
+
+    search() {
+        const searchTerm = this.searchInput.value.toLowerCase();
+        if (!searchTerm) return this.resetTable();
         
-        .status-green { background-color: white; color: #155724; } /* Green */
-        .status-red { background-color: white; color: #721c24; }   /* Red */
-        .status-blue { background-color: white; color: #004085; }  /* Blue */
-        .status-gray { background-color: white; color: #6c757d; }  /* Gray */
-        .status-orange { background-color: white; color: #cc7a00; } /* Orange */
+        this.tableContainer.style.display = 'block';
+        this.emptyState.style.display = 'none';
+        this.resultContainer.style.display = 'block';
 
-        /* Custom styling for better mobile responsiveness */
-        .header {
-            padding: 2rem 0;
-            background: #f8f9fa;
-            margin-bottom: 2rem;
-        }
+        let matchCount = 0;
+        this.tableBody.querySelectorAll('tr').forEach(row => {
+            const matchesSearch = Array.from(row.getElementsByTagName('td'))
+                .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
+            row.style.display = matchesSearch ? '' : 'none';
+            if (matchesSearch) matchCount++;
+        });
 
-        .search-container {
-            margin-bottom: 2rem;
-        }
+        this.resultContainer.innerHTML = matchCount > 0
+            ? `Found ${matchCount} results for "${searchTerm}"`
+            : 'No results found.';
+    }
 
-        .table-responsive {
-            margin-bottom: 2rem;
-        }
+    filterByNar() {
+        const selectedCategory = this.narFilter.value.toLowerCase();
+        this.tableBody.querySelectorAll('tr').forEach(row => {
+            const narValue = row.getAttribute('data-nar') || '';
+            row.style.display = (selectedCategory === "all" || narValue.includes(selectedCategory)) ? '' : 'none';
+        });
+    }
 
-        /* Custom sorting icons */
-        .sort-icon {
-            margin-left: 0.5rem;
-            opacity: 0.5;
-        }
+    resetTable() {
+        this.searchInput.value = '';
+        this.narFilter.value = 'all';
+        this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
+        this.tableContainer.style.display = 'none';
+        this.emptyState.style.display = 'block';
+        this.resultContainer.style.display = 'none';
+    }
 
-        th.sort-asc .sort-icon::after {
-            content: '↑';
-            opacity: 1;
-        }
+    showError(message) {
+        this.resultContainer.innerHTML = message;
+        this.resultContainer.style.display = 'block';
+    }
+}
 
-        th.sort-desc .sort-icon::after {
-            content: '↓';
-            opacity: 1;
-        }
-
-        /* Empty state styling */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            background: #f8f9fa;
-            border-radius: 0.5rem;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            color: #6c757d;
-            margin-bottom: 1rem;
-        }
-
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            .table-responsive {
-                font-size: 0.875rem;
-            }
-
-            .btn {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-
-            .search-container .input-group {
-                margin-bottom: 1rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header Section -->
-        <div class="header">
-            <h1 class="text-center mb-3">Accounts Section: BISE Bannu Office</h1>
-            <p class="text-center text-muted">Check Information and Updates for Ongoing and Previous Month</p>
-        </div>
-
-        <!-- Search Section -->
-        <div class="search-container">
-
-            <label for="narCategory">Filter by Category:</label>
-            <select id="narCategory">
-                <option value="">Search Alltogather</option> <!--   <option value="">-- Select Category --</option> -->
-
-                <option value="SUPERVISORY STAFF EXAM">TA/DA TO SUPERVISORY STAFF EXAM</option>
-
-                <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">TA/DA TO SUPERVISORY STAFF SSC EXAM:</option>
-                <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">TA/DA TO SUPERVISORY STAFF HSSC EXAM:</option>
-<!--                 <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">TA/DA TO SUPERVISORY STAFF SSC EXAM:</option>
-                <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">TA/DA TO SUPERVISORY STAFF HSSC EXAM:</option> -->
-                <option value="TA/DA TO PRACTICAL EXMR: SSC">TA/DA TO PRACTICAL EXMR: SSC</option>
-                <option value="TA/DA TO PRACTICAL EXMR: HSSC">TA/DA TO PRACTICAL EXMR: HSSC</option>
-                <option value="TA/DA TO INSEPCTORS SSC">TA/DA TO INSEPCTORS SSC</option>
-                <option value="TA/DA TO INSEPCTORS HSSC">TA/DA TO INSEPCTORS HSSC</option>
-                <option value="REMUNERATION RES: INSPECTORS">REMUNERATION RES: INSPECTORS</option>
-                <option value="LABORATORY CHARGES">LABORATORY CHARGES	</option>
-                <option value="TA/DA GENERAL">TA/DA GENERAL</option>
-                <option value="MARKING SSC">MARKING SSC</option>
-                <option value="MARKING HSSC">MARKING HSSC</option>
-                <option value="REMUNERATION TO PAPER SETTER HSSC">REMUNERATION TO PAPER SETTER HSSC	</option>
-                <option value="REMUNERATION TO UFM MEMEBERS">REMUNERATION TO UFM MEMEBERS</option>
-
-                <option value="EXPIRED CHECK RENEWED">EXPIRED CHECK RENEWED</option>
-                <option value="HONORARIA">HONORARIA</option>
-
-                <option value="REFUND OF FEE">REFUND OF FEE</option>
-                <option value="MARKING SSC">MARKING SSC</option>
-                <option value="MARKING HSSC">MARKING HSSC</option>
-                <option value="RETOTALLING">RETOTALLING</option>
-            </select>
-
-
-
-            <div class="row">
-                <div class="col-md-12 mb-3 mb-md-0">
-                    <div class="input-group">
-                        <input type="search" 
-                               id="search" 
-                               class="form-control" 
-                               placeholder="Search..."
-                               aria-label="Search CHQS" autofocus>
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" id="searchBtn">
-                                <i class="fas fa-search"></i> Search
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Results Section -->
-        <div id="result" class="alert" role="alert" style="display: none;"></div>
-
-        <!-- Table Section -->
-        <div class="table-responsive" id="tableContainer" style="display: none;">
-            <table class="table table-hover" id="chequeTable">
-                <thead class="thead-light">
-                    <tr>
-                <!--   <th data-column="SNO">S.No <span class="sort-icon"></span></th>  -->
-                        <th data-column="NARRATION">Payee(s) Name and Address<span class="sort-icon"></span></th>
-                        <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
-                        <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
-                         <th data-column="NAR">In Care Of <span class="sort-icon"></span></th>
-                        <th data-column="DD">Details Status<span class="sort-icon"></span></th>
-                <!--   <th data-column="BNO">BNO <span class="sort-icon"></span></th>
-                        <th data-column="PVN">PON <span class="sort-icon"></span></th> -->
-                    </tr>
-                </thead>
-                <tbody id="checksTable"></tbody>
-            </table>
-        </div>
-
-        <!-- Empty State -->
-        <div class="empty-state" id="emptyState">
-            <i class="fas fa-search"></i>
-            <p class="lead">Enter the name or school name to view search results</p>
-        </div>
-    </div>
-
-    <!-- Required JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
-    <script src="scripts/index.js"></script> 
-
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', () => {
+    const handler = new XMLTableHandler();
+    handler.fetchXMLData().then(() => handler.resetTable());
+});
