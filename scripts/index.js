@@ -34,9 +34,15 @@ class XMLTableHandler {
             }
         });
 
+       // this.searchInput.addEventListener('keypress', (e) => {
+       //     if (e.key === 'keypress') {
+       //         this.searchAndFilterXML();
+        }
+        });
+
         // Search input handler for live updates
-        this.searchInput.addEventListener('input', () => {
-            this.searchAndFilterXML();
+        // this.searchInput.addEventListener('input', () => {
+        //  this.searchAndFilterXML();
         });
 
         // Initialize sorting handlers for each column
