@@ -1,75 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Cheque List Viewer for BISE BANNU">
     <title>A/cOFFICE BISEB</title>
 
-    <!-- Bootstrap 4 CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css">
-    <!-- Font Awesome for icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/style.css">
+
+
     <style>
-        #tableContainer {
-    display: block; /* or display: table */
-    width: 100%;
-    margin-top: 20px;
-}
-#checksTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-#checksTable td {
-    padding: 8px;
-    border: 1px solid #ddd;
-}
-/* Debug styles */
-#checksTable:empty {
-    border: 2px solid red;
-    min-height: 100px;
-}
+        body {
+            font-family: 'Roboto', sans-serif; /* Modern font */
+        }
 
-        .status-green { background-color: white; color: #155724; } /* Green */
-        .status-red { background-color: white; color: #721c24; }   /* Red */
-        .status-blue { background-color: white; color: #004085; }  /* Blue */
-        .status-gray { background-color: white; color: #6c757d; }  /* Gray */
-        .status-orange { background-color: white; color: #cc7a00; } /* Orange */
-
-        /* Custom styling for better mobile responsiveness */
         .header {
+            background-color: #f8f9fa;
             padding: 2rem 0;
-            background: #f8f9fa;
+            text-align: center; /* Center header content */
             margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #2563eb; /* Primary color */
+            font-size: 2.5rem; /* Larger heading */
+            margin-bottom: 1rem;
         }
 
         .search-container {
             margin-bottom: 2rem;
         }
 
+        .form-select {
+            margin-bottom: 1rem; /* Space between select and search */
+        }
+
         .table-responsive {
-            margin-bottom: 2rem;
+            overflow-x: auto; /* Enable horizontal scrolling if needed */
         }
 
-        /* Custom sorting icons */
-        .sort-icon {
-            margin-left: 0.5rem;
-            opacity: 0.5;
+        .table th {
+            background-color: #f2f2f2; /* Light gray background for headers */
+            font-weight: 600;
+            text-align: left; /* Align text to the left */
         }
 
-        th.sort-asc .sort-icon::after {
-            content: '↑';
-            opacity: 1;
+        .table td {
+            vertical-align: middle; /* Center content vertically */
         }
 
-        th.sort-desc .sort-icon::after {
-            content: '↓';
-            opacity: 1;
+        .status-green {
+            color: #28a745; /* Green text */
+            font-weight: 500;
         }
 
-        /* Empty state styling */
+        .status-red {
+            color: #dc3545; /* Red text */
+            font-weight: 500;
+        }
+
+        .status-blue {
+            color: #007bff; /* Blue text */
+            font-weight: 500;
+        }
+
+        .status-gray {
+            color: #6c757d; /* Gray text */
+            font-weight: 500;
+        }
+
+        .status-orange {
+            color: #fd7e14; /* Orange text */
+            font-weight: 500;
+        }
+
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
@@ -83,119 +93,90 @@
             margin-bottom: 1rem;
         }
 
-        /* Mobile optimizations */
+        /* Responsive adjustments */
         @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
             .table-responsive {
-                font-size: 0.875rem;
+                font-size: 0.9rem;
             }
 
             .btn {
                 width: 100%;
                 margin-bottom: 0.5rem;
             }
-
-            .search-container .input-group {
-                margin-bottom: 1rem;
-            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <!-- Header Section -->
         <div class="header">
-            <h1 class="text-center mb-3">Accounts Section: BISE Bannu Office</h1>
-            <p class="text-center text-muted">Check Information and Updates for Ongoing and Previous Month</p>
+            <h1>Accounts Section: BISE Bannu Office</h1>
+            <p class="text-muted">Check Information and Updates</p>
         </div>
 
-        <!-- Search Section -->
         <div class="search-container">
-
-            <label for="narCategory">Filter by Category:</label>
-            <select id="narCategory">
-                <option value="">Search Alltogather</option> <!--   <option value="">-- Select Category --</option> -->
-
-                <option value="SUPERVISORY STAFF EXAM">TA/DA TO SUPERVISORY STAFF EXAM</option>
-
-                <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">TA/DA TO SUPERVISORY STAFF SSC EXAM:</option>
-                <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">TA/DA TO SUPERVISORY STAFF HSSC EXAM:</option>
-<!--                 <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">TA/DA TO SUPERVISORY STAFF SSC EXAM:</option>
-                <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">TA/DA TO SUPERVISORY STAFF HSSC EXAM:</option> -->
-                <option value="TA/DA TO PRACTICAL EXMR: SSC">TA/DA TO PRACTICAL EXMR: SSC</option>
-                <option value="TA/DA TO PRACTICAL EXMR: HSSC">TA/DA TO PRACTICAL EXMR: HSSC</option>
-                <option value="TA/DA TO INSEPCTORS SSC">TA/DA TO INSEPCTORS SSC</option>
-                <option value="TA/DA TO INSEPCTORS HSSC">TA/DA TO INSEPCTORS HSSC</option>
-                <option value="REMUNERATION RES: INSPECTORS">REMUNERATION RES: INSPECTORS</option>
-                <option value="LABORATORY CHARGES">LABORATORY CHARGES	</option>
-                <option value="TA/DA GENERAL">TA/DA GENERAL</option>
-                <option value="MARKING SSC">MARKING SSC</option>
-                <option value="MARKING HSSC">MARKING HSSC</option>
-                <option value="REMUNERATION TO PAPER SETTER HSSC">REMUNERATION TO PAPER SETTER HSSC	</option>
-                <option value="REMUNERATION TO UFM MEMEBERS">REMUNERATION TO UFM MEMEBERS</option>
-
-                <option value="EXPIRED CHECK RENEWED">EXPIRED CHECK RENEWED</option>
-                <option value="HONORARIA">HONORARIA</option>
-
-                <option value="REFUND OF FEE">REFUND OF FEE</option>
-                <option value="MARKING SSC">MARKING SSC</option>
-                <option value="MARKING HSSC">MARKING HSSC</option>
-                <option value="RETOTALLING">RETOTALLING</option>
+            <select class="form-select" id="narCategory">
+                <option value="">Search All Togather</option>
+                <option value="SUPERVISORY STAFF EXAM">TA/DA to Supervisory Staff Exam</option>
+                <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">TA/DA to Supervisory Staff SSC Exam</option>
+                <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">TA/DA to Supervisory Staff HSSC Exam</option>
+                <option value="TA/DA TO PRACTICAL EXMR: SSC">TA/DA to Practical Exmr: SSC</option>
+                <option value="TA/DA TO PRACTICAL EXMR: HSSC">TA/DA to Practical Exmr: HSSC</option>
+                <option value="TA/DA TO INSEPCTORS SSC">TA/DA to Inspectors SSC</option>
+                <option value="TA/DA TO INSEPCTORS HSSC">TA/DA to Inspectors HSSC</option>
+                <option value="REMUNERATION RES: INSPECTORS">Remuneration Res: Inspectors</option>
+                <option value="LABORATORY CHARGES">Laboratory Charges</option>
+                <option value="TA/DA GENERAL">TA/DA General</option>
+                <option value="MARKING SSC">Marking SSC</option>
+                <option value="MARKING HSSC">Marking HSSC</option>
+                <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
+                <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
+                <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
+                <option value="HONORARIA">Honoraria</option>
+                <option value="REFUND OF FEE">Refund of Fee</option>
+                <option value="RETOTALLING">Retotalling</option>
             </select>
 
-
-
-            <div class="row">
-                <div class="col-md-12 mb-3 mb-md-0">
-                    <div class="input-group">
-                        <input type="search" 
-                               id="search" 
-                               class="form-control" 
-                               placeholder="Search..."
-                               aria-label="Search CHQS" autofocus>
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" id="searchBtn">
-                                <i class="fas fa-search"></i> Search
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="input-group mb-3">
+                <input type="search" id="search" class="form-control" placeholder="Search..." aria-label="Search CHQS">
+                <button class="btn btn-primary" type="button" id="searchBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
             </div>
         </div>
 
-        <!-- Results Section -->
-        <div id="result" class="alert" role="alert" style="display: none;"></div>
+        <div id="result" class="alert alert-info" role="alert" style="display: none;"></div>
 
-        <!-- Table Section -->
         <div class="table-responsive" id="tableContainer" style="display: none;">
             <table class="table table-hover" id="chequeTable">
-                <thead class="thead-light">
+                <thead>
                     <tr>
-                <!--   <th data-column="SNO">S.No <span class="sort-icon"></span></th>  -->
-                        <th data-column="NARRATION">Payee(s) Name and Address<span class="sort-icon"></span></th>
+                        <th data-column="NARRATION">Payee(s) Name and Address <span class="sort-icon"></span></th>
                         <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
                         <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
-                         <th data-column="NAR">In Care Of <span class="sort-icon"></span></th>
-                        <th data-column="DD">Details Status<span class="sort-icon"></span></th>
-                <!--   <th data-column="BNO">BNO <span class="sort-icon"></span></th>
-                        <th data-column="PVN">PON <span class="sort-icon"></span></th> -->
+                        <th data-column="NAR">In Care Of <span class="sort-icon"></span></th>
+                        <th data-column="DD">Details Status <span class="sort-icon"></span></th>
                     </tr>
                 </thead>
                 <tbody id="checksTable"></tbody>
             </table>
         </div>
 
-        <!-- Empty State -->
         <div class="empty-state" id="emptyState">
             <i class="fas fa-search"></i>
             <p class="lead">Enter the name or school name to view search results</p>
         </div>
     </div>
 
-    <!-- Required JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js"></script>
-    <script src="scripts/index.js"></script> 
-
+    <script src="scripts/index.js"></script>
 </body>
+
 </html>
