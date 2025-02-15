@@ -14,9 +14,9 @@ class XMLTableHandler {
             DD: { index: 4, type: 'string' },
         };
 
-        this.enableLiveUpdate = false;
-        this.tableResetEnabled = true;
-        this.firstBackspace = true;
+        this.enableLiveUpdate = true;
+        this.tableResetEnabled = false;
+        this.BackspaceDefault = true;
 
         this.initializeEventListeners();
     }
@@ -27,15 +27,15 @@ class XMLTableHandler {
                 let inputBefore = this.searchInput.value.trim();
                 setTimeout(() => {
                     let inputAfter = this.searchInput.value.trim();
-                    if (this.firstBackspace && inputBefore.length > 1) {
+                    if (this.BackspaceDefault && inputBefore.length > 1) {
                         let caretPosition = this.searchInput.selectionStart;
                         this.resetTable();
                         this.searchInput.value = inputAfter;
                         this.searchInput.setSelectionRange(caretPosition, caretPosition);
-                        this.firstBackspace = false;
+                        this.BackspaceDefault = false;
                     }
                     if (inputAfter.length > 0) {
-                        this.firstBackspace = true;
+                        this.BackspaceDefault = true;
                     }
                 }, 0);
             }
