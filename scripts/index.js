@@ -77,6 +77,9 @@ class XMLTableHandler {
         let narValue = element.getElementsByTagName('NAR')[0]?.textContent?.trim() || '';
         row.setAttribute('data-nar', narValue.toLowerCase()); // Store <NAR> for filtering
 
+        let ddValue = element.getElementsByTagName('DD')[0]?.textContent?.trim().toLowerCase() || '';
+        row.setAttribute('data-dd', ddValue); // Store <DD> for filtering
+
         Object.keys(this.columns).forEach(field => {
             const cell = document.createElement('td');
             let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
@@ -94,7 +97,6 @@ class XMLTableHandler {
             cell.setAttribute('data-field', field);
 
             if (field === 'DD') {
-                let ddValue = value.toLowerCase();
                 if (ddValue.includes('ready but not signed yet')) {
                     cell.classList.add('status-orange');
                 } else if (ddValue.includes('cheque ready')) {
@@ -123,7 +125,6 @@ class XMLTableHandler {
 
             let combinedXMLData = '<root>';
             for (const file of xmlFiles) {
-                // const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
                 const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 combinedXMLData += await fileResponse.text();
@@ -177,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
     handler.fetchXMLData();
 });
 
-
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
@@ -185,4 +185,3 @@ if ('serviceWorker' in navigator) {
         .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
-
