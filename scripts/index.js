@@ -266,85 +266,73 @@ class XMLTableHandler {
      * Parse XML and create table
      */
    parseXMLToTable(xmlString = null) {
-    console.log('Starting XML parsing...');
-    
     try {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString || this.xmlData, "text/xml");
-
-        // Debug XML structure
-        console.log('XML Structure:', {
-            rootElement: xmlDoc.documentElement.tagName,
-            firstChild: xmlDoc.documentElement.firstChild?.tagName,
-            totalNodes: xmlDoc.getElementsByTagName('*').length
-        });
-
+        
         if (xmlDoc.querySelector('parsererror')) {
             throw new Error('XML parsing error');
         }
 
         const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
-        console.log(`Found ${gPvnElements.length} G_PVN elements`);
-
-        // Debug first element
-        if (gPvnElements.length > 0) {
-            console.log('First G_PVN element structure:', {
-                tagName: gPvnElements[0].tagName,
-                childNodes: Array.from(gPvnElements[0].children).map(child => child.tagName),
-                rawXML: gPvnElements[0].outerHTML
-            });
+        if (!this.tableBody) {
+            throw new Error('Table body element not found');
         }
 
         this.tableBody.innerHTML = '';
-        let successCount = 0;
-
-        Array.from(gPvnElements).forEach((element, index) => {
-            try {
-                const row = this.createTableRow(element);
-                if (index === 0) {
-                    console.log('First row created:', row.outerHTML);
-                }
-                this.tableBody.appendChild(row);
-                successCount++;
-            } catch (rowError) {
-                console.error(`Error creating row ${index}:`, rowError);
-            }
+        Array.from(gPvnElements).forEach((element) => {
+            const row = this.createTableRow(element);
+            this.tableBody.appendChild(row);
         });
 
-        console.log(`Successfully created ${successCount}/${gPvnElements.length} rows`);
-        
-        // Verify table content
-        console.log('Table body content:', {
-            numberOfRows: this.tableBody.children.length,
-            firstRowHTML: this.tableBody.firstChild?.outerHTML,
-            tableVisible: this.tableBody.offsetParent !== null
-        });
-
-        this.updateTableVisibility(true);
         return true;
     } catch (error) {
-        console.error('ParseXMLToTable Error:', error);
+        console.error('Error in parseXMLToTable:', error);
         this.showError('Failed to parse XML data');
         return false;
     }
 }
 
-    /**
-     * Create a table row from XML element
-     */
-    createTableRow(element) {
-        const row = document.createElement('tr');
-        const narValue = this.getElementContent(element, 'NAR');
-        row.setAttribute('data-nar', narValue.toLowerCase());
+createTableRow(element) {
+    const row = document.createElement('tr');
 
-        Object.keys(this.columns).forEach(field => {
-            const cell = this.createTableCell(element, field);
-            row.appendChild(cell);
-        });
+    Object.keys(this.columns).forEach(field => {
+        const cell = document.createElement('td');
+        let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
 
-        return row;
-    }
+        if (field === 'AMOUNT') {
+            try {
+                value = parseFloat(value).toLocaleString('en-US');
+            } catch (error) {
+                console.warn(`Invalid amount value: ${value}`);
+                value = '0';
+            }
+        }
 
+        cell.textContent = value;
+        cell.setAttribute('data-field', field);
+
+        if (field === 'DD') {
+            let ddValue = value.toLowerCase();
+            if (ddValue.includes('despatched through gpo')) {
+                cell.classList.add('status-orange');
+            } else if (ddValue.includes('ready but not signed yet') || ddValue.includes('cheque ready')) {
+                cell.classList.add('status-green');
+            } else if (ddValue.includes('despatched to lakki camp office')) {
+                cell.classList.add('status-red');
+            } else if (ddValue.includes('sent to chairman sb. for sign')) {
+                cell.classList.add('status-blue');
+            } else {
+                cell.classList.add('status-gray');
+            }
+        }
+
+        row.appendChild(cell);
+    });
+
+    return row;
+}
+    
     /**
      * Create a table cell with proper formatting
      */
