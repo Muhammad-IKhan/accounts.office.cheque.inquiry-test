@@ -102,33 +102,30 @@ class XMLTableHandler {
 
         cell.textContent = value;
         cell.setAttribute('data-field', field);
+
+        // **Apply Colors Based on Status (`DD` field)**
+        if (field === 'DD') {
+            let ddValue = value.toLowerCase(); // Normalize case
+
+            if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
+                cell.classList.add('status-orange');  // 🟠 Orange for "Despatched through GPO"
+            } else if (ddValue.includes('cheque ready')) {
+                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
+            } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
+                cell.classList.add('status-red');     // ❌ Red for "Despatched to Lakki Camp Office"
+            } else if (ddValue.includes('sent to chairman sb. for sign')) {
+                cell.classList.add('status-blue');    // 🔵 Blue for "Sent to Chairman for Sign"
+            } else {
+                cell.classList.add('status-gray');    // ⚪ Gray for unknown status
+            }
+        }
+
         row.appendChild(cell);
     });
 
-    // **Check if <DD> exists before accessing textContent**
-    let ddElement = element.getElementsByTagName('DD')[0];
-    let ddValue = ddElement ? ddElement.textContent.trim().toLowerCase() : '';
-
-    // **Apply Colors Based on Status (`DD` field)**
-    if (ddValue.includes('Despatched through GPO (Manzoor Sb #03349797611) on 31/01/25')) {
-        
-        row.classList.add('status-orange');  // 🟠 Orange for "Ready but not signed yet"
-    } else if(ddValue.includes('Cheque Ready')) {
-        
-        row.classList.add('status-green');  // ✅ Green for "Ready"
-    } else if (ddValue.includes('Despatched to Lakki Camp Office ( Aziz Ullah API #03159853076 ) on 20/01/25')) {
-        
-        row.classList.add('status-red');    // ❌ Red for "Pending"
-    } else if (ddValue.includes('Sent to Chairman Sb. for Sign')) {
-        
-        row.classList.add('status-blue');   // 🔵 Blue for "Signed"
-    } else {
-        
-        row.classList.add('status-gray');   // ⚪ Gray for unknown status
-    }
-
     return row;
 }
+
 
     
 
