@@ -41,19 +41,24 @@ class XMLTableHandler {
     let reseting = true; 
 
     // Reset table when Backspace is pressed and input is empty OR Reset table on first Backspace press, but allow normal text removal
+    
     this.searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace') {
-            if (!this.tableResetDone) {
-                this.resetTable();
-                this.tableResetDone = true; // Prevent multiple resets
-            }
-            setTimeout(() => {
-                if (this.searchInput.value.trim() !== '') {
-                    this.tableResetDone = false; // Re-enable reset when input has text again
-                }
-            }, 10);
+    if (e.key === 'Backspace') {
+        // Check if table reset has been done
+        if (!this.tableResetDone) {
+            this.resetTable();
+            this.tableResetDone = true; // Prevent multiple resets
         }
-    });
+
+        // Allow normal character deletion by delaying flag reset
+        setTimeout(() => {
+            if (this.searchInput.value.trim() !== '') {
+                this.tableResetDone = false; // Re-enable reset when input has text again
+            }
+        }, 300); // Small delay to ensure input value updates correctly
+    }
+});
+
 
 
     // Search input handler for Enter key (can change the event here)
