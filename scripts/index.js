@@ -123,7 +123,8 @@ class XMLTableHandler {
 
             let combinedXMLData = '<root>';
             for (const file of xmlFiles) {
-                const fileResponse = await fetch(`accounts.office.cheque.inquiry/public/data/${file}`);
+                // const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
+                const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 combinedXMLData += await fileResponse.text();
             }
