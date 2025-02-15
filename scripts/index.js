@@ -42,7 +42,7 @@ class XMLTableHandler {
 
     // Reset table when Backspace is pressed and input is empty
     this.searchInput.addEventListener(searchEvents.reseting, (e) => {
-        if (e.key === 'Backspace'{
+        if (e.key === 'Backspace' && this.searchInput.value.trim() === ''{
             this.resetTable();
         }
     });
