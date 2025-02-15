@@ -38,7 +38,7 @@ class XMLTableHandler {
 
     // Flag to enable or disable live updates
     let enableLiveUpdate = false; // Set to `true` to enable live updates, `false` to disable
-    let reseting = true; 
+    let reseting = false; 
 
     // Reset table when Backspace is pressed and input is empty OR Reset table on first Backspace press, but allow normal text removal
     
