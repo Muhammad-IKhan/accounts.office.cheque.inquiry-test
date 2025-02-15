@@ -88,7 +88,7 @@ class XMLTableHandler {
     // Create and populate table cells for each column
     Object.keys(this.columns).forEach(field => {
         const cell = document.createElement('td');
-        let value = element.getElementsByTagName(field)[0]?.textContent.trim() || '';
+        let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
 
         // Format the AMOUNT field as a number
         if (field === 'AMOUNT') {
@@ -105,10 +105,14 @@ class XMLTableHandler {
         row.appendChild(cell);
     });
 
+    // **Check if <DD> exists before accessing textContent**
+    let ddElement = element.getElementsByTagName('DD')[0];
+    let ddValue = ddElement ? ddElement.textContent.trim().toLowerCase() : '';
+
     // **Apply Colors Based on Status (`DD` field)**
-    let ddValue = element.getElementsByTagName('DD')[0]?.textContent.trim().toLowerCase();
-    
-    if (ddValue.includes('Cheque Ready')) {
+    if (ddValue.includes('Despatched through GPO (Manzoor Sb #03349797611) on 31/01/25')) {
+        row.classList.add('status-orange');  // 🟠 Orange for "Ready but not signed yet"
+    } else if(ddValue.includes('Cheque Ready')) {
         row.classList.add('status-green');  // ✅ Green for "Ready"
     } else if (ddValue.includes('pending')) {
         row.classList.add('Sent to Chairman Sb. for Sign');    // ❌ Red for "Pending"
