@@ -31,10 +31,9 @@ class XMLTableHandler {
         this.searchInput.addEventListener('Enter', (e) => {
             if (e.key === 'Enter') {
                 this.searchAndFilterXML();
-            }
-        });
-
-           // this.searchInput.addEventListener('keypress', (e) => {
+            }});
+        
+            // this.searchInput.addEventListener('keypress', (e) => {
            //     if (e.key === 'keypress') {
            //         this.searchAndFilterXML();
             }
@@ -44,6 +43,7 @@ class XMLTableHandler {
             // this.searchInput.addEventListener('input', () => {
             //  this.searchAndFilterXML();
             });
+            
     
             // Initialize sorting handlers for each column
             Object.keys(this.columns).forEach(columnName => {
