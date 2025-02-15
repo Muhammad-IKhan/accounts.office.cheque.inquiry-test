@@ -264,7 +264,7 @@
             async fetchXMLData() {
                 try {
                     // const response = await fetch('/data/sample.xml');
-                    const response = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
+                    const response = await fetch('/accounts.office.cheque.inquiry-test/public/data/files.json');
                     if (!response.ok) throw new Error('Network response was not ok');
                     const xmlString = await response.text();
                     this.parseXMLToTable(xmlString);
