@@ -51,7 +51,7 @@ class XMLTableHandler {
                 if (this.searchInput.value.trim() !== '') {
                     this.tableResetDone = false; // Re-enable reset when input has text again
                 }
-            }, 0);
+            }, 10);
         }
     });
 
