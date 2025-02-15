@@ -219,5 +219,4 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
         .then(registration => console.log('ServiceWorker registered:', registration.scope))
         .catch(err => console.error('ServiceWorker registration failed:', err));
-    });
-});
+    });});
