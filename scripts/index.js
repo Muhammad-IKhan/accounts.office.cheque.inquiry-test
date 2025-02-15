@@ -1,4 +1,4 @@
-class XMLTableHandler { 
+class XMLTableHandler {
     constructor() {
         this.tableBody = document.getElementById('checksTable');
         this.searchInput = document.getElementById('search');
