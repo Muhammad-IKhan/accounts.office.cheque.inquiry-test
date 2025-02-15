@@ -116,7 +116,7 @@ class XMLTableHandler {
     } else if(ddValue.includes('Cheque Ready')) {
         
         row.classList.add('status-green');  // ✅ Green for "Ready"
-    } else if (ddValue.includes('pending')) {
+    } else if (ddValue.includes('Despatched to Lakki Camp Office ( Aziz Ullah API #03159853076 ) on 20/01/25')) {
         
         row.classList.add('status-red');    // ❌ Red for "Pending"
     } else if (ddValue.includes('Sent to Chairman Sb. for Sign')) {
