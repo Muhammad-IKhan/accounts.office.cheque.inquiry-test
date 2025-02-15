@@ -27,24 +27,26 @@ class XMLTableHandler {
     }
 
     initializeEventListeners() {
-        // Search input handler for Enter key
-        this.searchInput.addEventListener('Enter', (e) => {
-            if (e.key === 'Enter') {
-                this.searchAndFilterXML();
-            }});
+            // Define event configurations for search input
+            const searchEvents = {
+                enter: 'keydown', // Change this to 'keypress' if needed
+                liveUpdate: 'input' // Live update event
+            };
         
-            // this.searchInput.addEventListener('keypress', (e) => {
-           //     if (e.key === 'keypress') {
-           //         this.searchAndFilterXML();
-            }
+            // Search input handler for Enter key (can change the event here)
+            this.searchInput.addEventListener(searchEvents.enter, (e) => {
+                if (e.key === 'Enter') {
+                    this.searchAndFilterXML();
+                }
             });
-    
-            // Search input handler for live updates
-            // this.searchInput.addEventListener('input', () => {
-            //  this.searchAndFilterXML();
+        
+        
+            // Search input handler for live updates (this stays the same)
+            this.searchInput.addEventListener(searchEvents.liveUpdate, () => {
+                e.preventDefault();
             });
-            
-    
+        
+        
             // Initialize sorting handlers for each column
             Object.keys(this.columns).forEach(columnName => {
                 const header = document.querySelector(`th[data-column="${columnName}"]`);
@@ -52,7 +54,8 @@ class XMLTableHandler {
                     header.addEventListener('click', () => this.sortTable(columnName));
                 }
             });
-    }
+        }
+
 
     parseXMLToTable(xmlString = null) {
         try {
