@@ -107,9 +107,22 @@ class XMLTableHandler {
      */
     filterByNar() {
         const category = this.narFilter.value.toLowerCase();
+        console.log(`Filtering by category: ${category}`);
+        
         this.tableBody.querySelectorAll('tr').forEach(row => {
-            const matches = row.getAttribute('data-nar').includes(category) || row.getAttribute('data-dd').includes(category);
-            row.style.display = category === "all" || matches ? '' : 'none';
+            const categoryText = row.getAttribute('data-nar');
+            const matches = categoryText.includes(category);
+            
+            // Special handling for "SUPERVISORY STAFF EXAM"
+            if (category === "supervisory staff exam") {
+                if (categoryText.includes("supervisory staff ssc exam") || categoryText.includes("supervisory staff hssc exam")) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            } else {
+                row.style.display = category === "all" || matches ? "" : "none";
+            }
         });
     }
     
@@ -118,6 +131,7 @@ class XMLTableHandler {
      */
     search() {
         const searchTerm = this.searchInput.value.toLowerCase();
+        console.log(`Searching for: ${searchTerm}`);
         if (!searchTerm) return this.resetTable();
         
         this.tableBody.querySelectorAll('tr').forEach(row => {
@@ -130,6 +144,7 @@ class XMLTableHandler {
      * Resets the table to show all rows.
      */
     resetTable() {
+        console.log("Resetting table...");
         this.searchInput.value = '';
         this.narFilter.value = 'all';
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
@@ -148,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const handler = new XMLTableHandler();
     handler.fetchXMLData();
 });
-
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
