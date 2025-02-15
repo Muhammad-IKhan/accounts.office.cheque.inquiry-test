@@ -109,6 +109,10 @@ class XMLTableHandler {
 
             if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
                 cell.classList.add('status-orange');  // 🟠 Orange for "Despatched through GPO"
+            } else if (ddValue.includes('Ready but not signed yet')) {
+                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
+            } else if (ddValue.includes('cheque ready')) {
+                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
             } else if (ddValue.includes('cheque ready')) {
                 cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
             } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
