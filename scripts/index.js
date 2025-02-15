@@ -1,4 +1,3 @@
-
 class XMLTableHandler {
     constructor() {
         // Initialize DOM elements
@@ -7,133 +6,105 @@ class XMLTableHandler {
         this.tableContainer = document.getElementById('tableContainer');
         this.emptyState = document.getElementById('emptyState');
         this.resultContainer = document.getElementById('result');
-        
+
         // Column configuration
         this.columns = {
-            // SNO: { index: 0, type: 'number' },
             NARRATION: { index: 0, type: 'string' },
             AMOUNT: { index: 1, type: 'number' },
             CHEQ_NO: { index: 2, type: 'number' },
             NAR: { index: 3, type: 'string' },
             DD: { index: 4, type: 'string' },
-            // BNO: { index: 5, type: 'number' },
-            // PVN: { index: 6, type: 'number' },
-            // XYZ: { index: 0, type: 'number' },
-        
         };
+
+        // Initialize flags
+        this.enableLiveUpdate = true; // Toggle live update ON/OFF
+        this.tableResetEnabled = true; // Toggle table reset ON/OFF
+        this.firstBackspace = true; // Track first Backspace press for reset behavior
 
         // Initialize event listeners
         this.initializeEventListeners();
     }
 
-
-
     initializeEventListeners() {
-    // Define event configurations for search input
-    const searchEvents = {
-        enter: 'keydown', // Handles enter key search trigger
-        liveUpdate: 'input', // Handles live updates
-        tableReset: 'keydown', // Handles table reset
-    };
+        // Define event configurations for search input
+        const searchEvents = {
+            enter: 'keydown', // Handles enter key search trigger
+            liveUpdate: 'input', // Handles live updates
+            tableReset: 'keydown', // Handles table reset
+        };
 
-    // Flags to enable or disable features
-    let enableLiveUpdate = true; // Toggle live update ON/OFF
-    let tableResetEnabled = true; // Toggle table reset ON/OFF
+        // Handle Backspace (Table Reset Logic)
+        this.searchInput.addEventListener(searchEvents.tableReset, (e) => {
+            console.log(`Key pressed: ${e.key}`);
 
-    // Handle search input for Backspace (Table Reset Logic)
-    this.searchInput.addEventListener(searchEvents.tableReset, (e) => {
-        console.log(`Key pressed: ${e.key}`);
+            if (e.key === 'Backspace' && this.tableResetEnabled) {
+                console.log(`[BACKSPACE] Pressed, checking conditions...`);
 
-        if (e.key === 'Backspace' && tableResetEnabled) {
-            console.log(`[BACKSPACE] Pressed, checking conditions...`);
+                let inputBefore = this.searchInput.value.trim();
+                console.log(`[BACKSPACE] Current input value: "${inputBefore}"`);
 
-            let inputBefore = this.searchInput.value.trim();
-            console.log(`[BACKSPACE] Current input value: "${inputBefore}"`);
+                setTimeout(() => {
+                    let inputAfter = this.searchInput.value.trim();
+                    console.log(`[BACKSPACE] After delay, new input value: "${inputAfter}"`);
 
-            setTimeout(() => {
-                let inputAfter = this.searchInput.value.trim();
-                console.log(`[BACKSPACE] After delay, new input value: "${inputAfter}"`);
+                    if (this.firstBackspace && inputBefore.length > 1) {
+                        console.log(`[BACKSPACE] Resetting table...`);
 
-                if (!this.tableReset && inputBefore.length > 1) {
-                    console.log(`[BACKSPACE] Resetting table...`);
+                        let caretPosition = this.searchInput.selectionStart; // Save cursor position
+                        this.resetTable();
+                        this.searchInput.value = inputAfter; // Restore input text after reset
+                        this.searchInput.setSelectionRange(caretPosition, caretPosition); // Restore cursor position
 
-                    let caretPosition = this.searchInput.selectionStart; // Save cursor position
-                    this.resetTable();
-                    this.searchInput.value = inputAfter; // Restore input text after reset
-                    this.searchInput.setSelectionRange(caretPosition, caretPosition); // Restore cursor position
+                        this.firstBackspace = false; // Prevent multiple resets
+                        console.log(`[BACKSPACE] Table reset triggered.`);
+                    }
 
-                    this.tableReset = true;
-                    console.log(`[BACKSPACE] Table reset triggered.`);
-                }
+                    if (inputAfter.length > 0) {
+                        this.firstBackspace = true; // Allow reset only after new input
+                        console.log(`[BACKSPACE] Reset flag re-enabled.`);
+                    } else {
+                        console.log(`[BACKSPACE] Input is empty, keeping reset flag.`);
+                    }
+                }, 0);
+            }
+        });
 
-                if (inputAfter.length > 0) {
-                    this.tableReset = false;
-                    console.log(`[BACKSPACE] Reset flag re-enabled.`);
-                } else {
-                    console.log(`[BACKSPACE] Input is empty, keeping reset flag.`);
-                }
-            }, 0);
-        }
-    });
+        // Handle Enter key to trigger search
+        this.searchInput.addEventListener(searchEvents.enter, (e) => {
+            if (e.key === 'Enter') {
+                console.log(`[ENTER] Key pressed. Triggering search...`);
+                this.searchAndFilterXML();
+            }
+        });
 
-    // Handle Enter key to trigger search
-    this.searchInput.addEventListener(searchEvents.enter, (e) => {
-        if (e.key === 'Enter') {
-            console.log(`[ENTER] Key pressed. Triggering search...`);
-            this.searchAndFilterXML();
-        }
-    });
-  
+        // Handle live updates (conditionally active based on the flag)
+        this.searchInput.addEventListener(searchEvents.liveUpdate, (e) => {
+            if (this.enableLiveUpdate) {
+                console.log('[LIVE UPDATE] Input changed. Performing search...');
+                this.searchAndFilterXML();
+            } else {
+                console.log('[LIVE UPDATE] Disabled. Ignoring input change.');
+                e.preventDefault(); // Prevents the live update action from executing
+            }
+        });
 
-    // Search input handler for live updates (conditionally active based on the flag)
-    this.searchInput.addEventListener(searchEvents.liveUpdate, (e) => {
-        if (enableLiveUpdate) {
-            console.log('[LIVE UPDATE] Input changed. Performing search...');
-            this.searchAndFilterXML();
-        } else {
-            console.log('[LIVE UPDATE] Disabled. Ignoring input change.');
-            e.preventDefault(); // Prevents the live update action from executing
-        }
-    });
+        // Initialize sorting handlers for each column
+        Object.keys(this.columns).forEach(columnName => {
+            const header = document.querySelector(`th[data-column="${columnName}"]`);
+            if (header) {
+                header.addEventListener('click', () => {
+                    console.log(`[SORT] Sorting by column: ${columnName}`);
+                    this.sortTable(columnName);
+                });
+            } else {
+                console.log(`[SORT] Warning: No header found for column "${columnName}".`);
+            }
+        });
 
+        console.log('✅ Event listeners initialized successfully.');
+    }
 }
 
-
-// Initialize sorting handlers for each column
-Object.keys(this.columns).forEach(columnName => {
-    const header = document.querySelector(`th[data-column="${columnName}"]`);
-    if (header) {
-        header.addEventListener('click', () => {
-            console.log(`[SORT] Sorting by column: ${columnName}`);
-            this.sortTable(columnName);
-        });
-    } else {
-        console.log(`[SORT] Warning: No header found for column "${columnName}".`);
-    }
-});
-
-console.log('✅ Event listeners initialized successfully.');
-
-
-
-         // this.searchInput.addEventListener('keydown', (e) => {
-    //     if (e.key === 'Backspace') {
-    //         if (!this.tableReset) {
-    //             setTimeout(() => {
-    //                 this.resetTable(); // Reset the table AFTER the character is deleted
-    //                 this.tableReset = true;
-    //             }, 10);
-    //         }
-    
-    //         setTimeout(() => {
-    //             if (this.searchInput.value.trim().length === 0) {
-    //                 this.tableReset = false; // Allow reset again when input is re-typed
-    //                                         
-    
-    //             }
-    //         }, 10);
-    //     }
-    // });
 
 
 
