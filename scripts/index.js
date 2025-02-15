@@ -19,7 +19,7 @@ class XMLTableHandler {
         };
 
         // Flag to track table reset state
-        this.tableResetDone = false;
+        this.tableResetDone = true;
 
         // Flag for enabling/disabling live updates
         this.enableLiveUpdate = false; // Set to true if you want live updates
