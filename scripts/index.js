@@ -41,34 +41,29 @@ class XMLTableHandler {
     let tableReset = true; 
 
     // Reset table when Backspace is pressed and input is empty OR Reset table on first Backspace press, but allow normal text removal
-    this.searchInput.addEventListener('keydown', (e) => {
+           this.searchInput.addEventListener('keydown', (e) => {
     console.log(`Key pressed: ${e.key}`);
 
     if (e.key === 'Backspace') {
         console.log(`[BACKSPACE] Pressed, checking conditions...`);
 
-        let inputValue = this.searchInput.value.trim();
-        let newValue = inputValue.slice(0, -1); // Simulating deletion
+        // Capture input before deletion
+        let inputBefore = this.searchInput.value.trim();
+        console.log(`[BACKSPACE] Current input value: "${inputBefore}"`);
 
-        console.log(`[BACKSPACE] Before deletion, input: "${inputValue}"`);
-        console.log(`[BACKSPACE] After deletion, input would be: "${newValue}"`);
-
-        if (!this.tableReset && inputValue.length > 1) {
-            console.log(`[BACKSPACE] Resetting table...`);
-            this.resetTable();
-            this.tableReset = true; // Ensure reset happens only once
-            console.log(`[BACKSPACE] Table reset triggered.`);
-        } else {
-            console.log(`[BACKSPACE] No table reset needed.`);
-        }
-
-        // Re-enable table reset when new characters are typed
         setTimeout(() => {
-            let updatedValue = this.searchInput.value.trim();
-            console.log(`[BACKSPACE] After delay, input is now: "${updatedValue}"`);
+            let inputAfter = this.searchInput.value.trim(); // Check input after deletion
+            console.log(`[BACKSPACE] After delay, new input value: "${inputAfter}"`);
 
-            if (updatedValue.length > 0) {
-                this.tableReset = false;
+            if (!this.tableReset && inputBefore.length > 1) {
+                console.log(`[BACKSPACE] Resetting table...`);
+                this.resetTable();
+                this.tableReset = true; // Ensure reset happens only once
+                console.log(`[BACKSPACE] Table reset triggered.`);
+            }
+
+            if (inputAfter.length > 0) {
+                this.tableReset = false; // Allow reset on future input
                 console.log(`[BACKSPACE] Reset flag re-enabled.`);
             } else {
                 console.log(`[BACKSPACE] Input is empty, keeping reset flag.`);
