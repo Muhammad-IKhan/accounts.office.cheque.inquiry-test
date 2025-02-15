@@ -203,17 +203,21 @@
         </div>
     </div>
 
-    <!-- Service Worker Registration -->
     <script>
+        // Service Worker registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('  https://github.com/Muhammad-IKhan/accounts.office.cheque.inquiry-test/main/public/data/files.json ')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
+                const swPath = '/accounts.office.cheque.inquiry-test/service-worker.js';
+                
+                navigator.serviceWorker.register(swPath, {
+                    scope: '/accounts.office.cheque.inquiry-test/'
+                })
+                .then(registration => {
+                    console.log('ServiceWorker registration successful with scope:', registration.scope);
+                })
+                .catch(err => {
+                    console.error('ServiceWorker registration failed:', err);
+                });
             });
         }
 
