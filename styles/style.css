@@ -189,4 +189,6 @@ tr:hover {
 .status-red { background-color: #f8d7da; color: #721c24; }   /* Red */
 .status-blue { background-color: #cce5ff; color: #004085; }  /* Blue */
 .status-gray { background-color: #e2e3e5; color: #6c757d; }  /* Gray */
+.status-orange { background-color: #ffe5b4; color: #cc7a00; } /* Orange */
+
 
