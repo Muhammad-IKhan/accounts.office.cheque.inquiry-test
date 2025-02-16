@@ -109,10 +109,6 @@ class XMLTableHandler {
 
             if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
                 cell.classList.add('status-orange');  // 🟠 Orange for "Despatched through GPO"
-            } else if (ddValue.includes('Ready but not signed yet')) {
-                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
-            } else if (ddValue.includes('cheque ready')) {
-                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
             } else if (ddValue.includes('cheque ready')) {
                 cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
             } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
@@ -204,3 +200,212 @@ if ('serviceWorker' in navigator) {
         .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+// class XMLTableHandler {
+//     constructor() {
+//         console.log('Initializing XMLTableHandler...');
+        
+//         try {
+//             this.initializeDOMElements();
+//             this.defineColumns();
+//             this.initializeState();
+//             this.initializeEventListeners();
+//             console.log('XMLTableHandler initialization successful');
+//         } catch (error) {
+//             console.error('Constructor Error:', error);
+//             this.showError('Failed to initialize table handler');
+//         }
+//     }
+
+//     initializeDOMElements() {
+//         const required_elements = {
+//             'checksTable': 'tableBody',
+//             'search': 'searchInput',
+//             'narCategory': 'narFilter',
+//             'tableContainer': 'tableContainer',
+//             'emptyState': 'emptyState',
+//             'result': 'resultContainer'
+//         };
+
+//         for (const [id, prop] of Object.entries(required_elements)) {
+//             const element = document.getElementById(id);
+//             if (!element) {
+//                 throw new Error(`Required element #${id} not found in DOM`);
+//             }
+//             this[prop] = element;
+//             console.log(`✓ Found ${id} element`);
+//         }
+//     }
+
+//     defineColumns() {
+//         this.columns = {
+//             NARRATION: { index: 0, type: 'string', required: true },
+//             AMOUNT: { index: 1, type: 'number', required: true },
+//             CHEQ_NO: { index: 2, type: 'number', required: true },
+//             NAR: { index: 3, type: 'string', required: true },
+//             DD: { index: 4, type: 'string', required: true }
+//         };
+//         console.log('Column structure defined:', Object.keys(this.columns));
+//     }
+
+//     initializeState() {
+//         this.enableLiveUpdate = false;
+//         this.tableResetEnabled = true;
+//         this.BackspaceDefault = true;
+//         this.xmlData = '';
+//         this.lastSearchTerm = '';
+//         this.lastFilterCategory = 'all';
+//         console.log('State variables initialized');
+//     }
+
+//     initializeEventListeners() {
+//         console.log('Setting up event listeners...');
+
+//         try {
+//             this.setupSearchListeners();
+//             this.setupNarFilterListeners();
+//             this.setupSorting();
+//             console.log('Event listeners setup complete');
+//         } catch (error) {
+//             console.error('Error in event listener setup:', error);
+//             this.showError('Failed to initialize event handlers');
+//         }
+//     }
+
+//     setupSearchListeners() {
+//         // Keydown event for search
+//         this.searchInput.addEventListener('keydown', (e) => {
+//             console.log('Search keydown event:', e.key);
+            
+//             if (e.key === 'Enter') {
+//                 console.log('Enter key pressed - triggering search');
+//                 this.search();
+//             }
+
+//             if (e.key === 'Backspace' && this.tableResetEnabled) {
+//                 this.handleBackspace();
+//             }
+//         });
+
+//         // Input event for live updates
+//         this.searchInput.addEventListener('input', () => {
+//             if (this.enableLiveUpdate) {
+//                 console.log('Live update triggered');
+//                 this.search();
+//             }
+//         });
+
+//         // Search button click event
+//         const searchBtn = document.getElementById('searchBtn');
+//         if (searchBtn) {
+//             searchBtn.addEventListener('click', () => {
+//                 console.log('Search button clicked - triggering search');
+//                 this.search();
+//             });
+//         } else {
+//             console.warn('Search button not found');
+//         }
+//     }
+
+//     setupSorting() {
+//         const tableHeaders = document.querySelectorAll('#chequeTable th[data-column]');
+//         tableHeaders.forEach(header => {
+//             header.addEventListener('click', () => {
+//                 const column = header.getAttribute('data-column');
+//                 const isAscending = header.classList.toggle('asc');
+//                 this.sortTable(column, isAscending);
+//             });
+//         });
+//     }
+
+//     sortTable(column, isAscending) {
+//         const rows = Array.from(this.tableBody.querySelectorAll('tr'));
+//         const columnIndex = this.columns[column].index;
+
+//         rows.sort((rowA, rowB) => {
+//             const cellA = rowA.querySelectorAll('td')[columnIndex].textContent.trim();
+//             const cellB = rowB.querySelectorAll('td')[columnIndex].textContent.trim();
+
+//             if (this.columns[column].type === 'number') {
+//                 return isAscending ? parseFloat(cellA) - parseFloat(cellB) : parseFloat(cellB) - parseFloat(cellA);
+//             } else {
+//                 return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+//             }
+//         });
+
+//         this.tableBody.innerHTML = '';
+//         rows.forEach(row => this.tableBody.appendChild(row));
+
+//         console.log(`Table sorted by ${column} in ${isAscending ? 'ascending' : 'descending'} order`);
+//     }
+
+//     async fetchXMLData() {
+//         console.log('Starting XML data fetch...');
+        
+//         try {
+//             const filesResponse = await this.fetchWithTimeout('/accounts.office.cheque.inquiry/public/data/files.json');
+//             const xmlFiles = await filesResponse.json();
+//             console.log(`Found ${xmlFiles.length} XML files to process`);
+
+//             let combinedXMLData = '<root>';
+//             for (const file of xmlFiles) {
+//                 console.log(`Fetching file: ${file}`);
+//                 const fileResponse = await this.fetchWithTimeout(`/accounts.office.cheque.inquiry/public/data/${file}`);
+//                 combinedXMLData += await fileResponse.text();
+//             }
+//             combinedXMLData += '</root>';
+
+//             // Validate XML structure
+//             if (!this.validateXMLStructure(combinedXMLData)) {
+//                 throw new Error('Invalid XML structure detected');
+//             }
+
+//             localStorage.setItem('xmlData', combinedXMLData);
+//             this.xmlData = combinedXMLData;
+//             console.log('XML data successfully fetched and stored');
+
+//             return this.parseXMLToTable(combinedXMLData);
+//         } catch (error) {
+//             console.error('XML fetch error:', error);
+//             return this.handleXMLFetchError(error);
+//         }
+//     }
+
+//     // ... (rest of the methods remain unchanged)
+// }
+
+// // Initialize handler with error catching
+// document.addEventListener('DOMContentLoaded', () => {
+//     console.log('DOM Content Loaded - Initializing XMLTableHandler');
+    
+//     try {
+//         const handler = new XMLTableHandler();
+//         handler.fetchXMLData().then(() => {
+//             console.log('Initial data fetch complete');
+//             handler.resetTable();
+//         }).catch(error => {
+//             console.error('Initialization error:', error);
+//         });
+//     } catch (error) {
+//         console.error('Fatal initialization error:', error);
+//     }
+// });
+
+// // Register service worker
+// if ('serviceWorker' in navigator) {
+//     window.addEventListener('load', () => {
+//         navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
+//             .then(registration => console.log('ServiceWorker registered:', registration.scope))
+//             .catch(err => console.error('ServiceWorker registration failed:', err));
+//     });
+// }
