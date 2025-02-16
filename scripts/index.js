@@ -68,7 +68,22 @@ class XMLTableHandler {
                 throw new Error('Table body element not found');
             }
 
+            // Clear existing table rows
             this.tableBody.innerHTML = '';
+
+            // Create table headers dynamically from the first <G_PVN> element
+            const firstElement = gPvnElements[0];
+            if (firstElement) {
+                const headerRow = document.createElement('tr');
+                Object.keys(this.columns).forEach(field => {
+                    const headerCell = document.createElement('th');
+                    headerCell.textContent = field;
+                    headerRow.appendChild(headerCell);
+                });
+                this.tableBody.appendChild(headerRow);
+            }
+
+            // Create and append rows for each <G_PVN> element
             Array.from(gPvnElements).forEach((element) => {
                 const row = this.createTableRow(element);
                 this.tableBody.appendChild(row);
@@ -83,55 +98,50 @@ class XMLTableHandler {
     }
 
     createTableRow(element) {
-    const row = document.createElement('tr');
+        const row = document.createElement('tr');
 
-    // Create and populate table cells for each column
-    Object.keys(this.columns).forEach(field => {
-        const cell = document.createElement('td');
-        let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+        // Create and populate table cells for each column
+        Object.keys(this.columns).forEach(field => {
+            const cell = document.createElement('td');
+            let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
 
-        // Format the AMOUNT field as a number
-        if (field === 'AMOUNT') {
-            try {
-                value = parseFloat(value).toLocaleString('en-US');
-            } catch (error) {
-                console.warn(`Invalid amount value: ${value}`);
-                value = '0';
+            // Format the AMOUNT field as a number
+            if (field === 'AMOUNT') {
+                try {
+                    value = parseFloat(value).toLocaleString('en-US');
+                } catch (error) {
+                    console.warn(`Invalid amount value: ${value}`);
+                    value = '0';
+                }
             }
-        }
 
-        cell.textContent = value;
-        cell.setAttribute('data-field', field);
+            cell.textContent = value;
+            cell.setAttribute('data-field', field);
 
-        // **Apply Colors Based on Status (`DD` field)**
-        if (field === 'DD') {
-            let ddValue = value.toLowerCase(); // Normalize case
+            // Apply Colors Based on Status (`DD` field)
+            if (field === 'DD') {
+                let ddValue = value.toLowerCase(); // Normalize case
 
-            if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
-                cell.classList.add('status-orange');  // 🟠 Orange for "Despatched through GPO"
-            } else if (ddValue.includes('Ready but not signed yet')) {
-                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
-            } else if (ddValue.includes('cheque ready')) {
-                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
-            } else if (ddValue.includes('cheque ready')) {
-                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
-            } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
-                cell.classList.add('status-red');     // ❌ Red for "Despatched to Lakki Camp Office"
-            } else if (ddValue.includes('sent to chairman sb. for sign')) {
-                cell.classList.add('status-blue');    // 🔵 Blue for "Sent to Chairman for Sign"
-            } else {
-                cell.classList.add('status-gray');    // ⚪ Gray for unknown status
+                if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
+                    cell.classList.add('status-orange');  // 🟠 Orange for "Despatched through GPO"
+                } else if (ddValue.includes('Ready but not signed yet')) {
+                    cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
+                } else if (ddValue.includes('cheque ready')) {
+                    cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
+                } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
+                    cell.classList.add('status-red');     // ❌ Red for "Despatched to Lakki Camp Office"
+                } else if (ddValue.includes('sent to chairman sb. for sign')) {
+                    cell.classList.add('status-blue');    // 🔵 Blue for "Sent to Chairman for Sign"
+                } else {
+                    cell.classList.add('status-gray');    // ⚪ Gray for unknown status
+                }
             }
-        }
 
-        row.appendChild(cell);
-    });
+            row.appendChild(cell);
+        });
 
-    return row;
-}
-
-
-    
+        return row;
+    }
 
     async fetchXMLData() {
         try {
@@ -204,4 +214,3 @@ if ('serviceWorker' in navigator) {
         .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
-
