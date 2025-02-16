@@ -142,7 +142,8 @@ class XMLTableHandler {
 
     createTableRow(element) {
         const row = document.createElement('tr');
-        row.setAttribute('data-nar', element.getElementsByTagName('NAR')[0]?.textContent?.trim().toLowerCase() || '');
+        let narValue = element.getElementsByTagName('NAR')[0]?.textContent?.trim() || '';
+        row.setAttribute('data-nar', narValue.toLowerCase()); // Store <NAR> for filtering
 
         Object.keys(this.columns).forEach(field => {
             const cell = document.createElement('td');
@@ -162,13 +163,13 @@ class XMLTableHandler {
 
             if (field === 'DD') {
                 let ddValue = value.toLowerCase();
-                if (ddValue.includes('despatched through gpo')) {
+                if (ddValue.includes('ready but not signed yet')) {
                     cell.classList.add('status-orange');
-                } else if (ddValue.includes('ready but not signed yet') || ddValue.includes('cheque ready')) {
+                } else if (ddValue.includes('cheque ready')) {
                     cell.classList.add('status-green');
-                } else if (ddValue.includes('despatched to lakki camp office')) {
+                } else if (ddValue.includes('pending')) {
                     cell.classList.add('status-red');
-                } else if (ddValue.includes('sent to chairman')) {
+                } else if (ddValue.includes('sent to chairman sb. for sign')) {
                     cell.classList.add('status-blue');
                 } else {
                     cell.classList.add('status-gray');
