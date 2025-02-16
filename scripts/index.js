@@ -1,11 +1,13 @@
 class XMLTableHandler {
     constructor() {
+        console.log("XMLTableHandler constructed.");
         this.tableBody = document.getElementById('checksTable');
         this.searchInput = document.getElementById('search');
         this.tableContainer = document.getElementById('tableContainer');
         this.emptyState = document.getElementById('emptyState');
         this.resultContainer = document.getElementById('result');
-        this.narFilter = document.getElementById('narCategory'); // Dropdown for filtering by <NAR>
+        this.narFilter = document.getElementById('narCategory');
+        this.xmlData = ''; // Initialize xmlData to an empty string
 
         this.columns = {
             NARRATION: { index: 0, type: 'string' },
@@ -15,41 +17,40 @@ class XMLTableHandler {
             DD: { index: 4, type: 'string' },
         };
 
-        this.enableLiveUpdate = false;
-        this.tableResetEnabled = true;
-        this.BackspaceDefault = true;
-        
         this.initializeEventListeners();
     }
 
     initializeEventListeners() {
-        // Search input event listeners
+        console.log("Initializing event listeners.");
         this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
+                console.log("Enter key pressed in search input.");
                 this.search();
             }
         });
 
         this.searchInput.addEventListener('input', () => {
-            if (this.enableLiveUpdate) {
-                this.search();
-            }
+             console.log("Input changed in search input.");
+            // Consider debouncing here for large datasets to improve performance
+            this.search();
         });
 
-        // Filtering by <NAR> category dropdown
         this.narFilter.addEventListener('change', () => {
+            console.log("NAR filter dropdown changed.");
             this.filterByNar();
         });
     }
 
     parseXMLToTable(xmlString = null) {
+        console.log("Parsing XML data...");
         try {
-            console.log("Parsing XML data...");
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString || this.xmlData, "text/xml");
 
             if (xmlDoc.querySelector('parsererror')) {
-                throw new Error('XML parsing error');
+                const errorText = xmlDoc.querySelector('parsererror').textContent;
+                console.error('XML parsing error:', errorText);  // Log the detailed error
+                throw new Error('XML parsing error: ' + errorText);
             }
 
             const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
@@ -57,17 +58,25 @@ class XMLTableHandler {
                 throw new Error('Table body element not found');
             }
 
-            this.tableBody.innerHTML = '';
-            Array.from(gPvnElements).forEach((element) => {
+            this.tableBody.innerHTML = ''; // Clear table before populating
+            console.log(`Found ${gPvnElements.length} G_PVN elements.`);
+
+            Array.from(gPvnElements).forEach((element, index) => {
                 const row = this.createTableRow(element);
                 this.tableBody.appendChild(row);
+                console.log(`Added row ${index + 1} to the table.`);
             });
-            console.log("XML Data successfully parsed and displayed.");
 
+            if (gPvnElements.length === 0) {
+                this.tableBody.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
+                console.log("No data available to display.");
+            }
+
+            console.log("XML Data successfully parsed and displayed.");
             return true;
         } catch (error) {
             console.error('Error in parseXMLToTable:', error);
-            this.showError('Failed to parse XML data');
+            this.showError('Failed to parse XML data: ' + error.message); // Show the error message
             return false;
         }
     }
@@ -75,7 +84,7 @@ class XMLTableHandler {
     createTableRow(element) {
         const row = document.createElement('tr');
         let narValue = element.getElementsByTagName('NAR')[0]?.textContent?.trim() || '';
-        row.setAttribute('data-nar', narValue.toLowerCase()); // Store <NAR> for filtering
+        row.setAttribute('data-nar', narValue.toLowerCase());
 
         Object.keys(this.columns).forEach(field => {
             const cell = document.createElement('td');
@@ -85,7 +94,7 @@ class XMLTableHandler {
                 try {
                     value = parseFloat(value).toLocaleString('en-US');
                 } catch (error) {
-                    console.warn(`Invalid amount value: ${value}`);
+                    console.warn(`Invalid amount value: ${value}. Setting to 0. Error:`, error);
                     value = '0';
                 }
             }
@@ -113,19 +122,27 @@ class XMLTableHandler {
 
         return row;
     }
-       
+
     async fetchXMLData() {
+        console.log("Fetching XML data...");
         try {
-            console.log("Fetching XML data...");
             const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
-            if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
+            if (!filesResponse.ok) {
+                const errorText = await filesResponse.text(); // Get error details from server if available
+                throw new Error(`HTTP error! Status: ${filesResponse.status}, Details: ${errorText}`);
+            }
+
             const xmlFiles = await filesResponse.json();
+            console.log(`Found ${xmlFiles.length} XML files to fetch.`);
 
             let combinedXMLData = '<root>';
             for (const file of xmlFiles) {
-                // const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
+                console.log(`Fetching XML data from: ${file}`);
                 const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
-                if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
+                if (!fileResponse.ok) {
+                    const errorText = await fileResponse.text();
+                    throw new Error(`HTTP error for file: ${file}. Status: ${fileResponse.status}, Details: ${errorText}`);
+                }
                 combinedXMLData += await fileResponse.text();
             }
             combinedXMLData += '</root>';
@@ -137,12 +154,13 @@ class XMLTableHandler {
             return this.parseXMLToTable(combinedXMLData);
         } catch (error) {
             console.error('Error fetching XML:', error);
-            this.showError('Failed to load XML data');
+            this.showError('Failed to load XML data: ' + error.message); // Display specific error
             return false;
         }
     }
 
-    search() {
+
+   search() {
         const searchTerm = this.searchInput.value.toLowerCase();
         if (!searchTerm) return this.resetTable();
         this.tableBody.querySelectorAll('tr').forEach(row => {
@@ -166,15 +184,29 @@ class XMLTableHandler {
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
     }
 
+    
+    // showError(message) {
+    //     this.resultContainer.innerHTML = `<div class="error-message">${message}</div>`; // Add a class for styling
+    //     this.resultContainer.style.display = 'block';
+    // }
+
     showError(message) {
-        this.resultContainer.innerHTML = message;
+        console.error("Showing error:", message); // Log the error to the console as well
+        this.resultContainer.innerHTML = `<div class="error-message">${message}</div>`;
         this.resultContainer.style.display = 'block';
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("DOM content loaded.");
     const handler = new XMLTableHandler();
-    handler.fetchXMLData();
+    const success = await handler.fetchXMLData();
+    if (!success) {
+        console.error("Initial XML data fetch failed.");
+        handler.showError("Failed to load data. Please try again later.");
+        return;
+    }
+    console.log("Initial XML data fetch successful.");
 });
 
 
@@ -185,4 +217,3 @@ if ('serviceWorker' in navigator) {
         .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
-
