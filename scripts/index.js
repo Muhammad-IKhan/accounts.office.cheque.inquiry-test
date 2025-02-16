@@ -1,794 +1,500 @@
-// THIS REPLIT CODE IS BEST WORKING FOR SERACHING FILTERING SORTING BUT NEED COLORING AND PAGINATION
-// TRYING BY CLAUD FOR COLORING AND PAGINATION ON 2:38 16022025
-
-
-
-
-
-
 /**
- * XMLTableHandler Class
- * A comprehensive solution for handling XML data in a table format with the following features:
- * - XML parsing and dynamic table generation
- * - Advanced search functionality with category filtering
- * - Column sorting (ascending/descending)
- * - Status color coding with visual indicators
- * - Pagination with configurable page sizes
- * - Responsive error handling and data caching
- * - Service worker integration for offline capabilities
+ * XMLTableHandler: Enhanced class for XML data handling and table management
+ * Version: 2.0
+ * Debug Mode: Enabled
+ * Last Updated: 2025-02-15
  */
-
-
-
-
-
 class XMLTableHandler {
     constructor() {
-        // Initialize DOM elements
-        this.tableBody = document.getElementById('checksTable');
-        this.searchInput = document.getElementById('search');
-        this.tableContainer = document.getElementById('tableContainer');
-        this.emptyState = document.getElementById('emptyState');
-        this.resultContainer = document.getElementById('result');
-        this.narFilter = document.getElementById('narCategory');
-        this.searchBtn = document.getElementById('searchBtn');
+        console.log('Initializing XMLTableHandler...');
+        
+        try {
+            // Initialize DOM elements with error checking
+            this.initializeDOMElements();
+            
+            // Define column structure
+            this.defineColumns();
+            
+            // Initialize state variables
+            this.initializeState();
+            
+            console.log('XMLTableHandler initialization successful');
+        } catch (error) {
+            console.error('Constructor Error:', error);
+            this.showError('Failed to initialize table handler');
+        }
+    }
 
-        // Pagination configuration
-        this.currentPage = 1;
-        this.rowsPerPage = 10;
-        this.totalPages = 0;
-        this.allRows = [];
+    /**
+     * Initialize and validate all required DOM elements
+     * @throws {Error} If required elements are not found
+     */
+    initializeDOMElements() {
+        const required_elements = {
+            'checksTable': 'tableBody',
+            'search': 'searchInput',
+            'narCategory': 'narFilter',
+            'tableContainer': 'tableContainer',
+            'emptyState': 'emptyState',
+            'result': 'resultContainer'
+        };
 
-        // Column definitions for sorting
+        for (const [id, prop] of Object.entries(required_elements)) {
+            const element = document.getElementById(id);
+            if (!element) {
+                throw new Error(`Required element #${id} not found in DOM`);
+            }
+            this[prop] = element;
+            console.log(`✓ Found ${id} element`);
+        }
+    }
+
+    /**
+     * Define column structure and types
+     */
+    defineColumns() {
         this.columns = {
-            NARRATION: { index: 0, type: 'string' },
-            AMOUNT: { index: 1, type: 'number' },
-            CHEQ_NO: { index: 2, type: 'number' },
-            NAR: { index: 3, type: 'string' },
-            DD: { index: 4, type: 'string' }
+            NARRATION: { index: 0, type: 'string', required: true },
+            AMOUNT: { index: 1, type: 'number', required: true },
+            CHEQ_NO: { index: 2, type: 'number', required: true },
+            NAR: { index: 3, type: 'string', required: true },
+            DD: { index: 4, type: 'string', required: true }
         };
+        console.log('Column structure defined:', Object.keys(this.columns));
+    }
 
-        // Sorting state
-        this.sortState = {
-            column: '',
-            ascending: true
-        };
-
-        // Feature flags
+    /**
+     * Initialize state variables
+     */
+    initializeState() {
         this.enableLiveUpdate = false;
         this.tableResetEnabled = true;
         this.BackspaceDefault = true;
-
-        // Status color mapping
-        this.statusColors = {
-            'despatched through gpo': 'status-orange',
-            'ready but not signed yet': 'status-green',
-            'cheque ready': 'status-green',
-            'despatched to lakki camp office': 'status-red',
-            'sent to chairman': 'status-blue',
-            'expired': 'status-purple',
-            'cancelled': 'status-dark-red',
-            'rejected': 'status-dark-red',
-            'on hold': 'status-yellow',
-            'processing': 'status-cyan'
-        };
-
-        this.initializeEventListeners();
-        this.createPaginationControls();
+        this.xmlData = '';
+        this.lastSearchTerm = '';
+        this.lastFilterCategory = 'all';
+        console.log('State variables initialized');
     }
 
-       /**
-     * Initialize all event listeners for the table functionality
+    /**
+     * Set up all event listeners with error handling
      */
     initializeEventListeners() {
-        // Search and filter events
-        this.searchInput.addEventListener('keydown', this.handleKeyDown.bind(this));
-        this.searchBtn.addEventListener('click', () => this.search());
-        this.narFilter.addEventListener('change', () => this.search());
+        console.log('Setting up event listeners...');
 
-        // Sorting events
-        document.querySelectorAll('th[data-column]').forEach(header => {
-            header.addEventListener('click', () => {
-                const column = header.getAttribute('data-column');
-                if (column) this.sortTable(column);
+        try {
+            // Search input events
+            this.setupSearchListeners();
+            
+            // NAR filter events
+            this.setupNarFilterListeners();
+            
+            console.log('Event listeners setup complete');
+        } catch (error) {
+            console.error('Error in event listener setup:', error);
+            this.showError('Failed to initialize event handlers');
+        }
+    }
+
+    /**
+     * Set up search-related event listeners
+     */
+    setupSearchListeners() {
+        // Keydown event for search
+        this.searchInput.addEventListener('keydown', (e) => {
+            console.log('Search keydown event:', e.key);
+            
+            if (e.key === 'Enter') {
+                console.log('Enter key pressed - triggering search');
+                this.search();
+            }
+
+            if (e.key === 'Backspace' && this.tableResetEnabled) {
+                this.handleBackspace();
+            }
+        });
+
+        // Input event for live updates
+        this.searchInput.addEventListener('input', () => {
+            if (this.enableLiveUpdate) {
+                console.log('Live update triggered');
+                this.search();
+            }
+        });
+    }
+
+    /**
+     * Handle backspace key logic
+     */
+    handleBackspace() {
+        const inputBefore = this.searchInput.value.trim();
+        
+        setTimeout(() => {
+            const inputAfter = this.searchInput.value.trim();
+            console.log('Backspace handling:', { before: inputBefore, after: inputAfter });
+
+            if (this.BackspaceDefault && inputBefore.length > 1) {
+                const caretPosition = this.searchInput.selectionStart;
+                this.resetTable();
+                this.searchInput.value = inputAfter;
+                this.searchInput.setSelectionRange(caretPosition, caretPosition);
+                this.BackspaceDefault = false;
+                console.log('Table reset after backspace');
+            }
+
+            if (inputAfter.length > 0) {
+                this.BackspaceDefault = true;
+            }
+        }, 0);
+    }
+
+    /**
+     * Set up NAR filter event listeners
+     */
+    setupNarFilterListeners() {
+        if (this.narFilter) {
+            this.narFilter.addEventListener('change', () => {
+                console.log('NAR filter changed:', this.narFilter.value);
+                this.filterByNar();
             });
-        });
-
-        // Pagination events
-        document.getElementById('prevPage')?.addEventListener('click', () => this.changePage(-1));
-        document.getElementById('nextPage')?.addEventListener('click', () => this.changePage(1));
-    }
-
-    /**
-     * Handle keydown events for search input
-     * @param {KeyboardEvent} e - The keydown event
-     */
-    handleKeyDown(e) {
-        if (e.key === 'Enter') {
-            this.search();
-        }
-
-        if (e.key === 'Backspace' && this.tableResetEnabled) {
-            let inputBefore = this.searchInput.value.trim();
-            setTimeout(() => {
-                let inputAfter = this.searchInput.value.trim();
-                if (this.BackspaceDefault && inputBefore.length > 1) {
-                    let caretPosition = this.searchInput.selectionStart;
-                    this.resetTable();
-                    this.searchInput.value = inputAfter;
-                    this.searchInput.setSelectionRange(caretPosition, caretPosition);
-                    this.BackspaceDefault = false;
-                }
-                if (inputAfter.length > 0) {
-                    this.BackspaceDefault = true;
-                }
-            }, 0);
+        } else {
+            console.warn('NAR filter element not found');
         }
     }
 
     /**
-     * Creates pagination controls and adds them to the DOM
+     * Fetch and process XML data
      */
-    createPaginationControls() {
-        const paginationContainer = document.createElement('div');
-        paginationContainer.className = 'pagination-controls';
-        paginationContainer.innerHTML = `
-            <button id="prevPage">Previous</button>
-            <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
-            <button id="nextPage">Next</button>
-            <select id="pageSize">
-                <option value="10">10 per page</option>
-                <option value="25">25 per page</option>
-                <option value="50">50 per page</option>
-            </select>
-        `;
-        this.tableContainer.appendChild(paginationContainer);
-
-        // Add page size change event
-        document.getElementById('pageSize').addEventListener('change', (e) => {
-            this.rowsPerPage = parseInt(e.target.value);
-            this.currentPage = 1;
-            this.updateTableDisplay();
-        });
-    }
-
-    /**
-     * Updates the table display based on current pagination settings
-     */
-    updateTableDisplay() {
-        const startIndex = (this.currentPage - 1) * this.rowsPerPage;
-        const endIndex = startIndex + this.rowsPerPage;
-        const visibleRows = this.allRows.slice(startIndex, endIndex);
-
-        // Clear and update table
-        this.tableBody.innerHTML = '';
-        visibleRows.forEach(row => this.tableBody.appendChild(row));
-
-        // Update pagination info
-        this.totalPages = Math.ceil(this.allRows.length / this.rowsPerPage);
-        document.getElementById('currentPage').textContent = this.currentPage;
-        document.getElementById('totalPages').textContent = this.totalPages;
-
-        // Update button states
-        document.getElementById('prevPage').disabled = this.currentPage === 1;
-        document.getElementById('nextPage').disabled = this.currentPage === this.totalPages;
-    }
-
-    /**
-     * Sort table by specified column
-     * @param {string} column - The column to sort by
-     */
-    sortTable(column) {
-        console.log(`Sorting by column: ${column}`);
-        const rows = Array.from(this.tableBody.getElementsByTagName('tr'));
-        const type = this.columns[column].type;
-        const ascending = this.sortState.column === column ? !this.sortState.ascending : true;
-
-        rows.sort((a, b) => {
-            let aValue = a.querySelector(`td[data-field="${column}"]`).textContent.trim();
-            let bValue = b.querySelector(`td[data-field="${column}"]`).textContent.trim();
-
-            if (type === 'number') {
-                aValue = parseFloat(aValue.replace(/,/g, '')) || 0;
-                bValue = parseFloat(bValue.replace(/,/g, '')) || 0;
-            }
-
-            if (aValue < bValue) return ascending ? -1 : 1;
-            if (aValue > bValue) return ascending ? 1 : -1;
-            return 0;
-        });
-
-        // Update sort icons
-        document.querySelectorAll('th[data-column] .sort-icon').forEach(icon => {
-            icon.textContent = '';
-        });
-
-        const currentHeader = document.querySelector(`th[data-column="${column}"]`);
-        const sortIcon = currentHeader.querySelector('.sort-icon');
-        sortIcon.textContent = ascending ? ' ↑' : ' ↓';
-
-        // Update sort state
-        this.sortState = { column, ascending };
-
-        // Update table with sorted rows
-        this.allRows = rows;
-        this.updateTableDisplay();
-    }
-
-    /**
-     * Determines the status color class based on the status text
-     * @param {string} status - The status text to analyze
-     * @returns {string} The corresponding CSS class for the status color
-     */
-    getStatusColor(status) {
-        const lowerStatus = status.toLowerCase().trim();
+    async fetchXMLData() {
+        console.log('Starting XML data fetch...');
         
-        // Check each status pattern and return corresponding color class
-        for (const [pattern, colorClass] of Object.entries(this.statusColors)) {
-            if (lowerStatus.includes(pattern)) {
-                return colorClass;
+        try {
+            const filesResponse = await this.fetchWithTimeout('/accounts.office.cheque.inquiry/public/data/files.json');
+            const xmlFiles = await filesResponse.json();
+            console.log(`Found ${xmlFiles.length} XML files to process`);
+
+            let combinedXMLData = '<root>';
+            for (const file of xmlFiles) {
+                console.log(`Fetching file: ${file}`);
+                const fileResponse = await this.fetchWithTimeout(`/accounts.office.cheque.inquiry/public/data/${file}`);
+                combinedXMLData += await fileResponse.text();
             }
+            combinedXMLData += '</root>';
+
+            // Validate XML structure
+            if (!this.validateXMLStructure(combinedXMLData)) {
+                throw new Error('Invalid XML structure detected');
+            }
+
+            localStorage.setItem('xmlData', combinedXMLData);
+            this.xmlData = combinedXMLData;
+            console.log('XML data successfully fetched and stored');
+
+            return this.parseXMLToTable(combinedXMLData);
+        } catch (error) {
+            console.error('XML fetch error:', error);
+            return this.handleXMLFetchError(error);
+        }
+    }
+
+    /**
+     * Fetch with timeout wrapper
+     */
+    async fetchWithTimeout(url, timeout = 5000) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        
+        try {
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(id);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            
+            return response;
+        } catch (error) {
+            clearTimeout(id);
+            throw error;
+        }
+    }
+
+    /**
+     * Validate XML structure
+     */
+    validateXMLStructure(xmlString) {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+        
+        if (xmlDoc.querySelector('parsererror')) {
+            console.error('XML validation failed');
+            return false;
+        }
+
+        const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
+        if (gPvnElements.length === 0) {
+            console.error('No G_PVN elements found in XML');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Handle XML fetch errors
+     */
+    handleXMLFetchError(error) {
+        console.log('Attempting to recover from XML fetch error...');
+        const storedXML = localStorage.getItem('xmlData');
+        
+        if (storedXML) {
+            console.log('Found stored XML data, attempting to use it');
+            return this.parseXMLToTable(storedXML);
         }
         
-        // Log unmatched status for debugging
-        console.log(`Unmatched status: ${status}`);
-        return 'status-gray';
+        this.showError(`Failed to load XML data: ${error.message}`);
+        return false;
     }
 
     /**
-     * Creates a table row from an XML element
-     * @param {Element} element - The XML element containing row data
-     * @returns {HTMLTableRowElement} The created table row
-     */
-    createTableRow(element) {
-        const row = document.createElement('tr');
-        row.setAttribute('data-nar', element.getElementsByTagName('NAR')[0]?.textContent?.trim().toLowerCase() || '');
-
-        Object.keys(this.columns).forEach(field => {
-            const cell = document.createElement('td');
-            let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
-
-            // Format amount values
-            if (field === 'AMOUNT') {
-                try {
-                    value = parseFloat(value).toLocaleString('en-US');
-                } catch (error) {
-                    console.warn(`Invalid amount value: ${value}`);
-                    value = '0';
-                }
-            }
-
-            cell.textContent = value;
-            cell.setAttribute('data-field', field);
-
-            // Apply status colors to the "DD" column
-            if (field === 'DD') {
-                const statusClass = this.getStatusColor(value);
-                cell.className = statusClass;
-            }
-
-            row.appendChild(cell);
-        });
-
-        return row;
-    }
-
-     /**
-     * Parse XML data and create table rows
-     * @param {string} xmlString - The XML string to parse
-     * @returns {boolean} Success status of the parsing operation
+     * Parse XML and create table
      */
     parseXMLToTable(xmlString = null) {
+        console.log('Starting XML parsing...');
+        
         try {
-            console.log('Starting XML parsing...');
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString || this.xmlData, "text/xml");
 
             if (xmlDoc.querySelector('parsererror')) {
-                console.error('XML parsing error:', xmlDoc.querySelector('parsererror').textContent);
                 throw new Error('XML parsing error');
             }
 
-            const entries = xmlDoc.getElementsByTagName('G_PVN');
-            this.tableBody.innerHTML = '';
-            this.allRows = [];
+            const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
+            console.log(`Found ${gPvnElements.length} G_PVN elements`);
 
-            Array.from(entries).forEach((element) => {
-                const row = this.createTableRow(element);
-                this.allRows.push(row);
+            this.tableBody.innerHTML = '';
+            let successCount = 0;
+
+            Array.from(gPvnElements).forEach((element, index) => {
+                try {
+                    const row = this.createTableRow(element);
+                    this.tableBody.appendChild(row);
+                    successCount++;
+                } catch (rowError) {
+                    console.error(`Error creating row ${index}:`, rowError);
+                }
             });
 
-            console.log(`Successfully parsed ${this.allRows.length} entries`);
-            this.updateTableDisplay();
+            console.log(`Successfully created ${successCount}/${gPvnElements.length} rows`);
+            this.updateTableVisibility(true);
             return true;
         } catch (error) {
-            console.error('Error in parseXMLToTable:', error);
+            console.error('ParseXMLToTable Error:', error);
             this.showError('Failed to parse XML data');
             return false;
         }
     }
 
     /**
-     * Fetch XML data from server or use cached data
-     * @returns {Promise<boolean>} Success status of the fetch operation
+     * Create a table row from XML element
      */
-    async fetchXMLData() {
+    createTableRow(element) {
+        const row = document.createElement('tr');
+        const narValue = this.getElementContent(element, 'NAR');
+        row.setAttribute('data-nar', narValue.toLowerCase());
+
+        Object.keys(this.columns).forEach(field => {
+            const cell = this.createTableCell(element, field);
+            row.appendChild(cell);
+        });
+
+        return row;
+    }
+
+    /**
+     * Create a table cell with proper formatting
+     */
+    createTableCell(element, field) {
+        const cell = document.createElement('td');
+        let value = this.getElementContent(element, field);
+
+        if (field === 'AMOUNT') {
+            value = this.formatAmount(value);
+        }
+
+        cell.textContent = value;
+        cell.setAttribute('data-field', field);
+
+        if (field === 'DD') {
+            this.applyStatusStyles(cell, value);
+        }
+
+        return cell;
+    }
+
+    /**
+     * Get and validate element content
+     */
+    getElementContent(element, field) {
+        const content = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+        if (this.columns[field].required && !content) {
+            console.warn(`Required field ${field} is empty`);
+        }
+        return content;
+    }
+
+    /**
+     * Format amount values
+     */
+    formatAmount(value) {
         try {
-            console.log('Fetching XML data...');
-            const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
-            if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
-            const xmlFiles = await filesResponse.json();
-
-            let combinedXML = '<root>';
-            console.log(`Found ${xmlFiles.length} XML files to process`);
-
-            for (const file of xmlFiles) {
-                console.log(`Fetching file: ${file}`);
-                const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
-                if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
-                let xmlContent = await fileResponse.text();
-                // Remove XML declaration and root tags from individual files
-                xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '');
-                xmlContent = xmlContent.replace(/<\/?root>/g, '');
-                combinedXML += xmlContent;
-            }
-            combinedXML += '</root>';
-
-            console.log('Successfully combined XML data');
-            localStorage.setItem('xmlData', combinedXML);
-            this.xmlData = combinedXML;
-            return this.parseXMLToTable(combinedXML);
+            return parseFloat(value).toLocaleString('en-US');
         } catch (error) {
-            console.error('Error fetching XML:', error);
-            const storedXML = localStorage.getItem('xmlData');
-            if (storedXML) {
-                console.log('Using cached XML data');
-                return this.parseXMLToTable(storedXML);
-            }
-            this.showError('Failed to load XML data');
-            return false;
+            console.warn(`Invalid amount value: ${value}`);
+            return '0';
         }
     }
 
     /**
-     * Perform search and filtering on table data
+     * Apply status-based styles to cells
+     */
+    applyStatusStyles(cell, value) {
+        const ddValue = value.toLowerCase();
+        const statusMap = {
+            'despatched through gpo': 'status-orange',
+            'ready but not signed yet': 'status-green',
+            'cheque ready': 'status-green',
+            'despatched to lakki camp office': 'status-red',
+            'sent to chairman sb. for sign': 'status-blue'
+        };
+
+        let statusApplied = false;
+        for (const [key, className] of Object.entries(statusMap)) {
+            if (ddValue.includes(key)) {
+                cell.classList.add(className);
+                statusApplied = true;
+                break;
+            }
+        }
+
+        if (!statusApplied) {
+            cell.classList.add('status-gray');
+        }
+    }
+
+    /**
+     * Perform search operation
      */
     search() {
-        console.log('Performing search...');
         const searchTerm = this.searchInput.value.toLowerCase();
-        const selectedCategory = this.narFilter.value.toLowerCase();
+        console.log('Performing search:', searchTerm);
 
-        if (!searchTerm && selectedCategory === 'all') {
+        if (!searchTerm) {
+            console.log('Empty search term - resetting table');
             return this.resetTable();
         }
 
-        this.tableContainer.style.display = 'block';
-        this.emptyState.style.display = 'none';
-        this.resultContainer.style.display = 'block';
+        this.updateTableVisibility(true);
+        let matchCount = 0;
 
-        // Filter rows based on search criteria
-        this.allRows = Array.from(this.tableBody.getElementsByTagName('tr'));
-        const filteredRows = this.allRows.filter(row => {
-            const narValue = row.getAttribute('data-nar');
-            const cells = Array.from(row.getElementsByTagName('td'));
-
-            const matchesCategory = selectedCategory === 'all' || narValue.includes(selectedCategory);
-            const matchesSearch = !searchTerm || cells.some(cell =>
-                cell.textContent.toLowerCase().includes(searchTerm)
-            );
-
-            return matchesCategory && matchesSearch;
+        this.tableBody.querySelectorAll('tr').forEach(row => {
+            const matchesSearch = Array.from(row.getElementsByTagName('td'))
+                .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
+            row.style.display = matchesSearch ? '' : 'none';
+            if (matchesSearch) matchCount++;
         });
 
-        this.allRows = filteredRows;
-        this.currentPage = 1;
-        this.updateTableDisplay();
-        this.updateSearchResults(searchTerm, selectedCategory, filteredRows.length);
+        console.log(`Search complete: ${matchCount} matches found`);
+        this.updateSearchResults(searchTerm, matchCount);
     }
 
     /**
-     * Update search results message
-     * @param {string} searchTerm - The current search term
-     * @param {string} category - The selected category
-     * @param {number} matchCount - Number of matching results
+     * Update search results display
      */
-    updateSearchResults(searchTerm, category, matchCount) {
-        let message = '';
-        if (searchTerm && category !== 'all') {
-            message = `Found ${matchCount} results for "${searchTerm}" in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
-        } else if (searchTerm) {
-            message = `Found ${matchCount} results for "${searchTerm}" in all categories`;
-        } else if (category !== 'all') {
-            message = `Found ${matchCount} results in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
-        }
+    updateSearchResults(searchTerm, matchCount) {
+        const message = matchCount > 0
+            ? `Found ${matchCount} results for "${searchTerm}"`
+            : 'No results found.';
+        
+        this.resultContainer.innerHTML = message;
+        console.log('Search results updated:', message);
+    }
 
-        this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
-        console.log(`Search complete: ${message}`);
+    /**
+     * Filter by NAR category
+     */
+    filterByNar() {
+        const selectedCategory = this.narFilter.value.toLowerCase();
+        console.log('Filtering by NAR category:', selectedCategory);
+
+        let matchCount = 0;
+        this.tableBody.querySelectorAll('tr').forEach(row => {
+            const narValue = row.getAttribute('data-nar');
+            const visible = (selectedCategory === "all" || narValue.includes(selectedCategory));
+            row.style.display = visible ? '' : 'none';
+            if (visible) matchCount++;
+        });
+
+        console.log(`Filter complete: ${matchCount} rows visible`);
     }
 
     /**
      * Reset table to initial state
      */
     resetTable() {
-        console.log('Resetting table...');
-        this.searchInput.value = '';
-        this.narFilter.value = 'all';
-        this.tableContainer.style.display = 'none';
-        this.emptyState.style.display = 'block';
-        this.resultContainer.style.display = 'none';
+        console.log('Resetting table to initial state');
         
-        // Reset pagination
-        this.currentPage = 1;
-        this.parseXMLToTable(this.xmlData);
-        this.updateTableDisplay();
+        this.searchInput.value = '';
+        if (this.narFilter) {
+            this.narFilter.value = 'all';
+        }
+        
+        this.updateTableVisibility(false);
+        this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
+    }
+
+    /**
+     * Update table visibility state
+     */
+    updateTableVisibility(visible) {
+        this.tableContainer.style.display = visible ? 'block' : 'none';
+        this.emptyState.style.display = visible ? 'none' : 'block';
+        this.resultContainer.style.display = visible ? 'block' : 'none';
     }
 
     /**
      * Show error message
-     * @param {string} message - The error message to display
      */
     showError(message) {
-        console.error(`Error: ${message}`);
-        this.resultContainer.textContent = message;
+        console.error('Error:', message);
+        this.resultContainer.innerHTML = `<div class="error-message">${message}</div>`;
         this.resultContainer.style.display = 'block';
-        this.resultContainer.className = 'error-state';
-    }
-
-    /**
-     * Change current page
-     * @param {number} delta - The change in page number (+1 or -1)
-     */
-    changePage(delta) {
-        const newPage = this.currentPage + delta;
-        if (newPage >= 1 && newPage <= this.totalPages) {
-            console.log(`Changing to page ${newPage}`);
-            this.currentPage = newPage;
-            this.updateTableDisplay();
-        }
     }
 }
 
-// Initialize the application
+// Initialize handler with error catching
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Initializing XMLTableHandler...');
-    const handler = new XMLTableHandler();
-    handler.fetchXMLData().then(() => {
-        console.log('XML data loaded successfully');
-        handler.resetTable();
-    }).catch(error => {
-        console.error('Failed to initialize table:', error);
-    });
+    console.log('DOM Content Loaded - Initializing XMLTableHandler');
+    
+    try {
+        const handler = new XMLTableHandler();
+        handler.fetchXMLData().then(() => {
+            console.log('Initial data fetch complete');
+            handler.resetTable();
+        }).catch(error => {
+            console.error('Initialization error:', error);
+        });
+    } catch (error) {
+        console.error('Fatal initialization error:', error);
+    }
 });
 
-// Register Service Worker
+// Register service worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', {
-            scope: '/accounts.office.cheque.inquiry/'
-        })
+        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
             .then(registration => console.log('ServiceWorker registered:', registration.scope))
             .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-// CSS Styles
-const styles = `
-.table-container {
-    margin: 20px;
-    overflow-x: auto;
-}
-
-.search-container {
-    margin: 20px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.search-input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 300px;
-}
-
-.search-button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.search-button:hover {
-    background-color: #0056b3;
-}
-
-.category-filter {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.data-table th,
-.data-table td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-.data-table th {
-    background-color: #f5f5f5;
-    cursor: pointer;
-}
-
-.data-table th:hover {
-    background-color: #e9e9e9;
-}
-
-.sort-icon {
-    margin-left: 5px;
-}
-
-/* Status Colors */
-.status-orange { background-color: #FFB74D; color: black; }
-.status-green { background-color: #81C784; color: black; }
-.status-red { background-color: #E57373; color: white; }
-.status-blue { background-color: #64B5F6; color: black; }
-.status-purple { background-color: #BA68C8; color: white; }
-.status-dark-red { background-color: #D32F2F; color: white; }
-.status-yellow { background-color: #FFF176; color: black; }
-.status-cyan { background-color: #4DD0E1; color: black; }
-.status-gray { background-color: #BDBDBD; color: black; }
-
-/* Pagination Controls */
-.pagination-controls {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.pagination-controls button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.pagination-controls button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-.pagination-controls select {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.page-info {
-    margin: 0 10px;
-}
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #666;
-}
-
-/* Result Container */
-.result-container {
-    margin: 20px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
-
-/* Error State */
-.error-state {
-    color: #dc3545;
-    padding: 10px;
-    margin: 20px;
-    border: 1px solid #dc3545;
-    border-radius: 4px;
-    background-color: #f8d7da;
-}
-`;
-
-// // Add styles to document
-// const styleSheet = document.createElement('style');
-// styleSheet.textContent = styles;
-// document.head.appendChild(styleSheet);
-
-// HTML Template
-// const template = `
-// <div class="search-container">
-//     <input type="text" id="search" class="search-input" placeholder="Search...">
-//     <select id="narCategory" class="category-filter">
-//         <option value="all">All Categories</option>
-//         <option value="salary">Salary</option>
-//         <option value="vendor">Vendor</option>
-//         <option value="utility">Utility</option>
-//         <option value="other">Other</option>
-//     </select>
-//     <button id="searchBtn" class="search-button">Search</button>
-// </div>
-
-// <div id="tableContainer" class="table-container">
-//     <table class="data-table">
-//         <thead>
-//             <tr>
-//                 <th data-column="NARRATION">Narration <span class="sort-icon"></span></th>
-//                 <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
-//                 <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
-//                 <th data-column="NAR">NAR <span class="sort-icon"></span></th>
-//                 <th data-column="DD">Status <span class="sort-icon"></span></th>
-//             </tr>
-//         </thead>
-//         <tbody id="checksTable"></tbody>
-//     </table>
-// </div>
-
-// <div id="emptyState" class="empty-state">
-//     <h3>No results found</h3>
-//     <p>Try adjusting your search or filter criteria</p>
-// </div>
-
-// <div id="result" class="result-container"></div>
-// `;
-
-// Add template to document
-// const templateContainer = document.createElement('div');
-// templateContainer.innerHTML = template;
-// document.body.appendChild(templateContainer);
-
-// class XMLTableHandler {
-//     constructor() {
-//         // Initialize DOM elements
-//         this.tableBody = document.getElementById('checksTable');
-//         this.searchInput = document.getElementById('search');
-//         this.tableContainer = document.getElementById('tableContainer');
-//         this.emptyState = document.getElementById('emptyState');
-//         this.resultContainer = document.getElementById('result');
-//         this.narFilter = document.getElementById('narCategory');
-//         this.searchBtn = document.getElementById('searchBtn');
-
-//         // Pagination configuration
-//         this.currentPage = 1;
-//         this.rowsPerPage = 10;
-//         this.totalPages = 0;
-//         this.allRows = [];
-
-//         // Column definitions for sorting
-//         this.columns = {
-//             NARRATION: { index: 0, type: 'string' },
-//             AMOUNT: { index: 1, type: 'number' },
-//             CHEQ_NO: { index: 2, type: 'number' },
-//             NAR: { index: 3, type: 'string' },
-//             DD: { index: 4, type: 'string' }
-//         };
-
-//         // Sorting state
-//         this.sortState = {
-//             column: '',
-//             ascending: true
-//         };
-
-//         // Feature flags
-//         this.enableLiveUpdate = false;
-//         this.tableResetEnabled = true;
-//         this.BackspaceDefault = true;
-
-//         // Status color mapping
-//         this.statusColors = {
-//             'despatched through gpo': 'status-orange',
-//             'ready but not signed yet': 'status-green',
-//             'cheque ready': 'status-green',
-//             'despatched to lakki camp office': 'status-red',
-//             'sent to chairman': 'status-blue',
-//             'expired': 'status-purple',
-//             'cancelled': 'status-dark-red',
-//             'rejected': 'status-dark-red',
-//             'on hold': 'status-yellow',
-//             'processing': 'status-cyan'
-//         };
-
-//         this.initializeEventListeners();
-//         this.createPaginationControls();
-//     }
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-    /**
-     * Determines the status color class based on the status text
-     * @param {string} status - The status text to analyze
-     * @returns {string} The corresponding CSS class for the status color
-     */
-    // getStatusColor(status) {
-    //     const lowerStatus = status.toLowerCase();
-        
-    //     // Check each status pattern and return corresponding color class
-    //     for (const [pattern, colorClass] of Object.entries(this.statusColors)) {
-    //         if (lowerStatus.includes(pattern)) {
-    //             return colorClass;
-    //         }
-    //     }
-        
-    //     // Log unmatched status for debugging
-    //     console.log(`Unmatched status: ${status}`);
-    //     return 'status-gray';
-    // }
-
-    // /**
-    //  * Creates a table row from an XML element
-    //  * @param {Element} element - The XML element containing row data
-    //  * @returns {HTMLTableRowElement} The created table row
-    //  */
-    // createTableRow(element) {
-    //     const row = document.createElement('tr');
-    //     row.setAttribute('data-nar', element.getElementsByTagName('NAR')[0]?.textContent?.trim().toLowerCase() || '');
-
-    //     Object.keys(this.columns).forEach(field => {
-    //         const cell = document.createElement('td');
-    //         let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
-
-    //         // Format amount values
-    //         if (field === 'AMOUNT') {
-    //             try {
-    //                 value = parseFloat(value).toLocaleString('en-US');
-    //             } catch (error) {
-    //                 console.warn(`Invalid amount value: ${value}`);
-    //                 value = '0';
-    //             }
-    //         }
-
-    //         cell.textContent = value;
-    //         cell.setAttribute('data-field', field);
-
-    //         // Apply status colors
-    //         if (field === 'DD') {
-    //             const statusClass = this.getStatusColor(value);
-    //             cell.className = statusClass;
-    //         }
-
-    //         row.appendChild(cell);
-    //     });
-
-    //     return row;
-    // }
-
-  
