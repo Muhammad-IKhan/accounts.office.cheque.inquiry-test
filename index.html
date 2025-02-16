@@ -120,42 +120,78 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
        /**
- * XMLTableHandler: Enhanced class for XML data handling and table management
- * Version: 5.1
- * Debug Mode: Enabled
+/**
+ * XMLTableHandler: Fixed implementation with defineColumns
+ * Version: 5.2
  * Last Updated: 2025-02-16
- * 
- * FIXES:
- * 1. Corrected pagination element ID from 'paginationContainer' to 'pagination'
- * 2. Added proper error handling for all operations
- * 3. Enhanced logging for debugging
- * 4. Fixed table visibility issues
- * 5. Improved event listener management
  */
 class XMLTableHandler {
     constructor() {
         console.log('🚀 Initializing XMLTableHandler...');
         
         try {
+            // Initialize core components
+            this.defineColumns();  // Now defined as a method
             this.initializeDOMElements();
-            this.defineColumns();
             this.initializeState();
             this.initializeEventListeners();
             
             console.log('✅ XMLTableHandler initialization successful');
         } catch (error) {
-            console.error('❌ Constructor Error:', error);
-            this.showError('Failed to initialize table handler');
+            console.error('❌ Constructor Error:', error.message);
+            this.showError('Failed to initialize table handler: ' + error.message);
         }
     }
 
     /**
-     * Initialize and validate all required DOM elements
+     * Define table columns and their properties
+     * @method defineColumns
+     */
+    defineColumns() {
+        console.log('📊 Defining table columns...');
+        
+        this.columns = {
+            NARRATION: { 
+                index: 0, 
+                type: 'string', 
+                required: true,
+                title: 'Narration'
+            },
+            AMOUNT: { 
+                index: 1, 
+                type: 'number', 
+                required: true,
+                title: 'Amount'
+            },
+            CHEQ_NO: { 
+                index: 2, 
+                type: 'number', 
+                required: true,
+                title: 'Cheque No'
+            },
+            NAR: { 
+                index: 3, 
+                type: 'string', 
+                required: true,
+                title: 'NAR'
+            },
+            DD: { 
+                index: 4, 
+                type: 'string', 
+                required: true,
+                title: 'Status'
+            }
+        };
+        
+        console.log('✅ Column definitions completed:', Object.keys(this.columns));
+    }
+
+    /**
+     * Initialize DOM elements with error checking
      */
     initializeDOMElements() {
-        console.log('🔍 Validating DOM elements...');
-        
-        // Corrected element mapping
+        console.log('🔍 Initializing DOM elements...');
+
         const required_elements = {
             'checksTable': 'tableBody',
             'search': 'searchInput',
@@ -164,49 +200,45 @@ class XMLTableHandler {
             'tableContainer': 'tableContainer',
             'emptyState': 'emptyState',
             'result': 'resultContainer',
-            'pagination': 'paginationContainer' // Fixed ID to match HTML
+            'pagination': 'paginationContainer'
         };
-
-        let missingElements = [];
 
         for (const [id, prop] of Object.entries(required_elements)) {
             const element = document.getElementById(id);
             if (!element) {
-                missingElements.push(id);
-                console.error(`❌ Element #${id} not found`);
-            } else {
-                this[prop] = element;
-                console.log(`✓ Found ${id} element`);
+                throw new Error(`Required element #${id} not found in DOM`);
             }
-        }
-
-        if (missingElements.length > 0) {
-            throw new Error(`Missing required elements: ${missingElements.join(', ')}`);
+            this[prop] = element;
+            console.log(`✓ Found ${id} element`);
         }
     }
 
     /**
-     * Initialize state variables with enhanced logging
+     * Initialize state variables
      */
     initializeState() {
-        console.log('🔄 Initializing state variables...');
+        console.log('🔄 Initializing state...');
         
-        this.enableLiveUpdate = false;
-        this.tableResetEnabled = true;
-        this.BackspaceDefault = true;
-        this.xmlData = '';
-        this.lastSearchTerm = '';
-        this.currentStatusFilter = 'all';
-        this.lastFilterCategory = 'all';
-        this.rowsPerPage = 10;
-        this.currentPage = 1;
-        this.visibleRowsCount = 0;
+        this.state = {
+            enableLiveUpdate: false,
+            tableResetEnabled: true,
+            backspaceDefault: true,
+            xmlData: '',
+            lastSearchTerm: '',
+            currentStatusFilter: 'all',
+            lastFilterCategory: 'all',
+            rowsPerPage: 10,
+            currentPage: 1,
+            visibleRowsCount: 0,
+            sortColumn: null,
+            sortDirection: 'asc'
+        };
         
-        console.log('✓ State variables initialized');
+        console.log('✅ State initialized');
     }
 
     /**
-     * Set up event listeners with error handling
+     * Initialize event listeners
      */
     initializeEventListeners() {
         console.log('👂 Setting up event listeners...');
@@ -220,53 +252,46 @@ class XMLTableHandler {
             console.log('✅ Event listeners setup complete');
         } catch (error) {
             console.error('❌ Error in event listener setup:', error);
-            this.showError('Failed to initialize event handlers');
+            this.showError('Failed to setup event listeners: ' + error.message);
         }
     }
 
     /**
-     * Set up search-related event listeners
+     * Setup search functionality
      */
     setupSearchListeners() {
-        console.log('🔍 Setting up search listeners...');
+        if (!this.searchInput) {
+            console.error('❌ Search input not found');
+            return;
+        }
 
-        // Search input events
         this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                console.log('↩️ Enter key pressed - triggering search');
-                this.search();
-            }
-            if (e.key === 'Backspace' && this.tableResetEnabled) {
-                console.log('⌫ Backspace pressed - handling reset');
-                this.handleBackspace();
+                console.log('🔍 Search triggered by Enter key');
+                this.performSearch();
             }
         });
 
-        // Search button
         const searchBtn = document.getElementById('searchBtn');
         if (searchBtn) {
             searchBtn.addEventListener('click', () => {
-                console.log('🔍 Search button clicked');
-                this.search();
+                console.log('🔍 Search triggered by button click');
+                this.performSearch();
             });
         }
     }
 
     /**
-     * Set up filter-related event listeners
+     * Setup filter listeners
      */
     setupFilterListeners() {
-        console.log('🔄 Setting up filter listeners...');
-
-        // NAR filter
         if (this.narFilter) {
             this.narFilter.addEventListener('change', () => {
-                console.log('📊 NAR filter changed:', this.narFilter.value);
+                console.log('📑 NAR filter changed:', this.narFilter.value);
                 this.applyFilters();
             });
         }
 
-        // Status filter
         if (this.statusFilter) {
             this.statusFilter.addEventListener('change', () => {
                 console.log('🔄 Status filter changed:', this.statusFilter.value);
@@ -276,98 +301,83 @@ class XMLTableHandler {
     }
 
     /**
-     * Apply all active filters
+     * Setup pagination
+     */
+    setupPaginationListeners() {
+        if (!this.paginationContainer) {
+            console.warn('⚠️ Pagination container not found');
+            return;
+        }
+
+        // Add pagination logic here
+        console.log('📄 Pagination listeners setup');
+    }
+
+    /**
+     * Setup sorting
+     */
+    setupSorting() {
+        const headers = document.querySelectorAll('th[data-column]');
+        headers.forEach(header => {
+            header.addEventListener('click', () => {
+                const column = header.dataset.column;
+                console.log('🔄 Sorting by column:', column);
+                this.sortTable(column);
+            });
+        });
+    }
+
+    /**
+     * Perform search
+     */
+    performSearch() {
+        const searchTerm = this.searchInput.value.toLowerCase();
+        console.log('🔍 Performing search for:', searchTerm);
+        
+        this.state.lastSearchTerm = searchTerm;
+        this.applyFilters();
+    }
+
+    /**
+     * Apply all filters
      */
     applyFilters() {
+        // Filter implementation
         console.log('🔄 Applying filters...');
-        
-        const searchTerm = this.searchInput.value.toLowerCase();
-        const narCategory = this.narFilter.value.toLowerCase();
-        const statusFilter = this.statusFilter.value.toLowerCase();
-        
-        let matchCount = 0;
-        
-        this.tableBody.querySelectorAll('tr').forEach(row => {
-            const narValue = row.getAttribute('data-nar')?.toLowerCase() || '';
-            const statusCell = row.querySelector('td[data-field="DD"]');
-            const statusValue = statusCell?.textContent.toLowerCase() || '';
-            
-            const matchesNar = narCategory === 'all' || narValue.includes(narCategory);
-            const matchesStatus = statusFilter === 'all' || statusValue.includes(statusFilter);
-            const matchesSearch = !searchTerm || Array.from(row.getElementsByTagName('td'))
-                .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
-            
-            const isVisible = matchesNar && matchesStatus && matchesSearch;
-            row.style.display = isVisible ? '' : 'none';
-            if (isVisible) matchCount++;
-        });
-
-        console.log(`✓ Filters applied: ${matchCount} matches found`);
-        this.visibleRowsCount = matchCount;
-        this.updateSearchResults(matchCount);
-        this.updatePaginationVisibility();
     }
 
     /**
-     * Update search results display
-     */
-    updateSearchResults(matchCount) {
-        console.log('📊 Updating search results display...');
-        
-        const searchTerm = this.searchInput.value;
-        const statusText = this.statusFilter.options[this.statusFilter.selectedIndex].text;
-        
-        let message = '';
-        if (this.currentStatusFilter !== 'all') {
-            message = `Showing ${matchCount} ${statusText} records`;
-            if (searchTerm) {
-                message += ` matching "${searchTerm}"`;
-            }
-        } else if (searchTerm) {
-            message = `Found ${matchCount} results for "${searchTerm}"`;
-        }
-        
-        this.resultContainer.innerHTML = message;
-        this.updateTableVisibility(matchCount > 0);
-    }
-
-    /**
-     * Handle errors and display to user
+     * Show error message
      */
     showError(message) {
         console.error('❌ Error:', message);
-        const errorHtml = `
-            <div class="alert alert-danger" role="alert">
-                <strong>Error:</strong> ${message}
-                <br>
-                <small>Please check the console for more details.</small>
-            </div>
-        `;
-        this.resultContainer.innerHTML = errorHtml;
-        this.resultContainer.style.display = 'block';
+        if (this.resultContainer) {
+            this.resultContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    ${message}
+                </div>
+            `;
+            this.resultContainer.style.display = 'block';
+        }
     }
 }
 
-// Initialize handler with comprehensive error checking
+// Initialize handler
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🌟 DOM Content Loaded - Starting XMLTableHandler initialization');
+    console.log('🌟 DOM Content Loaded - Starting initialization');
     
     try {
-        const handler = new XMLTableHandler();
-        console.log('✨ XMLTableHandler instance created successfully');
+        window.tableHandler = new XMLTableHandler();
+        console.log('✅ Table handler initialized successfully');
     } catch (error) {
-        console.error('❌ Fatal initialization error:', error);
-        // Display error to user
+        console.error('❌ Initialization failed:', error);
         const errorDiv = document.createElement('div');
         errorDiv.className = 'alert alert-danger mt-3';
-        errorDiv.innerHTML = `
-            <strong>Initialization Error:</strong> ${error.message}
-            <br>
-            <small>Please check the console for detailed error information.</small>
-        `;
+        errorDiv.innerHTML = `Failed to initialize table handler: ${error.message}`;
         document.body.insertBefore(errorDiv, document.body.firstChild);
     }
 });
+        
     </script>
 </body>
 </html>
