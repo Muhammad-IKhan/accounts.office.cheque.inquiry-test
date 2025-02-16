@@ -4,187 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Cheque List Viewer for BISE BANNU">
-    <title>BISE Bannu - Cheque Status Viewer</title>
+    <title>Site Test..</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style type="text/tailwindcss">
-        @layer components {
-            .btn-primary {
-                @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg shadow-md transition-all duration-300 flex items-center gap-2;
-            }
-            .form-control {
-                @apply shadow-sm border border-gray-300 rounded-lg w-full py-2.5 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300;
-            }
-            .form-select {
-                @apply shadow-sm border border-gray-300 rounded-lg w-full py-2.5 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 appearance-none bg-white;
-            }
-            .table-header-cell {
-                @apply px-6 py-4 bg-gray-50 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider border-b border-gray-200;
-            }
-            .table-cell {
-                @apply px-6 py-4 whitespace-nowrap text-sm text-gray-700;
-            }
-            .status-badge {
-                @apply font-medium px-3 py-1.5 rounded-full text-xs inline-flex items-center gap-1;
-            }
-        }
 
-        .status-green { @apply bg-green-100 text-green-700 border border-green-200; }
-        .status-red { @apply bg-red-100 text-red-700 border border-red-200; }
-        .status-blue { @apply bg-blue-100 text-blue-700 border border-blue-200; }
-        .status-gray { @apply bg-gray-100 text-gray-700 border border-gray-200; }
-        .status-orange { @apply bg-orange-100 text-orange-700 border border-orange-200; }
+    <style>
+        /* Status color definitions - consider moving to Tailwind config if customization is needed */
+        .status-orange { background-color: #FFB74D; color: #000; }
+        .status-green { background-color: #81C784; color: #000; }
+        .status-red { background-color: #E57373; color: #000; }
+        .status-blue { background-color: #64B5F6; color: #000; }
+        .status-gray { background-color: #E0E0E0; color: #000; }
 
-        tbody tr {
-            @apply border-b border-gray-100;
-        }
-        
-        tbody tr:hover {
-            @apply bg-blue-50/50 transition-colors duration-200;
-        }
+        /* Hover effects for better visibility */
+        td[data-field="DD"]:hover { opacity: 0.9; transition: opacity 0.2s ease-in-out; }
 
-        .select-wrapper {
-            @apply relative;
-        }
+        /* Proper padding for cells */
+        td[data-field="DD"] { padding: 0.5rem 0.75rem; border-radius: 0.25rem; }
 
-        .select-wrapper::after {
-            content: '';
-            @apply absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-no-repeat pointer-events-none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-        }
+
+        /* Status colors (duplicated in original CSS - keeping for direct conversion, refine with Tailwind later) */
+        .status-green { background-color: #d4edda; color: #155724; }
+        .status-red { background-color: #f8d7da; color: #721c24; }
+        .status-blue { background-color: #cce5ff; color: #004085; }
+        .status-gray { background-color: #e2e3e5; color: #6c757d; }
+        .status-orange { background-color: #ffe5b4; color: #cc7a00; }
     </style>
 </head>
-<body class="font-sans bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-12">
-        <header class="text-center mb-12">
-            <div class="inline-flex items-center justify-center gap-3 mb-4">
-                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-university text-white text-2xl"></i>
-                </div>
-            </div>
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">Accounts Section</h1>
-            <h2 class="text-xl font-medium text-gray-600">BISE Bannu Office</h2>
-            <div class="mt-4 inline-flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full">
-                <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                <p class="text-sm text-blue-700 font-medium">Cheque Status Viewer</p>
-            </div>
-        </header>
+<body class="font-sans">
+    <div class="container mx-auto px-4">
+        <div class="header py-8 text-center mb-8 bg-gray-50">
+            <h1 class="text-2xl md:text-3xl lg:text-4xl text-blue-700 mb-4">Accounts Section: BISE Bannu Office</h1>
+            <h3 class="text-lg">Testing site..............................</h3>
+            <p class="text-gray-500">Check Information and Updates</p>
+        </div>
 
-        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="col-span-1 md:col-span-3">
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <input type="search" id="search" class="form-control pl-10" placeholder="Search by payee name, cheque number..." aria-label="Search CHQS">
-                    </div>
-                </div>
-                
-                <div class="select-wrapper">
-                    <select class="form-select" id="narCategory">
-                        <option value="all" selected>Search All Bill Categories</option>
-                        <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
-                        <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
-                        <option value="TA/DA TO PRACTICAL EXMR: SSC">Practical Staff SSC</option>
-                        <option value="TA/DA TO PRACTICAL EXMR: HSSC">Practical Staff HSSC</option>
-                        <option value="TA/DA TO INSEPCTORS SSC">Inspections Staff SSC</option>
-                        <option value="TA/DA TO INSEPCTORS HSSC">Inspections Staff HSSC</option>
-                        <option value="REMUNERATION RES: INSPECTORS">Resident Inspectors</option>
-                        <option value="LABORATORY CHARGES">Laboratory Charges</option>
-                        <option value="TA/DA GENERAL">TA/DA General</option>
-                        <option value="MARKING SSC">Marking SSC</option>
-                        <option value="MARKING HSSC">Marking HSSC</option>
-                        <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
-                        <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
-                        <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
-                        <option value="HONORARIA">Honoraria</option>
-                        <option value="REFUND OF FEE">Refund of Fee</option>
-                        <option value="RETOTALLING">Retotalling</option>
-                    </select>
-                </div>
-
-                <button class="btn-primary justify-center" type="button" id="searchBtn">
-                    <i class="fas fa-search"></i>
-                    <span>Search Cheques</span>
+        <div class="search-container flex flex-col md:flex-row items-center gap-3 mb-8">
+            <div class="flex-grow">
+                <input type="search" id="search" class="form-control w-full px-3 py-2 border rounded shadow-sm" placeholder="Search..." aria-label="Search CHQS">
+            </div>
+            <div class="flex flex-col md:flex-row items-center gap-2 flex-grow">
+                <select class="form-select flex-grow w-full md:w-auto px-3 py-2 border rounded shadow-sm mb-2 md:mb-0" id="narCategory">
+                    <option value="all" selected>Search All Bills</option>
+                    <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
+                    <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
+                    <option value="TA/DA TO PRACTICAL EXMR: SSC">Practical Staff SSC</option>
+                    <option value="TA/DA TO PRACTICAL EXMR: HSSC">Practical Staff HSSC</option>
+                    <option value="TA/DA TO INSEPCTORS SSC">Inspections Staff SSC</option>
+                    <option value="TA/DA TO INSEPCTORS HSSC">Inspections Staf HSSC</option>
+                    <option value="REMUNERATION RES: INSPECTORS">Resedent Inspectors</option>
+                    <option value="LABORATORY CHARGES">Laboratory Charges</option>
+                    <option value="TA/DA GENERAL">TA/DA General</option>
+                    <option value="MARKING SSC">Marking SSC</option>
+                    <option value="MARKING HSSC">Marking HSSC</option>
+                    <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
+                    <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
+                    <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
+                    <option value="HONORARIA">Honoraria</option>
+                    <option value="REFUND OF FEE">Refund of Fee</option>
+                    <option value="RETOTALLING">Retotalling</option>
+                </select>
+                <button class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md" type="button" id="searchBtn">
+                    <i class="fas fa-search"></i> <span class="hidden md:inline">Search</span>
                 </button>
-
-<!--                  <div class="select-wrapper">
-                    <select class="form-select" id="statusFilter">
-                       <option value="all" selected>All Statuses</option>
-                        <option value="despatched through gpo">Despatched through GPO</option>
-                        <option value="ready but not signed yet">Ready but not signed yet</option>
-                        <option value="cheque ready">Cheque Ready</option>
-                        <option value="despatched to lakki camp office">Despatched to Lakki Camp Office</option>
-                        <option value="sent to chairman sb. for sign">Sent to Chairman SB for Sign</option>
-                    </select>
-                </div> -->
-                
             </div>
-        </section>
+        </div>
 
-        <section id="resultSection" class="hidden">
-            <div id="result" class="bg-blue-50 border border-blue-200 text-blue-700 px-6 py-4 rounded-lg relative mb-6 flex items-center gap-3" role="alert" style="display: none;">
-                <i class="fas fa-info-circle text-xl"></i>
-                <div>
-                    <strong class="font-medium">Information: </strong>
-                    <span id="resultMessage"></span>
-                </div>
-            </div>
+        <div id="result" class="alert alert-info hidden p-4 mb-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-md" role="alert" style="display: none;"></div>
+        <div class="table-responsive" id="tableContainer" style="display: none;">
+            <table class="table table-hover table-auto w-full" id="chequeTable">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th data-column="NARRATION" class="px-4 py-2 font-semibold text-left">Payee(s) Name and Address <span class="sort-icon"></span></th>
+                        <th data-column="AMOUNT" class="px-4 py-2 font-semibold text-left">Amount <span class="sort-icon"></span></th>
+                        <th data-column="CHEQ_NO" class="px-4 py-2 font-semibold text-left">Cheque No <span class="sort-icon"></span></th>
+                        <th data-column="NAR" class="px-4 py-2 font-semibold text-left">In Care Of <span class="sort-icon"></span></th>
+                        <th data-column="DD" class="px-4 py-2 font-semibold text-left">Details Status <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="checksTable"></tbody>
+            </table>
+        </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" id="tableContainer" style="display: none;">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200" id="chequeTable">
-                        <thead>
-                            <tr>
-                                <th data-column="NARRATION" class="table-header-cell">
-                                    <div class="flex items-center gap-2">
-                                        Payee(s) Name and Address
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th data-column="AMOUNT" class="table-header-cell">
-                                    <div class="flex items-center gap-2">
-                                        Amount
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th data-column="CHEQ_NO" class="table-header-cell">
-                                    <div class="flex items-center gap-2">
-                                        Cheque No
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th data-column="NAR" class="table-header-cell">
-                                    <div class="flex items-center gap-2">
-                                        In Care Of
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                                <th data-column="DD" class="table-header-cell">
-                                    <div class="flex items-center gap-2">
-                                        Status
-                                        <i class="fas fa-sort text-gray-400"></i>
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="checksTable" class="divide-y divide-gray-200">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="text-center py-16" id="emptyState">
-                <div class="bg-gray-50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                    <i class="fas fa-search text-gray-400 text-2xl"></i>
-                </div>
-                <p class="text-gray-600 text-lg">Enter search criteria to view cheque details</p>
-                <p class="text-gray-400 text-sm mt-2">You can search by payee name, cheque number, or filter by category</p>
-            </div>
-        </section>
+        <div class="empty-state text-center py-12 px-4 bg-gray-50 rounded-md" id="emptyState">
+            <i class="fas fa-search text-4xl text-gray-500 mb-4"></i>
+            <p class="lead text-lg text-gray-700">Enter the name or school name to view search results</p>
+        </div>
     </div>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="scripts/index.js"></script>
 </body>
