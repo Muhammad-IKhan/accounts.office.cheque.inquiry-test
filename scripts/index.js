@@ -18,6 +18,9 @@ class XMLTableHandler {
             // Initialize state variables
             this.initializeState();
             
+            // Initialize event listeners
+            this.initializeEventListeners();
+            
             console.log('XMLTableHandler initialization successful');
         } catch (error) {
             console.error('Constructor Error:', error);
@@ -121,6 +124,17 @@ class XMLTableHandler {
                 this.search();
             }
         });
+
+        // Search button click event
+        const searchBtn = document.getElementById('searchBtn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', () => {
+                console.log('Search button clicked - triggering search');
+                this.search();
+            });
+        } else {
+            console.warn('Search button not found');
+        }
     }
 
     /**
