@@ -1,3 +1,4 @@
+// THIS REPLIT CODE IS BEST WORKING FOR SERACHING FILTERING SORTING BUT NEED COLORING AND PAGINATION
 class XMLTableHandler {
     constructor() {
         this.tableBody = document.getElementById('checksTable');
