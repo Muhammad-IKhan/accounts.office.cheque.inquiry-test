@@ -1,108 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Cheque List Viewer for BISE BANNU">
     <title>A/cOFFICE BISEB</title>
-
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="styles/style.css">
-
 
     <style>
         body {
             font-family: 'Roboto', sans-serif; /* Modern font */
         }
-
         .header {
             background-color: #f8f9fa;
             padding: 2rem 0;
             text-align: center; /* Center header content */
             margin-bottom: 2rem;
         }
-
         .header h1 {
             color: #2563eb; /* Primary color */
             font-size: 2.5rem; /* Larger heading */
             margin-bottom: 1rem;
         }
-
         .search-container {
             margin-bottom: 2rem;
         }
-
         .form-select {
             margin-bottom: 1rem; /* Space between select and search */
         }
-
         .table-responsive {
             overflow-x: auto; /* Enable horizontal scrolling if needed */
         }
-
         .table th {
             background-color: #f2f2f2; /* Light gray background for headers */
             font-weight: 600;
             text-align: left; /* Align text to the left */
         }
-
         .table td {
             vertical-align: middle; /* Center content vertically */
         }
-
         .status-green {
             color: #28a745; /* Green text */
             font-weight: 500;
         }
-
         .status-red {
             color: #dc3545; /* Red text */
             font-weight: 500;
         }
-
         .status-blue {
             color: #007bff; /* Blue text */
             font-weight: 500;
         }
-
         .status-gray {
             color: #6c757d; /* Gray text */
             font-weight: 500;
         }
-
         .status-orange {
             color: #fd7e14; /* Orange text */
             font-weight: 500;
         }
-
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
             background: #f8f9fa;
             border-radius: 0.5rem;
         }
-
         .empty-state i {
             font-size: 3rem;
             color: #6c757d;
             margin-bottom: 1rem;
         }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
             }
-
             .table-responsive {
                 font-size: 0.9rem;
             }
-
             .btn {
                 width: 100%;
                 margin-bottom: 0.5rem;
@@ -110,49 +91,49 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
+        <!-- Header Section -->
         <div class="header">
             <h1>Accounts Section: BISE Bannu Office</h1>
             <p class="text-muted">Check Information and Updates</p>
         </div>
 
-      <div class="search-container d-flex flex-column flex-md-row align-items-center gap-3">
-        <div class="input-group flex-grow-1">
-            <input type="search" id="search" class="form-control" placeholder="Search..." aria-label="Search CHQS">
+        <!-- Search Section -->
+        <div class="search-container d-flex flex-column flex-md-row align-items-center gap-3">
+            <div class="input-group flex-grow-1">
+                <input type="search" id="search" class="form-control" placeholder="Search..." aria-label="Search CHQS">
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <select class="form-select flex-grow-1" id="narCategory">
+                    <option value="">Search All Together</option>
+                    <option value="SUPERVISORY STAFF EXAM">TA/DA to Supervisory Staff Exam</option>
+                    <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">TA/DA to Supervisory Staff SSC Exam</option>
+                    <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">TA/DA to Supervisory Staff HSSC Exam</option>
+                    <option value="TA/DA TO PRACTICAL EXMR: SSC">TA/DA to Practical Exmr: SSC</option>
+                    <option value="TA/DA TO PRACTICAL EXMR: HSSC">TA/DA to Practical Exmr: HSSC</option>
+                    <option value="TA/DA TO INSEPCTORS SSC">TA/DA to Inspectors SSC</option>
+                    <option value="TA/DA TO INSEPCTORS HSSC">TA/DA to Inspectors HSSC</option>
+                    <option value="REMUNERATION RES: INSPECTORS">Remuneration Res: Inspectors</option>
+                    <option value="LABORATORY CHARGES">Laboratory Charges</option>
+                    <option value="TA/DA GENERAL">TA/DA General</option>
+                    <option value="MARKING SSC">Marking SSC</option>
+                    <option value="MARKING HSSC">Marking HSSC</option>
+                    <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
+                    <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
+                    <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
+                    <option value="HONORARIA">Honoraria</option>
+                    <option value="REFUND OF FEE">Refund of Fee</option>
+                    <option value="RETOTALLING">Retotalling</option>
+                </select>
+                <button class="btn btn-primary" type="button" id="searchBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
         </div>
-<div class="search-container d-flex flex-column flex-md-row align-items-center gap-3">
-    <div class="d-flex align-items-center gap-2 flex-grow-1">
-        <select class="form-select flex-grow-1" id="narCategory">
-            <option value="">Search All Together</option>
-            <option value="SUPERVISORY STAFF EXAM">TA/DA to Supervisory Staff Exam</option>
-            <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">TA/DA to Supervisory Staff SSC Exam</option>
-            <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">TA/DA to Supervisory Staff HSSC Exam</option>
-            <option value="TA/DA TO PRACTICAL EXMR: SSC">TA/DA to Practical Exmr: SSC</option>
-            <option value="TA/DA TO PRACTICAL EXMR: HSSC">TA/DA to Practical Exmr: HSSC</option>
-            <option value="TA/DA TO INSEPCTORS SSC">TA/DA to Inspectors SSC</option>
-            <option value="TA/DA TO INSEPCTORS HSSC">TA/DA to Inspectors HSSC</option>
-            <option value="REMUNERATION RES: INSPECTORS">Remuneration Res: Inspectors</option>
-            <option value="LABORATORY CHARGES">Laboratory Charges</option>
-            <option value="TA/DA GENERAL">TA/DA General</option>
-            <option value="MARKING SSC">Marking SSC</option>
-            <option value="MARKING HSSC">Marking HSSC</option>
-            <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
-            <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
-            <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
-            <option value="HONORARIA">Honoraria</option>
-            <option value="REFUND OF FEE">Refund of Fee</option>
-            <option value="RETOTALLING">Retotalling</option>
-        </select>
-        <button class="btn btn-primary" type="button" id="searchBtn">
-            <i class="fas fa-search"></i> Search
-        </button>
-    </div>
-</div>
 
+        <!-- Result Section -->
         <div id="result" class="alert alert-info" role="alert" style="display: none;"></div>
-
         <div class="table-responsive" id="tableContainer" style="display: none;">
             <table class="table table-hover" id="chequeTable">
                 <thead>
@@ -168,17 +149,18 @@
             </table>
         </div>
 
+        <!-- Empty State -->
         <div class="empty-state" id="emptyState">
             <i class="fas fa-search"></i>
             <p class="lead">Enter the name or school name to view search results</p>
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="scripts/index.js"></script>
 </body>
-
 </html>
