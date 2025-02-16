@@ -207,13 +207,19 @@ document.addEventListener('DOMContentLoaded', () => {
     handler.fetchXMLData().then(() => handler.resetTable());
 });
 
-// Register Service Worker
+// Service Worker registration
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { 
-            scope: '/accounts.office.cheque.inquiry/' 
+        const swPath = '/accounts.office.cheque.inquiry/service-worker.js';
+        
+        navigator.serviceWorker.register(swPath, {
+            scope: '/accounts.office.cheque.inquiry/'
         })
-        .then(registration => console.log('ServiceWorker registered:', registration.scope))
-        .catch(err => console.error('ServiceWorker registration failed:', err));
+        .then(registration => {
+            console.log('ServiceWorker registration successful with scope:', registration.scope);
+        })
+        .catch(err => {
+            console.error('ServiceWorker registration failed:', err);
+        });
     });
-});    
+}
