@@ -4,92 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Cheque List Viewer for BISE BANNU">
-    <title>Site Test..</title>
+    <title>BISE Bannu - Cheque Status Test</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style type="text/tailwindcss">
+        @layer components {
+            .btn-primary {
+                @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md transition-colors duration-300;
+            }
+            .form-control {
+                @apply shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline;
+            }
+            .form-select {
+                @apply shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline;
+            }
+            .table-header-cell {
+                @apply px-4 py-3 bg-gray-100 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider;
+            }
+            .table-cell {
+                @apply px-4 py-3 whitespace-nowrap;
+            }
+            .status-badge {
+                @apply font-semibold px-2 py-1 rounded-full text-xs;
+            }
+        }
 
-    <style>
-        /* Status color definitions - consider moving to Tailwind config if customization is needed */
-        .status-orange { background-color: #FFB74D; color: #000; }
-        .status-green { background-color: #81C784; color: #000; }
-        .status-red { background-color: #E57373; color: #000; }
-        .status-blue { background-color: #64B5F6; color: #000; }
-        .status-gray { background-color: #E0E0E0; color: #000; }
+        /* Define status colors using Tailwind utilities - easily customizable */
+        .status-green { @apply bg-green-200 text-green-800; }
+        .status-red { @apply bg-red-200 text-red-800; }
+        .status-blue { @apply bg-blue-200 text-blue-800; }
+        .status-gray { @apply bg-gray-200 text-gray-800; }
+        .status-orange { @apply bg-orange-200 text-orange-800; }
 
-        /* Hover effects for better visibility */
-        td[data-field="DD"]:hover { opacity: 0.9; transition: opacity 0.2s ease-in-out; }
+        /* Hover effect for table rows */
+        tbody tr:hover {
+            @apply bg-gray-50 transition-colors duration-200;
+        }
 
-        /* Proper padding for cells */
-        td[data-field="DD"] { padding: 0.5rem 0.75rem; border-radius: 0.25rem; }
-
-
-        /* Status colors (duplicated in original CSS - keeping for direct conversion, refine with Tailwind later) */
-        .status-green { background-color: #d4edda; color: #155724; }
-        .status-red { background-color: #f8d7da; color: #721c24; }
-        .status-blue { background-color: #cce5ff; color: #004085; }
-        .status-gray { background-color: #e2e3e5; color: #6c757d; }
-        .status-orange { background-color: #ffe5b4; color: #cc7a00; }
     </style>
 </head>
-<body class="font-sans">
-    <div class="container mx-auto px-4">
-        <div class="header py-8 text-center mb-8 bg-gray-50">
-            <h1 class="text-2xl md:text-3xl lg:text-4xl text-blue-700 mb-4">Accounts Section: BISE Bannu Office</h1>
-            <h3 class="text-lg">Testing site..............................</h3>
-            <p class="text-gray-500">Check Information and Updates</p>
-        </div>
+<body class="font-sans bg-gray-50">
+    <div class="container mx-auto px-4 py-10">
+        <header class="header text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-700 mb-2">Accounts Section</h1>
+            <h2 class="text-xl font-semibold text-gray-800">BISE Bannu Office</h2>
+            <p class="text-md text-gray-500 mt-2">Cheque List Viewer - Testing Site</p>
+        </header>
 
-        <div class="search-container flex flex-col md:flex-row items-center gap-3 mb-8">
-            <div class="flex-grow">
-                <input type="search" id="search" class="form-control w-full px-3 py-2 border rounded shadow-sm" placeholder="Search..." aria-label="Search CHQS">
+        <section class="search-container mb-8">
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div class="flex-grow">
+                    <input type="search" id="search" class="form-control" placeholder="Search Payee Name, Cheque No, etc." aria-label="Search CHQS">
+                </div>
+                <div class="flex flex-grow md:max-w-sm">
+                    <select class="form-select" id="narCategory">
+                        <option value="all" selected>Search All Bill Categories</option>
+                        <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
+                        <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
+                        <option value="TA/DA TO PRACTICAL EXMR: SSC">Practical Staff SSC</option>
+                        <option value="TA/DA TO PRACTICAL EXMR: HSSC">Practical Staff HSSC</option>
+                        <option value="TA/DA TO INSEPCTORS SSC">Inspections Staff SSC</option>
+                        <option value="TA/DA TO INSEPCTORS HSSC">Inspections Staff HSSC</option>
+                        <option value="REMUNERATION RES: INSPECTORS">Resident Inspectors</option>
+                        <option value="LABORATORY CHARGES">Laboratory Charges</option>
+                        <option value="TA/DA GENERAL">TA/DA General</option>
+                        <option value="MARKING SSC">Marking SSC</option>
+                        <option value="MARKING HSSC">Marking HSSC</option>
+                        <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
+                        <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
+                        <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
+                        <option value="HONORARIA">Honoraria</option>
+                        <option value="REFUND OF FEE">Refund of Fee</option>
+                        <option value="RETOTALLING">Retotalling</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="btn-primary" type="button" id="searchBtn" aria-label="Search">
+                        <i class="fas fa-search mr-2"></i> Search
+                    </button>
+                </div>
             </div>
-            <div class="flex flex-col md:flex-row items-center gap-2 flex-grow">
-                <select class="form-select flex-grow w-full md:w-auto px-3 py-2 border rounded shadow-sm mb-2 md:mb-0" id="narCategory">
-                    <option value="all" selected>Search All Bills</option>
-                    <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
-                    <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
-                    <option value="TA/DA TO PRACTICAL EXMR: SSC">Practical Staff SSC</option>
-                    <option value="TA/DA TO PRACTICAL EXMR: HSSC">Practical Staff HSSC</option>
-                    <option value="TA/DA TO INSEPCTORS SSC">Inspections Staff SSC</option>
-                    <option value="TA/DA TO INSEPCTORS HSSC">Inspections Staf HSSC</option>
-                    <option value="REMUNERATION RES: INSPECTORS">Resedent Inspectors</option>
-                    <option value="LABORATORY CHARGES">Laboratory Charges</option>
-                    <option value="TA/DA GENERAL">TA/DA General</option>
-                    <option value="MARKING SSC">Marking SSC</option>
-                    <option value="MARKING HSSC">Marking HSSC</option>
-                    <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
-                    <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
-                    <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
-                    <option value="HONORARIA">Honoraria</option>
-                    <option value="REFUND OF FEE">Refund of Fee</option>
-                    <option value="RETOTALLING">Retotalling</option>
-                </select>
-                <button class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md" type="button" id="searchBtn">
-                    <i class="fas fa-search"></i> <span class="hidden md:inline">Search</span>
-                </button>
+        </section>
+
+        <section id="resultSection" class="hidden">
+            <div id="result" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert" style="display: none;">
+                <strong class="font-bold">Info!</strong>
+                <span class="block sm:inline" id="resultMessage"></span>
             </div>
-        </div>
 
-        <div id="result" class="alert alert-info hidden p-4 mb-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-md" role="alert" style="display: none;"></div>
-        <div class="table-responsive" id="tableContainer" style="display: none;">
-            <table class="table table-hover table-auto w-full" id="chequeTable">
-                <thead>
-                    <tr class="bg-gray-100">
-                        <th data-column="NARRATION" class="px-4 py-2 font-semibold text-left">Payee(s) Name and Address <span class="sort-icon"></span></th>
-                        <th data-column="AMOUNT" class="px-4 py-2 font-semibold text-left">Amount <span class="sort-icon"></span></th>
-                        <th data-column="CHEQ_NO" class="px-4 py-2 font-semibold text-left">Cheque No <span class="sort-icon"></span></th>
-                        <th data-column="NAR" class="px-4 py-2 font-semibold text-left">In Care Of <span class="sort-icon"></span></th>
-                        <th data-column="DD" class="px-4 py-2 font-semibold text-left">Details Status <span class="sort-icon"></span></th>
-                    </tr>
-                </thead>
-                <tbody id="checksTable"></tbody>
-            </table>
-        </div>
+            <div class="table-responsive shadow-sm border rounded-md overflow-x-auto" id="tableContainer" style="display: none;">
+                <table class="min-w-full leading-normal" id="chequeTable">
+                    <thead>
+                        <tr>
+                            <th data-column="NARRATION" class="table-header-cell">Payee(s) Name and Address <span class="sort-icon"></span></th>
+                            <th data-column="AMOUNT" class="table-header-cell">Amount <span class="sort-icon"></span></th>
+                            <th data-column="CHEQ_NO" class="table-header-cell">Cheque No <span class="sort-icon"></span></th>
+                            <th data-column="NAR" class="table-header-cell">In Care Of <span class="sort-icon"></span></th>
+                            <th data-column="DD" class="table-header-cell">Details Status <span class="sort-icon"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="checksTable">
+                        </tbody>
+                </table>
+            </div>
 
-        <div class="empty-state text-center py-12 px-4 bg-gray-50 rounded-md" id="emptyState">
-            <i class="fas fa-search text-4xl text-gray-500 mb-4"></i>
-            <p class="lead text-lg text-gray-700">Enter the name or school name to view search results</p>
-        </div>
+            <div class="text-center py-16" id="emptyState">
+                <i class="fas fa-search text-5xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600 text-lg">Enter search criteria to view cheque details</p>
+            </div>
+        </section>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
