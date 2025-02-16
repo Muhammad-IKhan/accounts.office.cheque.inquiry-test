@@ -34,7 +34,21 @@ class XMLTableHandler {
 
     initializeEventListeners() {
         console.log("Initializing event listeners...");
+        try {
+        // Search input events
+        this.setupSearchListeners();
+        
+        // NAR filter events
+        this.setupNarFilterListeners();
 
+        // Sorting events
+        this.setupSorting();
+        
+        console.log('Event listeners setup complete');
+    } catch (error) {
+        console.error('Error in event listener setup:', error);
+        this.showError('Failed to initialize event handlers');
+    }
         // Backspace handling for search input
         this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && this.tableResetEnabled) {
@@ -298,4 +312,79 @@ if ('serviceWorker' in navigator) {
         .then(registration => console.log('ServiceWorker registered:', registration.scope))
         .catch(err => console.error('ServiceWorker registration failed:', err));
     });
+
+
+    /**
+ * Set up sorting functionality for table columns
+ */
+setupSorting() {
+    const tableHeaders = document.querySelectorAll('#chequeTable th[data-column]');
+    tableHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+            const column = header.getAttribute('data-column');
+            const isAscending = header.classList.toggle('asc');
+            this.sortTable(column, isAscending);
+        });
+    });
+}
+
+/**
+ * Sort the table by a specific column
+ * @param {string} column - The column to sort by
+ * @param {boolean} isAscending - Whether to sort in ascending order
+ */
+sortTable(column, isAscending) {
+    const rows = Array.from(this.tableBody.querySelectorAll('tr'));
+    const columnIndex = this.columns[column].index;
+
+    rows.sort((rowA, rowB) => {
+        const cellA = rowA.querySelectorAll('td')[columnIndex].textContent.trim();
+        const cellB = rowB.querySelectorAll('td')[columnIndex].textContent.trim();
+
+        if (this.columns[column].type === 'number') {
+            return isAscending ? parseFloat(cellA) - parseFloat(cellB) : parseFloat(cellB) - parseFloat(cellA);
+        } else {
+            return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+        }
+    });
+
+    // Clear the table and re-append sorted rows
+    this.tableBody.innerHTML = '';
+    rows.forEach(row => this.tableBody.appendChild(row));
+
+    console.log(`Table sorted by ${column} in ${isAscending ? 'ascending' : 'descending'} order`);
+}
+
+applyStatusStyles(cell, value) {
+    console.log(`Applying status styles for value: ${value}`);
+    const ddValue = value.toLowerCase();
+    console.log(`Lowercase value: ${ddValue}`);
+
+    const statusMap = {
+        'despatched through gpo': 'status-orange',
+        'ready but not signed yet': 'status-green',
+        'cheque ready': 'status-green',
+        'despatched to lakki camp office': 'status-red',
+        'sent to chairman sb. for sign': 'status-blue'
+    };
+
+    // Remove any existing status classes
+    cell.classList.remove('status-orange', 'status-green', 'status-red', 'status-blue', 'status-gray');
+
+    let statusApplied = false;
+    for (const [key, className] of Object.entries(statusMap)) {
+        if (ddValue.includes(key)) {
+            console.log(`Matched key: ${key}, applying class: ${className}`);
+            cell.classList.add(className);
+            statusApplied = true;
+            break;
+        }
+    }
+
+    // Apply default gray status if no match is found
+    if (!statusApplied) {
+        console.log('No match found, applying default gray status');
+        cell.classList.add('status-gray');
+    }
+}
 }
