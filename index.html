@@ -3,40 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Cheque List Viewer for BISE BANNU">
-    <title>A/c test BISEB</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="styles/style.css">
-
+    <title>Cheque Inquiry System</title>
     <style>
-        /* Add your custom styles here */
-        .status-green { color: #28a745; font-weight: 500; }
-        .status-red { color: #dc3545; font-weight: 500; }
-        .status-blue { color: #007bff; font-weight: 500; }
-        .status-gray { color: #6c757d; font-weight: 500; }
-        .status-orange { color: #fd7e14; font-weight: 500; }
+        /* Core styles */
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f5f5;
+            --border-color: #ddd;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Header styles */
+        .header {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 24px;
+        }
+
+        /* Search and filter section */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+
+        .search-box, .filter-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            height: 35px;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            position: relative;
+            cursor: pointer;
+        }
+
+        th:hover {
+            background-color: #eee;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Status colors */
+        .status-orange { color: #fd7e14; }
+        .status-green { color: var(--success-color); }
+        .status-red { color: var(--danger-color); }
+        .status-blue { color: var(--primary-color); }
+        .status-purple { color: #6f42c1; }
+        .status-dark-red { color: #721c24; }
+        .status-yellow { color: var(--warning-color); }
+        .status-cyan { color: var(--info-color); }
+        .status-gray { color: #6c757d; }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+            color: #666;
+        }
+
+        /* Result container */
+        .result-container {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        /* Alert styles */
+        .alert {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+
+        /* Sort icons */
+        .sort-icon {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header Section -->
+        <!-- Header -->
         <div class="header">
-            <h1>Accounts Section: BISE Bannu Office</h1>
-            <p class="text-muted">Check Information and Updates</p>
+            <h1>Cheque Inquiry System</h1>
         </div>
 
-        <!-- Search Section -->
-        <div class="search-container d-flex flex-column flex-md-row align-items-center gap-3">
-            <div class="input-group flex-grow-1">
-                <input type="search" id="search" class="form-control" placeholder="Search..." aria-label="Search CHQS">
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-box">
+                <label for="search">Search</label>
+                <input type="text" id="search" placeholder="Enter search term...">
             </div>
-            <div class="d-flex align-items-center gap-2 flex-grow-1">
-                <select class="form-select flex-grow-1" id="narCategory">
+
+            <div class="filter-box">
+                <label for="narCategory">NAR Category</label>
+                <select id="narCategory">
                    <option value="all" selected>Search All Bills</option>
                     <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
                     <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
@@ -57,34 +232,46 @@
                     <option value="HONORARIA">Honoraria</option>
                     <option value="REFUND OF FEE">Refund of Fee</option>
                     <option value="RETOTALLING">Retotalling</option>
-                    <!-- Add other NAR options here -->
-                    <!-- Add other NAR options here -->
-                </select>
-                <button class="btn btn-primary" type="button" id="searchBtn">
-                    <i class="fas fa-search"></i> Search
-                </button>
-                <select class="form-select flex-grow-1" id="statusFilter">
-                    <option value="all" selected>All Statuses</option>
-                    <option value="despatched through gpo">Despatched through GPO</option>
-                    <option value="ready but not signed yet">Ready but not signed yet</option>
-                    <option value="cheque ready">Cheque Ready</option>
-                    <option value="despatched to lakki camp office">Despatched to Lakki Camp Office</option>
-                    <option value="sent to chairman sb. for sign">Sent to Chairman SB for Sign</option>
                 </select>
             </div>
+
+            <div class="filter-box">
+                <label for="statusFilter">Status Filter</label>
+                <select id="statusFilter">
+                    <option value="all">All Statuses</option>
+                    <option value="despatched through gpo">Despatched Through GPO</option>
+                    <option value="ready but not signed yet">Ready But Not Signed</option>
+                    <option value="despatched to lakki camp office">Despatched to Lakki</option>
+                    <option value="sent to chairman">Sent to Chairman</option>
+                    <option value="expired">Expired</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="on hold">On Hold</option>
+                    <option value="processing">Processing</option>
+                </select>
+            </div>
+
+            <button id="searchBtn">Search</button>
         </div>
 
-        <!-- Result Section -->
-        <div id="result" class="alert alert-info" role="alert" style="display: none;"></div>
-        <div class="table-responsive" id="tableContainer" style="display: none;">
-            <table class="table table-hover" id="chequeTable">
+        <!-- Results -->
+        <div id="result" class="result-container"></div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state">
+            <h3>Welcome to Cheque Inquiry System</h3>
+            <p>Use the search and filters above to find cheque information.</p>
+        </div>
+
+        <!-- Table -->
+        <div id="tableContainer" class="table-container">
+            <table>
                 <thead>
                     <tr>
-                        <th data-column="NARRATION">Payee(s) Name and Address <span class="sort-icon"></span></th>
+                        <th data-column="NARRATION">Narration <span class="sort-icon"></span></th>
                         <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
                         <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
-                        <th data-column="NAR">In Care Of <span class="sort-icon"></span></th>
-                        <th data-column="DD">Details Status <span class="sort-icon"></span></th>
+                        <th data-column="NAR">NAR <span class="sort-icon"></span></th>
+                        <th data-column="DD">Status <span class="sort-icon"></span></th>
                     </tr>
                 </thead>
                 <tbody id="checksTable"></tbody>
@@ -92,292 +279,10 @@
         </div>
 
         <!-- Pagination -->
-        <nav aria-label="Table pagination" id="pagination">
-            <ul class="pagination justify-content-center">
-                <li class="page-item disabled" id="prevPage">
-                    <a class="page-link" href="#" tabindex="-1">Previous</a>
-                </li>
-                <li class="page-item active" id="page1">
-                    <a class="page-link" href="#">1</a>
-                </li>
-                <li class="page-item" id="nextPage">
-                    <a class="page-link" href="#">Next</a>
-                </li>
-            </ul>
-        </nav>
-
-        <!-- Empty State -->
-        <div class="empty-state" id="emptyState">
-            <i class="fas fa-search"></i>
-            <p class="lead">Enter the name or school name to view search results</p>
-        </div>
+        <div id="pagination" class="pagination"></div>
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script>
-       /**
-/**
- * XMLTableHandler: Fixed implementation with defineColumns
- * Version: 5.2
- * Last Updated: 2025-02-16
- */
-class XMLTableHandler {
-    constructor() {
-        console.log('🚀 Initializing XMLTableHandler...');
-        
-        try {
-            // Initialize core components
-            this.defineColumns();  // Now defined as a method
-            this.initializeDOMElements();
-            this.initializeState();
-            this.initializeEventListeners();
-            
-            console.log('✅ XMLTableHandler initialization successful');
-        } catch (error) {
-            console.error('❌ Constructor Error:', error.message);
-            this.showError('Failed to initialize table handler: ' + error.message);
-        }
-    }
-
-    /**
-     * Define table columns and their properties
-     * @method defineColumns
-     */
-    defineColumns() {
-        console.log('📊 Defining table columns...');
-        
-        this.columns = {
-            NARRATION: { 
-                index: 0, 
-                type: 'string', 
-                required: true,
-                title: 'Narration'
-            },
-            AMOUNT: { 
-                index: 1, 
-                type: 'number', 
-                required: true,
-                title: 'Amount'
-            },
-            CHEQ_NO: { 
-                index: 2, 
-                type: 'number', 
-                required: true,
-                title: 'Cheque No'
-            },
-            NAR: { 
-                index: 3, 
-                type: 'string', 
-                required: true,
-                title: 'NAR'
-            },
-            DD: { 
-                index: 4, 
-                type: 'string', 
-                required: true,
-                title: 'Status'
-            }
-        };
-        
-        console.log('✅ Column definitions completed:', Object.keys(this.columns));
-    }
-
-    /**
-     * Initialize DOM elements with error checking
-     */
-    initializeDOMElements() {
-        console.log('🔍 Initializing DOM elements...');
-
-        const required_elements = {
-            'checksTable': 'tableBody',
-            'search': 'searchInput',
-            'narCategory': 'narFilter',
-            'statusFilter': 'statusFilter',
-            'tableContainer': 'tableContainer',
-            'emptyState': 'emptyState',
-            'result': 'resultContainer',
-            'pagination': 'paginationContainer'
-        };
-
-        for (const [id, prop] of Object.entries(required_elements)) {
-            const element = document.getElementById(id);
-            if (!element) {
-                throw new Error(`Required element #${id} not found in DOM`);
-            }
-            this[prop] = element;
-            console.log(`✓ Found ${id} element`);
-        }
-    }
-
-    /**
-     * Initialize state variables
-     */
-    initializeState() {
-        console.log('🔄 Initializing state...');
-        
-        this.state = {
-            enableLiveUpdate: false,
-            tableResetEnabled: true,
-            backspaceDefault: true,
-            xmlData: '',
-            lastSearchTerm: '',
-            currentStatusFilter: 'all',
-            lastFilterCategory: 'all',
-            rowsPerPage: 10,
-            currentPage: 1,
-            visibleRowsCount: 0,
-            sortColumn: null,
-            sortDirection: 'asc'
-        };
-        
-        console.log('✅ State initialized');
-    }
-
-    /**
-     * Initialize event listeners
-     */
-    initializeEventListeners() {
-        console.log('👂 Setting up event listeners...');
-
-        try {
-            this.setupSearchListeners();
-            this.setupFilterListeners();
-            this.setupPaginationListeners();
-            this.setupSorting();
-            
-            console.log('✅ Event listeners setup complete');
-        } catch (error) {
-            console.error('❌ Error in event listener setup:', error);
-            this.showError('Failed to setup event listeners: ' + error.message);
-        }
-    }
-
-    /**
-     * Setup search functionality
-     */
-    setupSearchListeners() {
-        if (!this.searchInput) {
-            console.error('❌ Search input not found');
-            return;
-        }
-
-        this.searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                console.log('🔍 Search triggered by Enter key');
-                this.performSearch();
-            }
-        });
-
-        const searchBtn = document.getElementById('searchBtn');
-        if (searchBtn) {
-            searchBtn.addEventListener('click', () => {
-                console.log('🔍 Search triggered by button click');
-                this.performSearch();
-            });
-        }
-    }
-
-    /**
-     * Setup filter listeners
-     */
-    setupFilterListeners() {
-        if (this.narFilter) {
-            this.narFilter.addEventListener('change', () => {
-                console.log('📑 NAR filter changed:', this.narFilter.value);
-                this.applyFilters();
-            });
-        }
-
-        if (this.statusFilter) {
-            this.statusFilter.addEventListener('change', () => {
-                console.log('🔄 Status filter changed:', this.statusFilter.value);
-                this.applyFilters();
-            });
-        }
-    }
-
-    /**
-     * Setup pagination
-     */
-    setupPaginationListeners() {
-        if (!this.paginationContainer) {
-            console.warn('⚠️ Pagination container not found');
-            return;
-        }
-
-        // Add pagination logic here
-        console.log('📄 Pagination listeners setup');
-    }
-
-    /**
-     * Setup sorting
-     */
-    setupSorting() {
-        const headers = document.querySelectorAll('th[data-column]');
-        headers.forEach(header => {
-            header.addEventListener('click', () => {
-                const column = header.dataset.column;
-                console.log('🔄 Sorting by column:', column);
-                this.sortTable(column);
-            });
-        });
-    }
-
-    /**
-     * Perform search
-     */
-    performSearch() {
-        const searchTerm = this.searchInput.value.toLowerCase();
-        console.log('🔍 Performing search for:', searchTerm);
-        
-        this.state.lastSearchTerm = searchTerm;
-        this.applyFilters();
-    }
-
-    /**
-     * Apply all filters
-     */
-    applyFilters() {
-        // Filter implementation
-        console.log('🔄 Applying filters...');
-    }
-
-    /**
-     * Show error message
-     */
-    showError(message) {
-        console.error('❌ Error:', message);
-        if (this.resultContainer) {
-            this.resultContainer.innerHTML = `
-                <div class="alert alert-danger">
-                    ${message}
-                </div>
-            `;
-            this.resultContainer.style.display = 'block';
-        }
-    }
-}
-
-// Initialize handler
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🌟 DOM Content Loaded - Starting initialization');
-    
-    try {
-        window.tableHandler = new XMLTableHandler();
-        console.log('✅ Table handler initialized successfully');
-    } catch (error) {
-        console.error('❌ Initialization failed:', error);
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'alert alert-danger mt-3';
-        errorDiv.innerHTML = `Failed to initialize table handler: ${error.message}`;
-        document.body.insertBefore(errorDiv, document.body.firstChild);
-    }
-});
-        
-    </script>
+    <script src="xml-table-handler.js"></script>
 </body>
 </html>
