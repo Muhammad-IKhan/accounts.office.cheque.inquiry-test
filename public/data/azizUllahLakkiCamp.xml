@@ -1730,18 +1730,5 @@ This XML file does not appear to have any style information associated with it. 
 <NAR>TA/DA TO SUPERVISORY STAFF SSC EXAM:</NAR>
 <ENO>454</ENO>
 </G_PVN>
-<G_PVN>
-<BNO/>
-<HEAD/>
-<PVN/>
-<NARRATION/>
-<AMOUNT/>
-<ENT_DAT/>
-<CHEQ_NO/>
-<CHEQ_DATE/>
-<DD/>
-<NAR/>
-<ENO/>
-</G_PVN>
 </LIST_G_PVN>
 </CHEQUE_LIST_DATEWISE>
