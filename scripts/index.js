@@ -1,6 +1,6 @@
 /**
  * XMLTableHandler: Enhanced class for XML data handling and table management
- * Version: 4.0
+ * Version: 3.0
  * Debug Mode: Enabled
  * Last Updated: 2025-02-15
  */
@@ -40,8 +40,7 @@ class XMLTableHandler {
             'statusFilter': 'statusFilter',
             'tableContainer': 'tableContainer',
             'emptyState': 'emptyState',
-            'result': 'resultContainer',
-            'pagination': 'pagination'
+            'result': 'resultContainer'
         };
 
         for (const [id, prop] of Object.entries(required_elements)) {
@@ -176,6 +175,46 @@ class XMLTableHandler {
     }
 
     /**
+     * Set up sorting functionality for table columns
+     */
+    setupSorting() {
+        const tableHeaders = document.querySelectorAll('#chequeTable th[data-column]');
+        tableHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const column = header.getAttribute('data-column');
+                const isAscending = header.classList.toggle('asc');
+                this.sortTable(column, isAscending);
+            });
+        });
+    }
+
+    /**
+     * Sort the table by a specific column
+     * @param {string} column - The column to sort by
+     * @param {boolean} isAscending - Whether to sort in ascending order
+     */
+    sortTable(column, isAscending) {
+        const rows = Array.from(this.tableBody.querySelectorAll('tr'));
+        const columnIndex = this.columns[column].index;
+
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.querySelectorAll('td')[columnIndex].textContent.trim();
+            const cellB = rowB.querySelectorAll('td')[columnIndex].textContent.trim();
+
+            if (this.columns[column].type === 'number') {
+                return isAscending ? parseFloat(cellA) - parseFloat(cellB) : parseFloat(cellB) - parseFloat(cellA);
+            } else {
+                return isAscending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+            }
+        });
+
+        this.tableBody.innerHTML = '';
+        rows.forEach(row => this.tableBody.appendChild(row));
+
+        console.log(`Table sorted by ${column} in ${isAscending ? 'ascending' : 'descending'} order`);
+    }
+
+    /**
      * Filter by NAR category
      */
     filterByNar() {
@@ -191,7 +230,6 @@ class XMLTableHandler {
         });
 
         console.log(`Filter complete: ${matchCount} rows visible`);
-        this.updatePaginationVisibility();
     }
 
     /**
@@ -211,20 +249,116 @@ class XMLTableHandler {
         });
 
         console.log(`Status filter complete: ${matchCount} rows visible`);
-        this.updatePaginationVisibility();
     }
 
     /**
-     * Update pagination visibility based on visible rows
+     * Initialize pagination
      */
-    updatePaginationVisibility() {
-        const visibleRows = this.tableBody.querySelectorAll('tr[style=""]').length;
-        if (visibleRows > 0) {
-            this.pagination.style.display = 'flex';
-        } else {
-            this.pagination.style.display = 'none';
+    initializePagination() {
+        console.log('Initializing pagination...');
+
+        // Add event listeners for pagination
+        document.getElementById('prevPage').addEventListener('click', () => this.prevPage());
+        document.getElementById('nextPage').addEventListener('click', () => this.nextPage());
+
+        // Render the initial page
+        this.renderPage(this.currentPage);
+    }
+
+    /**
+     * Render a specific page
+     * @param {number} page - The page number to render
+     */
+    renderPage(page) {
+        console.log(`Rendering page ${page}...`);
+
+        const rows = this.tableBody.querySelectorAll('tr');
+        const startIndex = (page - 1) * this.rowsPerPage;
+        const endIndex = startIndex + this.rowsPerPage;
+
+        rows.forEach((row, index) => {
+            if (index >= startIndex && index < endIndex) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update pagination controls
+        this.updatePaginationControls(page);
+    }
+
+    /**
+     * Update pagination controls
+     * @param {number} page - The current page number
+     */
+    updatePaginationControls(page) {
+        const totalRows = this.tableBody.querySelectorAll('tr').length;
+        const totalPages = Math.ceil(totalRows / this.rowsPerPage);
+
+        console.log(`Updating pagination controls for page ${page} of ${totalPages}...`);
+
+        // Update previous/next buttons
+        document.getElementById('prevPage').classList.toggle('disabled', page === 1);
+        document.getElementById('nextPage').classList.toggle('disabled', page === totalPages);
+
+        // Update page numbers
+        const pagination = document.querySelector('.pagination');
+        pagination.innerHTML = `
+            <li class="page-item ${page === 1 ? 'disabled' : ''}" id="prevPage">
+                <a class="page-link" href="#">Previous</a>
+            </li>
+        `;
+
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.innerHTML += `
+                <li class="page-item ${i === page ? 'active' : ''}">
+                    <a class="page-link" href="#">${i}</a>
+                </li>
+            `;
         }
-        console.log(`Pagination visibility updated: ${visibleRows > 0 ? 'visible' : 'hidden'}`);
+
+        pagination.innerHTML += `
+            <li class="page-item ${page === totalPages ? 'disabled' : ''}" id="nextPage">
+                <a class="page-link" href="#">Next</a>
+            </li>
+        `;
+
+        // Add event listeners to page numbers
+        document.querySelectorAll('.pagination .page-item').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                if (index === 0) {
+                    this.prevPage();
+                } else if (index === totalPages + 1) {
+                    this.nextPage();
+                } else {
+                    this.renderPage(index);
+                }
+            });
+        });
+    }
+
+    /**
+     * Go to the previous page
+     */
+    prevPage() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+            this.renderPage(this.currentPage);
+        }
+    }
+
+    /**
+     * Go to the next page
+     */
+    nextPage() {
+        const totalRows = this.tableBody.querySelectorAll('tr').length;
+        const totalPages = Math.ceil(totalRows / this.rowsPerPage);
+
+        if (this.currentPage < totalPages) {
+            this.currentPage++;
+            this.renderPage(this.currentPage);
+        }
     }
 
     /**
@@ -251,7 +385,18 @@ class XMLTableHandler {
 
         console.log(`Search complete: ${matchCount} matches found`);
         this.updateSearchResults(searchTerm, matchCount);
-        this.updatePaginationVisibility();
+    }
+
+    /**
+     * Update search results display
+     */
+    updateSearchResults(searchTerm, matchCount) {
+        const message = matchCount > 0
+            ? `Found ${matchCount} results for "${searchTerm}"`
+            : 'No results found.';
+        
+        this.resultContainer.innerHTML = message;
+        console.log('Search results updated:', message);
     }
 
     /**
@@ -270,7 +415,6 @@ class XMLTableHandler {
         
         this.updateTableVisibility(false);
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
-        this.updatePaginationVisibility();
     }
 
     /**
