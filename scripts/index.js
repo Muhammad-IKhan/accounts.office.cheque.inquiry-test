@@ -161,14 +161,40 @@ class XMLTableHandler {
 
 
    search() {
-        const searchTerm = this.searchInput.value.toLowerCase();
-        if (!searchTerm) return this.resetTable();
-        this.tableBody.querySelectorAll('tr').forEach(row => {
-            const matchesSearch = Array.from(row.getElementsByTagName('td'))
-                .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
-            row.style.display = matchesSearch ? '' : 'none';
+    const searchTerm = this.searchInput.value.toLowerCase();
+    console.log(`Searching for: "${searchTerm}"`);
+
+    const rows = this.tableBody.querySelectorAll('tr'); // Get all rows
+
+    if (!searchTerm) {
+        // If search term is empty, show all rows (reset)
+        rows.forEach(row => {
+            row.style.display = ""; // or row.classList.remove('hidden') if you use classes
         });
+        return; // Important: Exit early to avoid unnecessary filtering
     }
+
+    rows.forEach(row => {
+        let matchesSearch = false; // Initialize to false for each row
+
+        const cells = row.querySelectorAll('td'); // Get cells of each row
+
+        for (const cell of cells) { // Iterate through the cells of the row
+            if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                matchesSearch = true;
+                break; // If a cell matches, no need to check other cells in the same row
+            }
+        }
+
+        if (matchesSearch) {
+            row.style.display = ""; // Show the row
+        } else {
+            row.style.display = "none"; // Hide the row
+        }
+    });
+
+    console.log("Search complete.");
+}
 
     filterByNar() {
         const selectedCategory = this.narFilter.value.toLowerCase();
