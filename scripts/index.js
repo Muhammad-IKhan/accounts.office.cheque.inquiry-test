@@ -141,8 +141,53 @@ class XMLTableHandler {
         }
     }
 
-    createTableRow(element) {
-        const row = document.createElement('tr');
+createTableRow(element) {
+    const row = document.createElement('tr');
+
+    Object.keys(this.columns).forEach(field => {
+        const cell = document.createElement('td');
+        let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+
+        // Format amount if it's the AMOUNT field
+        if (field === 'AMOUNT') {
+            try {
+                value = parseFloat(value).toLocaleString('en-US');
+            } catch (error) {
+                console.warn(`Invalid amount value: ${value}`);
+                value = '0';
+            }
+        }
+
+        cell.textContent = value;
+        cell.setAttribute('data-field', field);
+
+        // Apply status colors for DD field
+        if (field === 'DD') {
+            const ddValue = value.toLowerCase();
+            
+            // Remove any existing status classes
+            cell.classList.remove('status-orange', 'status-green', 'status-red', 'status-blue', 'status-gray');
+            
+            // Apply appropriate status class
+            if (ddValue.includes('despatched through gpo')) {
+                cell.classList.add('status-orange');
+            } else if (ddValue.includes('cheque ready')) {
+                cell.classList.add('status-green');
+            } else if (ddValue.includes('despatched to lakki camp office')) {
+                cell.classList.add('status-red');
+            } else if (ddValue.includes('sent to chairman')) {
+                cell.classList.add('status-blue');
+            } else {
+                cell.classList.add('status-gray');
+            }
+        }
+
+        row.appendChild(cell);
+    });
+
+    return row;
+}
+    const row = document.createElement('tr');
 
         Object.keys(this.columns).forEach(field => {
             const cell = document.createElement('td');
