@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,155 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Cheque List Viewer for BISE BANNU">
     <title>Site Test..</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <!-- Font Awesome Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="styles/style.css">
 
     <style>
+        /* Status color definitions - consider moving to Tailwind config if customization is needed */
+        .status-orange { background-color: #FFB74D; color: #000; }
+        .status-green { background-color: #81C784; color: #000; }
+        .status-red { background-color: #E57373; color: #000; }
+        .status-blue { background-color: #64B5F6; color: #000; }
+        .status-gray { background-color: #E0E0E0; color: #000; }
 
-        /* Status color definitions */
-.status-orange {
-    background-color: #FFB74D;
-    color: #000;
-}
+        /* Hover effects for better visibility */
+        td[data-field="DD"]:hover { opacity: 0.9; transition: opacity 0.2s ease-in-out; }
 
-.status-green {
-    background-color: #81C784;
-    color: #000;
-}
+        /* Proper padding for cells */
+        td[data-field="DD"] { padding: 0.5rem 0.75rem; border-radius: 0.25rem; }
 
-.status-red {
-    background-color: #E57373;
-    color: #000;
-}
 
-.status-blue {
-    background-color: #64B5F6;
-    color: #000;
-}
-
-.status-gray {
-    background-color: #E0E0E0;
-    color: #000;
-}
-
-/* Hover effects for better visibility */
-td[data-field="DD"]:hover {
-    opacity: 0.9;
-    transition: opacity 0.2s ease-in-out;
-}
-
-/* Make sure the cells have proper padding */
-td[data-field="DD"] {
-    padding: 8px 12px;
-    border-radius: 4px;
-}
-
-        
-
-        .status-green { background-color: #d4edda; color: #155724; } /* Green */
-.status-red { background-color: #f8d7da; color: #721c24; }   /* Red */
-.status-blue { background-color: #cce5ff; color: #004085; }  /* Blue */
-.status-gray { background-color: #e2e3e5; color: #6c757d; }  /* Gray */
-.status-orange { background-color: #ffe5b4; color: #cc7a00; } /* Orange */
-
-        body {
-            font-family: 'Roboto', sans-serif; /* Modern font */
-        }
-        .header {
-            background-color: #f8f9fa;
-            padding: 2rem 0;
-            text-align: center; /* Center header content */
-            margin-bottom: 2rem;
-        }
-        .header h1 {
-            color: #2563eb; /* Primary color */
-            font-size: 2.5rem; /* Larger heading */
-            margin-bottom: 1rem;
-        }
-        .search-container {
-            margin-bottom: 2rem;
-        }
-        .form-select {
-            margin-bottom: 1rem; /* Space between select and search */
-        }
-        .table-responsive {
-            overflow-x: auto; /* Enable horizontal scrolling if needed */
-        }
-        .table th {
-            background-color: #f2f2f2; /* Light gray background for headers */
-            font-weight: 600;
-            text-align: left; /* Align text to the left */
-        }
-        .table td {
-            vertical-align: middle; /* Center content vertically */
-        }
-        .status-green {
-            color: #28a745; /* Green text */
-            font-weight: 500;
-        }
-        .status-red {
-            color: #dc3545; /* Red text */
-            font-weight: 500;
-        }
-        .status-blue {
-            color: #007bff; /* Blue text */
-            font-weight: 500;
-        }
-        .status-gray {
-            color: #6c757d; /* Gray text */
-            font-weight: 500;
-        }
-        .status-orange {
-            color: #fd7e14; /* Orange text */
-            font-weight: 500;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            background: #f8f9fa;
-            border-radius: 0.5rem;
-        }
-        .empty-state i {
-            font-size: 3rem;
-            color: #6c757d;
-            margin-bottom: 1rem;
-        }
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            .table-responsive {
-                font-size: 0.9rem;
-            }
-            .btn {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-        }
+        /* Status colors (duplicated in original CSS - keeping for direct conversion, refine with Tailwind later) */
+        .status-green { background-color: #d4edda; color: #155724; }
+        .status-red { background-color: #f8d7da; color: #721c24; }
+        .status-blue { background-color: #cce5ff; color: #004085; }
+        .status-gray { background-color: #e2e3e5; color: #6c757d; }
+        .status-orange { background-color: #ffe5b4; color: #cc7a00; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Header Section -->
-        <div class="header">
-            <h1>Accounts Section: BISE Bannu Office</h1>
-            <h3>Testing site..............................</h3>
-            <p class="text-muted">Check Information and Updates</p>
+<body class="font-sans">
+    <div class="container mx-auto px-4">
+        <div class="header py-8 text-center mb-8 bg-gray-50">
+            <h1 class="text-2xl md:text-3xl lg:text-4xl text-blue-700 mb-4">Accounts Section: BISE Bannu Office</h1>
+            <h3 class="text-lg">Testing site..............................</h3>
+            <p class="text-gray-500">Check Information and Updates</p>
         </div>
 
-        <!-- Search Section -->
-        <div class="search-container d-flex flex-column flex-md-row align-items-center gap-3">
-            <div class="input-group flex-grow-1">
-                <input type="search" id="search" class="form-control" placeholder="Search..." aria-label="Search CHQS">
+        <div class="search-container flex flex-col md:flex-row items-center gap-3 mb-8">
+            <div class="flex-grow">
+                <input type="search" id="search" class="form-control w-full px-3 py-2 border rounded shadow-sm" placeholder="Search..." aria-label="Search CHQS">
             </div>
-            <div class="d-flex align-items-center gap-2 flex-grow-1">
-               <select class="form-select flex-grow-1" id="narCategory">
+            <div class="flex flex-col md:flex-row items-center gap-2 flex-grow">
+                <select class="form-select flex-grow w-full md:w-auto px-3 py-2 border rounded shadow-sm mb-2 md:mb-0" id="narCategory">
                     <option value="all" selected>Search All Bills</option>
                     <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
                     <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
@@ -165,53 +55,44 @@ td[data-field="DD"] {
                     <option value="REMUNERATION RES: INSPECTORS">Resedent Inspectors</option>
                     <option value="LABORATORY CHARGES">Laboratory Charges</option>
                     <option value="TA/DA GENERAL">TA/DA General</option>
-                    
                     <option value="MARKING SSC">Marking SSC</option>
                     <option value="MARKING HSSC">Marking HSSC</option>
                     <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
                     <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
-                    
                     <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
                     <option value="HONORARIA">Honoraria</option>
                     <option value="REFUND OF FEE">Refund of Fee</option>
                     <option value="RETOTALLING">Retotalling</option>
                 </select>
-                <button class="btn btn-primary" type="button" id="searchBtn">
-                    <i class="fas fa-search"></i> Search
+                <button class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md" type="button" id="searchBtn">
+                    <i class="fas fa-search"></i> <span class="hidden md:inline">Search</span>
                 </button>
             </div>
         </div>
 
-        <!-- Result Section -->
-        <div id="result" class="alert alert-info" role="alert" style="display: none;"></div>
+        <div id="result" class="alert alert-info hidden p-4 mb-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-md" role="alert" style="display: none;"></div>
         <div class="table-responsive" id="tableContainer" style="display: none;">
-            <table class="table table-hover" id="chequeTable">
+            <table class="table table-hover table-auto w-full" id="chequeTable">
                 <thead>
-                    <tr>
-                        <th data-column="NARRATION">Payee(s) Name and Address <span class="sort-icon"></span></th>
-                        <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
-                        <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
-                        <th data-column="NAR">In Care Of <span class="sort-icon"></span></th>
-                        <th data-column="DD">Details Status <span class="sort-icon"></span></th>
+                    <tr class="bg-gray-100">
+                        <th data-column="NARRATION" class="px-4 py-2 font-semibold text-left">Payee(s) Name and Address <span class="sort-icon"></span></th>
+                        <th data-column="AMOUNT" class="px-4 py-2 font-semibold text-left">Amount <span class="sort-icon"></span></th>
+                        <th data-column="CHEQ_NO" class="px-4 py-2 font-semibold text-left">Cheque No <span class="sort-icon"></span></th>
+                        <th data-column="NAR" class="px-4 py-2 font-semibold text-left">In Care Of <span class="sort-icon"></span></th>
+                        <th data-column="DD" class="px-4 py-2 font-semibold text-left">Details Status <span class="sort-icon"></span></th>
                     </tr>
                 </thead>
                 <tbody id="checksTable"></tbody>
             </table>
         </div>
 
-        <!-- Empty State -->
-        <div class="empty-state" id="emptyState">
-            <i class="fas fa-search"></i>
-            <p class="lead">Enter the name or school name to view search results</p>
+        <div class="empty-state text-center py-12 px-4 bg-gray-50 rounded-md" id="emptyState">
+            <i class="fas fa-search text-4xl text-gray-500 mb-4"></i>
+            <p class="lead text-lg text-gray-700">Enter the name or school name to view search results</p>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-        crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="scripts/index.js"></script>
 </body>
 </html>
- -->
