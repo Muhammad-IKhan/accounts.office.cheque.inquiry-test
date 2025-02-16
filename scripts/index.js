@@ -1,3 +1,5 @@
+//SEARCH  AND SORT IS OKAY----WORK ON FILTERING BY CAT, STATUS COLORING`````` BUT NEED OF PAGINATION, 
+
 class XMLTableHandler {
     constructor() {
         this.tableBody = document.getElementById('checksTable');
