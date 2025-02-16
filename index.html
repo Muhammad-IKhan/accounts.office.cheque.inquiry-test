@@ -56,6 +56,7 @@
                 <div class="flex-grow">
                     <input type="search" id="search" class="form-control" placeholder="Search Payee Name, Cheque No, etc." aria-label="Search CHQS">
                 </div>
+                 <!--  NAR filter dropdown -->
                 <div class="flex flex-grow md:max-w-sm">
                     <select class="form-select" id="narCategory">
                         <option value="all" selected>Search All Bill Categories</option>
@@ -76,6 +77,17 @@
                         <option value="HONORARIA">Honoraria</option>
                         <option value="REFUND OF FEE">Refund of Fee</option>
                         <option value="RETOTALLING">Retotalling</option>
+                    </select>
+                </div>
+                <!-- DD filter dropdown -->
+                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                    <select class="form-select flex-grow-1" id="statusFilter">
+                        <option value="all" selected>All Statuses</option>
+                        <option value="despatched through gpo">Despatched through GPO</option>
+                        <option value="ready but not signed yet">Ready but not signed yet</option>
+                        <option value="cheque ready">Cheque Ready</option>
+                        <option value="despatched to lakki camp office">Despatched to Lakki Camp Office</option>
+                        <option value="sent to chairman sb. for sign">Sent to Chairman SB for Sign</option>
                     </select>
                 </div>
                 <div>
