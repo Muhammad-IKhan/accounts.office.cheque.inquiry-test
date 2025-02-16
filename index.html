@@ -1,207 +1,168 @@
-class XMLTableHandler {
-    constructor() {
-        this.tableBody = document.getElementById('checksTable');
-        this.searchInput = document.getElementById('search');
-        this.tableContainer = document.getElementById('tableContainer');
-        this.emptyState = document.getElementById('emptyState');
-        this.resultContainer = document.getElementById('result');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cheque List Viewer for BISE BANNU">
+    <title>A/cOFFICE BISEB</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles/style.css">
 
-        this.columns = {
-            NARRATION: { index: 0, type: 'string' },
-            AMOUNT: { index: 1, type: 'number' },
-            CHEQ_NO: { index: 2, type: 'number' },
-            NAR: { index: 3, type: 'string' },
-            DD: { index: 4, type: 'string' },
-        };
-
-        this.enableLiveUpdate = false;
-        this.tableResetEnabled = true;
-        this.BackspaceDefault = true;
-
-        this.initializeEventListeners();
-    }
-
-    initializeEventListeners() {
-        this.searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && this.tableResetEnabled) {
-                let inputBefore = this.searchInput.value.trim();
-                setTimeout(() => {
-                    let inputAfter = this.searchInput.value.trim();
-                    if (this.BackspaceDefault && inputBefore.length > 1) {
-                        let caretPosition = this.searchInput.selectionStart;
-                        this.resetTable();
-                        this.searchInput.value = inputAfter;
-                        this.searchInput.setSelectionRange(caretPosition, caretPosition);
-                        this.BackspaceDefault = false;
-                    }
-                    if (inputAfter.length > 0) {
-                        this.BackspaceDefault = true;
-                    }
-                }, 0);
-            }
-        });
-
-        this.searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                this.search();
-            }
-        });
-
-        this.searchInput.addEventListener('input', () => {
-            if (this.enableLiveUpdate) {
-                this.search();
-            }
-        });
-    }
-
-    parseXMLToTable(xmlString = null) {
-        try {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString || this.xmlData, "text/xml");
-            
-            if (xmlDoc.querySelector('parsererror')) {
-                throw new Error('XML parsing error');
-            }
-
-            const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
-            if (!this.tableBody) {
-                throw new Error('Table body element not found');
-            }
-
-            this.tableBody.innerHTML = '';
-            Array.from(gPvnElements).forEach((element) => {
-                const row = this.createTableRow(element);
-                this.tableBody.appendChild(row);
-            });
-
-            return true;
-        } catch (error) {
-            console.error('Error in parseXMLToTable:', error);
-            this.showError('Failed to parse XML data');
-            return false;
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif; /* Modern font */
         }
-    }
-
-    createTableRow(element) {
-    const row = document.createElement('tr');
-
-    // Create and populate table cells for each column
-    Object.keys(this.columns).forEach(field => {
-        const cell = document.createElement('td');
-        let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
-
-        // Format the AMOUNT field as a number
-        if (field === 'AMOUNT') {
-            try {
-                value = parseFloat(value).toLocaleString('en-US');
-            } catch (error) {
-                console.warn(`Invalid amount value: ${value}`);
-                value = '0';
+        .header {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+            text-align: center; /* Center header content */
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            color: #2563eb; /* Primary color */
+            font-size: 2.5rem; /* Larger heading */
+            margin-bottom: 1rem;
+        }
+        .search-container {
+            margin-bottom: 2rem;
+        }
+        .form-select {
+            margin-bottom: 1rem; /* Space between select and search */
+        }
+        .table-responsive {
+            overflow-x: auto; /* Enable horizontal scrolling if needed */
+        }
+        .table th {
+            background-color: #f2f2f2; /* Light gray background for headers */
+            font-weight: 600;
+            text-align: left; /* Align text to the left */
+        }
+        .table td {
+            vertical-align: middle; /* Center content vertically */
+        }
+        .status-green {
+            color: #28a745; /* Green text */
+            font-weight: 500;
+        }
+        .status-red {
+            color: #dc3545; /* Red text */
+            font-weight: 500;
+        }
+        .status-blue {
+            color: #007bff; /* Blue text */
+            font-weight: 500;
+        }
+        .status-gray {
+            color: #6c757d; /* Gray text */
+            font-weight: 500;
+        }
+        .status-orange {
+            color: #fd7e14; /* Orange text */
+            font-weight: 500;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
             }
         }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>Accounts Section: BISE Bannu Office</h1>
+            <p class="text-muted">Check Information and Updates</p>
+        </div>
 
-        cell.textContent = value;
-        cell.setAttribute('data-field', field);
+        <!-- Search Section -->
+        <div class="search-container d-flex flex-column flex-md-row align-items-center gap-3">
+            <div class="input-group flex-grow-1">
+                <input type="search" id="search" class="form-control" placeholder="Search..." aria-label="Search CHQS">
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <select class="form-select flex-grow-1" id="narCategory">
+                    <option value="">Search All Together</option>
+                    <option value="all" selected>Search All Together</option>
+                    <option value="SUPERVISORY STAFF EXAM">TA/DA to Supervisory Staff Exam</option>
+                    <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">TA/DA to Supervisory Staff SSC Exam</option>
+                    <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">TA/DA to Supervisory Staff HSSC Exam</option>
+                    <option value="TA/DA TO PRACTICAL EXMR: SSC">TA/DA to Practical Exmr: SSC</option>
+                    <option value="TA/DA TO PRACTICAL EXMR: HSSC">TA/DA to Practical Exmr: HSSC</option>
+                    <option value="TA/DA TO INSEPCTORS SSC">TA/DA to Inspectors SSC</option>
+                    <option value="TA/DA TO INSEPCTORS HSSC">TA/DA to Inspectors HSSC</option>
+                    <option value="REMUNERATION RES: INSPECTORS">Remuneration Res: Inspectors</option>
+                    <option value="LABORATORY CHARGES">Laboratory Charges</option>
+                    <option value="TA/DA GENERAL">TA/DA General</option>
+                    <option value="MARKING SSC">Marking SSC</option>
+                    <option value="MARKING HSSC">Marking HSSC</option>
+                    <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
+                    <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
+                    <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
+                    <option value="HONORARIA">Honoraria</option>
+                    <option value="REFUND OF FEE">Refund of Fee</option>
+                    <option value="RETOTALLING">Retotalling</option>
+                </select>
+                <button class="btn btn-primary" type="button" id="searchBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
 
-        // **Apply Colors Based on Status (`DD` field)**
-        if (field === 'DD') {
-            let ddValue = value.toLowerCase(); // Normalize case
+        <!-- Result Section -->
+        <div id="result" class="alert alert-info" role="alert" style="display: none;"></div>
+        <div class="table-responsive" id="tableContainer" style="display: none;">
+            <table class="table table-hover" id="chequeTable">
+                <thead>
+                    <tr>
+                        <th data-column="NARRATION">Payee(s) Name and Address <span class="sort-icon"></span></th>
+                        <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
+                        <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
+                        <th data-column="NAR">In Care Of <span class="sort-icon"></span></th>
+                        <th data-column="DD">Details Status <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody id="checksTable"></tbody>
+            </table>
+        </div>
 
-            if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
-                cell.classList.add('status-orange');  // 🟠 Orange for "Despatched through GPO"
-            } else if (ddValue.includes('Ready but not signed yet')) {
-                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
-            } else if (ddValue.includes('cheque ready')) {
-                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
-            } else if (ddValue.includes('cheque ready')) {
-                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
-            } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
-                cell.classList.add('status-red');     // ❌ Red for "Despatched to Lakki Camp Office"
-            } else if (ddValue.includes('sent to chairman sb. for sign')) {
-                cell.classList.add('status-blue');    // 🔵 Blue for "Sent to Chairman for Sign"
-            } else {
-                cell.classList.add('status-gray');    // ⚪ Gray for unknown status
-            }
-        }
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-search"></i>
+            <p class="lead">Enter the name or school name to view search results</p>
+        </div>
+    </div>
 
-        row.appendChild(cell);
-    });
-
-    return row;
-}
-
-
-    
-
-    async fetchXMLData() {
-        try {
-            const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
-            if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
-            const xmlFiles = await filesResponse.json();
-            let combinedXMLData = '<root>';
-            for (const file of xmlFiles) {
-                const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
-                if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
-                combinedXMLData += await fileResponse.text();
-            }
-            combinedXMLData += '</root>';
-            localStorage.setItem('xmlData', combinedXMLData);
-            this.xmlData = combinedXMLData;
-            return this.parseXMLToTable(combinedXMLData);
-        } catch (error) {
-            console.error('Error fetching XML:', error);
-            const storedXML = localStorage.getItem('xmlData');
-            if (storedXML) return this.parseXMLToTable(storedXML);
-            this.showError('Failed to load XML data');
-            return false;
-        }
-    }
-
-    search() {
-        const searchTerm = this.searchInput.value.toLowerCase();
-        if (!searchTerm) return this.resetTable();
-        this.tableContainer.style.display = 'block';
-        this.emptyState.style.display = 'none';
-        this.resultContainer.style.display = 'block';
-        let matchCount = 0;
-        this.tableBody.querySelectorAll('tr').forEach(row => {
-            const matchesSearch = Array.from(row.getElementsByTagName('td'))
-                .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
-            row.style.display = matchesSearch ? '' : 'none';
-            if (matchesSearch) matchCount++;
-        });
-        this.updateSearchResults(searchTerm, matchCount);
-    }
-
-    updateSearchResults(searchTerm, matchCount) {
-        this.resultContainer.innerHTML = matchCount > 0
-            ? `Found ${matchCount} results for "${searchTerm}"`
-            : 'No results found.';
-    }
-
-    resetTable() {
-        this.searchInput.value = '';
-        this.tableContainer.style.display = 'none';
-        this.emptyState.style.display = 'block';
-        this.resultContainer.style.display = 'none';
-    }
-
-    showError(message) {
-        this.resultContainer.innerHTML = message;
-        this.resultContainer.style.display = 'block';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const handler = new XMLTableHandler();
-    handler.fetchXMLData().then(() => handler.resetTable());
-});
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
-        .then(registration => console.log('ServiceWorker registered:', registration.scope))
-        .catch(err => console.error('ServiceWorker registration failed:', err));
-    });
-}
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="scripts/index.js"></script>
+</body>
+</html>
 
