@@ -4,94 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Cheque List Viewer for BISE BANNU">
-    <title>Site Test..</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>A/c test BISEB</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles/style.css">
 
     <style>
-        /* Status color definitions - consider moving to Tailwind config if customization is needed */
-        .status-orange { background-color: #FFB74D; color: #000; }
-        .status-green { background-color: #81C784; color: #000; }
-        .status-red { background-color: #E57373; color: #000; }
-        .status-blue { background-color: #64B5F6; color: #000; }
-        .status-gray { background-color: #E0E0E0; color: #000; }
-
-        /* Hover effects for better visibility */
-        td[data-field="DD"]:hover { opacity: 0.9; transition: opacity 0.2s ease-in-out; }
-
-        /* Proper padding for cells */
-        td[data-field="DD"] { padding: 0.5rem 0.75rem; border-radius: 0.25rem; }
-
-
-        /* Status colors (duplicated in original CSS - keeping for direct conversion, refine with Tailwind later) */
-        .status-green { background-color: #d4edda; color: #155724; }
-        .status-red { background-color: #f8d7da; color: #721c24; }
-        .status-blue { background-color: #cce5ff; color: #004085; }
-        .status-gray { background-color: #e2e3e5; color: #6c757d; }
-        .status-orange { background-color: #ffe5b4; color: #cc7a00; }
+        /* Add your custom styles here */
     </style>
 </head>
-<body class="font-sans">
-    <div class="container mx-auto px-4">
-        <div class="header py-8 text-center mb-8 bg-gray-50">
-            <h1 class="text-2xl md:text-3xl lg:text-4xl text-blue-700 mb-4">Accounts Section: BISE Bannu Office</h1>
-            <h3 class="text-lg">Testing site..............................</h3>
-            <p class="text-gray-500">Check Information and Updates</p>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>Accounts Section: BISE Bannu Office</h1>
+            <p class="text-muted">Check Information and Updates</p>
         </div>
 
-        <div class="search-container flex flex-col md:flex-row items-center gap-3 mb-8">
-            <div class="flex-grow">
-                <input type="search" id="search" class="form-control w-full px-3 py-2 border rounded shadow-sm" placeholder="Search..." aria-label="Search CHQS">
+        <!-- Search Section -->
+        <div class="search-container d-flex flex-column flex-md-row align-items-center gap-3">
+            <div class="input-group flex-grow-1">
+                <input type="search" id="search" class="form-control" placeholder="Search..." aria-label="Search CHQS">
             </div>
-            <div class="flex flex-col md:flex-row items-center gap-2 flex-grow">
-                <select class="form-select flex-grow w-full md:w-auto px-3 py-2 border rounded shadow-sm mb-2 md:mb-0" id="narCategory">
+            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                <select class="form-select flex-grow-1" id="narCategory">
                     <option value="all" selected>Search All Bills</option>
-                    <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
-                    <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
-                    <option value="TA/DA TO PRACTICAL EXMR: SSC">Practical Staff SSC</option>
-                    <option value="TA/DA TO PRACTICAL EXMR: HSSC">Practical Staff HSSC</option>
-                    <option value="TA/DA TO INSEPCTORS SSC">Inspections Staff SSC</option>
-                    <option value="TA/DA TO INSEPCTORS HSSC">Inspections Staf HSSC</option>
-                    <option value="REMUNERATION RES: INSPECTORS">Resedent Inspectors</option>
-                    <option value="LABORATORY CHARGES">Laboratory Charges</option>
-                    <option value="TA/DA GENERAL">TA/DA General</option>
-                    <option value="MARKING SSC">Marking SSC</option>
-                    <option value="MARKING HSSC">Marking HSSC</option>
-                    <option value="REMUNERATION TO PAPER SETTER HSSC">Remuneration to Paper Setter HSSC</option>
-                    <option value="REMUNERATION TO UFM MEMEBERS">Remuneration to UFM Members</option>
-                    <option value="EXPIRED CHECK RENEWED">Expired Check Renewed</option>
-                    <option value="HONORARIA">Honoraria</option>
-                    <option value="REFUND OF FEE">Refund of Fee</option>
-                    <option value="RETOTALLING">Retotalling</option>
+                    <option value="SUPERVISORY STAFF EXAM">TA/DA to Supervisory Staff Exam</option>
+                    <!-- Add other NAR options here -->
                 </select>
-                <button class="btn btn-primary bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-md" type="button" id="searchBtn">
-                    <i class="fas fa-search"></i> <span class="hidden md:inline">Search</span>
+                <select class="form-select flex-grow-1" id="statusFilter">
+                    <option value="all" selected>All Statuses</option>
+                    <option value="despatched through gpo">Despatched through GPO</option>
+                    <option value="ready but not signed yet">Ready but not signed yet</option>
+                    <option value="cheque ready">Cheque Ready</option>
+                    <option value="despatched to lakki camp office">Despatched to Lakki Camp Office</option>
+                    <option value="sent to chairman sb. for sign">Sent to Chairman SB for Sign</option>
+                </select>
+                <button class="btn btn-primary" type="button" id="searchBtn">
+                    <i class="fas fa-search"></i> Search
                 </button>
             </div>
         </div>
 
-        <div id="result" class="alert alert-info hidden p-4 mb-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-md" role="alert" style="display: none;"></div>
+        <!-- Result Section -->
+        <div id="result" class="alert alert-info" role="alert" style="display: none;"></div>
         <div class="table-responsive" id="tableContainer" style="display: none;">
-            <table class="table table-hover table-auto w-full" id="chequeTable">
+            <table class="table table-hover" id="chequeTable">
                 <thead>
-                    <tr class="bg-gray-100">
-                        <th data-column="NARRATION" class="px-4 py-2 font-semibold text-left">Payee(s) Name and Address <span class="sort-icon"></span></th>
-                        <th data-column="AMOUNT" class="px-4 py-2 font-semibold text-left">Amount <span class="sort-icon"></span></th>
-                        <th data-column="CHEQ_NO" class="px-4 py-2 font-semibold text-left">Cheque No <span class="sort-icon"></span></th>
-                        <th data-column="NAR" class="px-4 py-2 font-semibold text-left">In Care Of <span class="sort-icon"></span></th>
-                        <th data-column="DD" class="px-4 py-2 font-semibold text-left">Details Status <span class="sort-icon"></span></th>
+                    <tr>
+                        <th data-column="NARRATION">Payee(s) Name and Address <span class="sort-icon"></span></th>
+                        <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
+                        <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
+                        <th data-column="NAR">In Care Of <span class="sort-icon"></span></th>
+                        <th data-column="DD">Details Status <span class="sort-icon"></span></th>
                     </tr>
                 </thead>
                 <tbody id="checksTable"></tbody>
             </table>
         </div>
 
-        <div class="empty-state text-center py-12 px-4 bg-gray-50 rounded-md" id="emptyState">
-            <i class="fas fa-search text-4xl text-gray-500 mb-4"></i>
-            <p class="lead text-lg text-gray-700">Enter the name or school name to view search results</p>
+        <!-- Pagination -->
+        <nav aria-label="Table pagination">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled" id="prevPage">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active" id="page1">
+                    <a class="page-link" href="#">1</a>
+                </li>
+                <li class="page-item" id="nextPage">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-search"></i>
+            <p class="lead">Enter the name or school name to view search results</p>
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="scripts/index.js"></script>
 </body>
