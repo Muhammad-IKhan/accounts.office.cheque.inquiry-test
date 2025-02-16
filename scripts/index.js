@@ -160,37 +160,35 @@ class XMLTableHandler {
     }
 
 
-   search() {
+   ssearch() {
     const searchTerm = this.searchInput.value.toLowerCase();
     console.log(`Searching for: "${searchTerm}"`);
 
-    const rows = this.tableBody.querySelectorAll('tr'); // Get all rows
+    const rows = this.tableBody.querySelectorAll('tr');
 
     if (!searchTerm) {
-        // If search term is empty, show all rows (reset)
+        // Show ALL rows when search term is empty
         rows.forEach(row => {
-            row.style.display = ""; // or row.classList.remove('hidden') if you use classes
+            row.style.display = ""; // or row.classList.remove('hidden')
         });
-        return; // Important: Exit early to avoid unnecessary filtering
+        console.log("Search term empty. Showing all rows.");
+        return;
     }
 
     rows.forEach(row => {
-        let matchesSearch = false; // Initialize to false for each row
+        let matchesSearch = false;
+        const cells = row.querySelectorAll('td');
 
-        const cells = row.querySelectorAll('td'); // Get cells of each row
-
-        for (const cell of cells) { // Iterate through the cells of the row
+        for (const cell of cells) {
             if (cell.textContent.toLowerCase().includes(searchTerm)) {
                 matchesSearch = true;
-                break; // If a cell matches, no need to check other cells in the same row
+                break;
             }
         }
 
-        if (matchesSearch) {
-            row.style.display = ""; // Show the row
-        } else {
-            row.style.display = "none"; // Hide the row
-        }
+        // The crucial fix is here:
+        row.style.display = matchesSearch ? "" : "none"; // Show or hide based on match
+
     });
 
     console.log("Search complete.");
