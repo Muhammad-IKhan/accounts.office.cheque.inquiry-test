@@ -106,36 +106,36 @@ class XMLTableHandler {
         rows.forEach(row => this.tableBody.appendChild(row));
     }
 
-    getStatusColor(status) {
-        const lowerStatus = status.toLowerCase();
-        if (lowerStatus.includes('despatched through gpo')) {
-            return 'status-orange';
-        }
-        if (lowerStatus.includes('ready but not signed yet') || 
-            lowerStatus.includes('cheque ready')) {
-            return 'status-green';
-        }
-        if (lowerStatus.includes('despatched to lakki camp office')) {
-            return 'status-red';
-        }
-        if (lowerStatus.includes('sent to chairman')) {
-            return 'status-blue';
-        }
-        if (lowerStatus.includes('expired')) {
-            return 'status-purple';
-        }
-        if (lowerStatus.includes('cancelled') || 
-            lowerStatus.includes('rejected')) {
-            return 'status-dark-red';
-        }
-        if (lowerStatus.includes('on hold')) {
-            return 'status-yellow';
-        }
-        if (lowerStatus.includes('processing')) {
-            return 'status-cyan';
-        }
-        return 'status-gray';
-    }
+    // getStatusColor(status) {
+    //     const lowerStatus = status.toLowerCase();
+    //     if (lowerStatus.includes('despatched through gpo')) {
+    //         return 'status-orange';
+    //     }
+    //     if (lowerStatus.includes('ready but not signed yet') || 
+    //         lowerStatus.includes('cheque ready')) {
+    //         return 'status-green';
+    //     }
+    //     if (lowerStatus.includes('despatched to lakki camp office')) {
+    //         return 'status-red';
+    //     }
+    //     if (lowerStatus.includes('sent to chairman')) {
+    //         return 'status-blue';
+    //     }
+    //     if (lowerStatus.includes('expired')) {
+    //         return 'status-purple';
+    //     }
+    //     if (lowerStatus.includes('cancelled') || 
+    //         lowerStatus.includes('rejected')) {
+    //         return 'status-dark-red';
+    //     }
+    //     if (lowerStatus.includes('on hold')) {
+    //         return 'status-yellow';
+    //     }
+    //     if (lowerStatus.includes('processing')) {
+    //         return 'status-cyan';
+    //     }
+    //     return 'status-gray';
+    // }
 
     parseXMLToTable(xmlString = null) {
         try {
@@ -163,37 +163,83 @@ class XMLTableHandler {
         }
     }
 
+    // createTableRow(element) {
+    //     const row = document.createElement('tr');
+    //     row.setAttribute('data-nar', element.getElementsByTagName('NAR')[0]?.textContent?.trim().toLowerCase() || '');
+
+    //     Object.keys(this.columns).forEach(field => {
+    //         const cell = document.createElement('td');
+    //         let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+
+    //         if (field === 'AMOUNT') {
+    //             try {
+    //                 value = parseFloat(value).toLocaleString('en-US');
+    //             } catch (error) {
+    //                 console.warn(`Invalid amount value: ${value}`);
+    //                 value = '0';
+    //             }
+    //         }
+
+    //         cell.textContent = value;
+    //         cell.setAttribute('data-field', field);
+
+    //         if (field === 'DD') {
+    //             const statusClass = this.getStatusColor(value);
+    //             cell.className = statusClass;
+    //         }
+
+    //         row.appendChild(cell);
+    //     });
+
+    //     return row;
+    // }
+
+
+
+
     createTableRow(element) {
-        const row = document.createElement('tr');
-        row.setAttribute('data-nar', element.getElementsByTagName('NAR')[0]?.textContent?.trim().toLowerCase() || '');
+    const row = document.createElement('tr');
 
-        Object.keys(this.columns).forEach(field => {
-            const cell = document.createElement('td');
-            let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+    // Create and populate table cells for each column
+    Object.keys(this.columns).forEach(field => {
+        const cell = document.createElement('td');
+        let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
 
-            if (field === 'AMOUNT') {
-                try {
-                    value = parseFloat(value).toLocaleString('en-US');
-                } catch (error) {
-                    console.warn(`Invalid amount value: ${value}`);
-                    value = '0';
-                }
+        // Format the AMOUNT field as a number
+        if (field === 'AMOUNT') {
+            try {
+                value = parseFloat(value).toLocaleString('en-US');
+            } catch (error) {
+                console.warn(`Invalid amount value: ${value}`);
+                value = '0';
             }
+        }
 
-            cell.textContent = value;
-            cell.setAttribute('data-field', field);
+        cell.textContent = value;
+        cell.setAttribute('data-field', field);
 
-            if (field === 'DD') {
-                const statusClass = this.getStatusColor(value);
-                cell.className = statusClass;
+        // **Apply Colors Based on Status (`DD` field)**
+        if (field === 'DD') {
+            let ddValue = value.toLowerCase(); // Normalize case
+
+            if (ddValue.includes('despatched through gpo (manzoor sb #03349797611) on 31/01/25')) {
+                cell.classList.add('status-orange');  // 🟠 Orange for "Despatched through GPO"
+            } else if (ddValue.includes('cheque ready')) {
+                cell.classList.add('status-green');   // ✅ Green for "Cheque Ready"
+            } else if (ddValue.includes('despatched to lakki camp office ( aziz ullah api #03159853076 ) on 20/01/25')) {
+                cell.classList.add('status-red');     // ❌ Red for "Despatched to Lakki Camp Office"
+            } else if (ddValue.includes('sent to chairman sb. for sign')) {
+                cell.classList.add('status-blue');    // 🔵 Blue for "Sent to Chairman for Sign"
+            } else {
+                cell.classList.add('status-gray');    // ⚪ Gray for unknown status
             }
+        }
 
-            row.appendChild(cell);
-        });
+        row.appendChild(cell);
+    });
 
-        return row;
-    }
-
+    return row;
+}
     async fetchXMLData() {
         try {
             const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
