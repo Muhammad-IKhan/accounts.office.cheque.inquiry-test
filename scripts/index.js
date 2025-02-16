@@ -18,188 +18,9 @@
  * - Service worker integration for offline capabilities
  */
 
-// CSS Styles
-const styles = `
-.table-container {
-    margin: 20px;
-    overflow-x: auto;
-}
 
-.search-container {
-    margin: 20px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
 
-.search-input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 300px;
-}
 
-.search-button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.search-button:hover {
-    background-color: #0056b3;
-}
-
-.category-filter {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.data-table th,
-.data-table td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-.data-table th {
-    background-color: #f5f5f5;
-    cursor: pointer;
-}
-
-.data-table th:hover {
-    background-color: #e9e9e9;
-}
-
-.sort-icon {
-    margin-left: 5px;
-}
-
-/* Status Colors */
-.status-orange { background-color: #FFB74D; color: black; }
-.status-green { background-color: #81C784; color: black; }
-.status-red { background-color: #E57373; color: white; }
-.status-blue { background-color: #64B5F6; color: black; }
-.status-purple { background-color: #BA68C8; color: white; }
-.status-dark-red { background-color: #D32F2F; color: white; }
-.status-yellow { background-color: #FFF176; color: black; }
-.status-cyan { background-color: #4DD0E1; color: black; }
-.status-gray { background-color: #BDBDBD; color: black; }
-
-/* Pagination Controls */
-.pagination-controls {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.pagination-controls button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.pagination-controls button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-.pagination-controls select {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.page-info {
-    margin: 0 10px;
-}
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #666;
-}
-
-/* Result Container */
-.result-container {
-    margin: 20px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
-
-/* Error State */
-.error-state {
-    color: #dc3545;
-    padding: 10px;
-    margin: 20px;
-    border: 1px solid #dc3545;
-    border-radius: 4px;
-    background-color: #f8d7da;
-}
-`;
-
-// Add styles to document
-const styleSheet = document.createElement('style');
-styleSheet.textContent = styles;
-document.head.appendChild(styleSheet);
-
-// HTML Template
-const template = `
-<div class="search-container">
-    <input type="text" id="search" class="search-input" placeholder="Search...">
-    <select id="narCategory" class="category-filter">
-        <option value="all">All Categories</option>
-        <option value="salary">Salary</option>
-        <option value="vendor">Vendor</option>
-        <option value="utility">Utility</option>
-        <option value="other">Other</option>
-    </select>
-    <button id="searchBtn" class="search-button">Search</button>
-</div>
-
-<div id="tableContainer" class="table-container">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th data-column="NARRATION">Narration <span class="sort-icon"></span></th>
-                <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
-                <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
-                <th data-column="NAR">NAR <span class="sort-icon"></span></th>
-                <th data-column="DD">Status <span class="sort-icon"></span></th>
-            </tr>
-        </thead>
-        <tbody id="checksTable"></tbody>
-    </table>
-</div>
-
-<div id="emptyState" class="empty-state">
-    <h3>No results found</h3>
-    <p>Try adjusting your search or filter criteria</p>
-</div>
-
-<div id="result" class="result-container"></div>
-`;
-
-// Add template to document
-const templateContainer = document.createElement('div');
-templateContainer.innerHTML = template;
-document.body.appendChild(templateContainer);
 
 class XMLTableHandler {
     constructor() {
@@ -256,7 +77,7 @@ class XMLTableHandler {
         this.createPaginationControls();
     }
 
-    /**
+       /**
      * Initialize all event listeners for the table functionality
      */
     initializeEventListeners() {
@@ -400,7 +221,7 @@ class XMLTableHandler {
      * @returns {string} The corresponding CSS class for the status color
      */
     getStatusColor(status) {
-        const lowerStatus = status.toLowerCase();
+        const lowerStatus = status.toLowerCase().trim();
         
         // Check each status pattern and return corresponding color class
         for (const [pattern, colorClass] of Object.entries(this.statusColors)) {
@@ -440,7 +261,7 @@ class XMLTableHandler {
             cell.textContent = value;
             cell.setAttribute('data-field', field);
 
-            // Apply status colors
+            // Apply status colors to the "DD" column
             if (field === 'DD') {
                 const statusClass = this.getStatusColor(value);
                 cell.className = statusClass;
@@ -452,7 +273,7 @@ class XMLTableHandler {
         return row;
     }
 
-   /**
+     /**
      * Parse XML data and create table rows
      * @param {string} xmlString - The XML string to parse
      * @returns {boolean} Success status of the parsing operation
@@ -649,3 +470,325 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
+
+}
+
+
+
+
+
+
+
+
+
+
+// CSS Styles
+const styles = `
+.table-container {
+    margin: 20px;
+    overflow-x: auto;
+}
+
+.search-container {
+    margin: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 300px;
+}
+
+.search-button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-button:hover {
+    background-color: #0056b3;
+}
+
+.category-filter {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.data-table th {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+.data-table th:hover {
+    background-color: #e9e9e9;
+}
+
+.sort-icon {
+    margin-left: 5px;
+}
+
+/* Status Colors */
+.status-orange { background-color: #FFB74D; color: black; }
+.status-green { background-color: #81C784; color: black; }
+.status-red { background-color: #E57373; color: white; }
+.status-blue { background-color: #64B5F6; color: black; }
+.status-purple { background-color: #BA68C8; color: white; }
+.status-dark-red { background-color: #D32F2F; color: white; }
+.status-yellow { background-color: #FFF176; color: black; }
+.status-cyan { background-color: #4DD0E1; color: black; }
+.status-gray { background-color: #BDBDBD; color: black; }
+
+/* Pagination Controls */
+.pagination-controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-controls button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.pagination-controls select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.page-info {
+    margin: 0 10px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+/* Result Container */
+.result-container {
+    margin: 20px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+/* Error State */
+.error-state {
+    color: #dc3545;
+    padding: 10px;
+    margin: 20px;
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+    background-color: #f8d7da;
+}
+`;
+
+// // Add styles to document
+// const styleSheet = document.createElement('style');
+// styleSheet.textContent = styles;
+// document.head.appendChild(styleSheet);
+
+// HTML Template
+// const template = `
+// <div class="search-container">
+//     <input type="text" id="search" class="search-input" placeholder="Search...">
+//     <select id="narCategory" class="category-filter">
+//         <option value="all">All Categories</option>
+//         <option value="salary">Salary</option>
+//         <option value="vendor">Vendor</option>
+//         <option value="utility">Utility</option>
+//         <option value="other">Other</option>
+//     </select>
+//     <button id="searchBtn" class="search-button">Search</button>
+// </div>
+
+// <div id="tableContainer" class="table-container">
+//     <table class="data-table">
+//         <thead>
+//             <tr>
+//                 <th data-column="NARRATION">Narration <span class="sort-icon"></span></th>
+//                 <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
+//                 <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
+//                 <th data-column="NAR">NAR <span class="sort-icon"></span></th>
+//                 <th data-column="DD">Status <span class="sort-icon"></span></th>
+//             </tr>
+//         </thead>
+//         <tbody id="checksTable"></tbody>
+//     </table>
+// </div>
+
+// <div id="emptyState" class="empty-state">
+//     <h3>No results found</h3>
+//     <p>Try adjusting your search or filter criteria</p>
+// </div>
+
+// <div id="result" class="result-container"></div>
+// `;
+
+// Add template to document
+// const templateContainer = document.createElement('div');
+// templateContainer.innerHTML = template;
+// document.body.appendChild(templateContainer);
+
+// class XMLTableHandler {
+//     constructor() {
+//         // Initialize DOM elements
+//         this.tableBody = document.getElementById('checksTable');
+//         this.searchInput = document.getElementById('search');
+//         this.tableContainer = document.getElementById('tableContainer');
+//         this.emptyState = document.getElementById('emptyState');
+//         this.resultContainer = document.getElementById('result');
+//         this.narFilter = document.getElementById('narCategory');
+//         this.searchBtn = document.getElementById('searchBtn');
+
+//         // Pagination configuration
+//         this.currentPage = 1;
+//         this.rowsPerPage = 10;
+//         this.totalPages = 0;
+//         this.allRows = [];
+
+//         // Column definitions for sorting
+//         this.columns = {
+//             NARRATION: { index: 0, type: 'string' },
+//             AMOUNT: { index: 1, type: 'number' },
+//             CHEQ_NO: { index: 2, type: 'number' },
+//             NAR: { index: 3, type: 'string' },
+//             DD: { index: 4, type: 'string' }
+//         };
+
+//         // Sorting state
+//         this.sortState = {
+//             column: '',
+//             ascending: true
+//         };
+
+//         // Feature flags
+//         this.enableLiveUpdate = false;
+//         this.tableResetEnabled = true;
+//         this.BackspaceDefault = true;
+
+//         // Status color mapping
+//         this.statusColors = {
+//             'despatched through gpo': 'status-orange',
+//             'ready but not signed yet': 'status-green',
+//             'cheque ready': 'status-green',
+//             'despatched to lakki camp office': 'status-red',
+//             'sent to chairman': 'status-blue',
+//             'expired': 'status-purple',
+//             'cancelled': 'status-dark-red',
+//             'rejected': 'status-dark-red',
+//             'on hold': 'status-yellow',
+//             'processing': 'status-cyan'
+//         };
+
+//         this.initializeEventListeners();
+//         this.createPaginationControls();
+//     }
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    /**
+     * Determines the status color class based on the status text
+     * @param {string} status - The status text to analyze
+     * @returns {string} The corresponding CSS class for the status color
+     */
+    // getStatusColor(status) {
+    //     const lowerStatus = status.toLowerCase();
+        
+    //     // Check each status pattern and return corresponding color class
+    //     for (const [pattern, colorClass] of Object.entries(this.statusColors)) {
+    //         if (lowerStatus.includes(pattern)) {
+    //             return colorClass;
+    //         }
+    //     }
+        
+    //     // Log unmatched status for debugging
+    //     console.log(`Unmatched status: ${status}`);
+    //     return 'status-gray';
+    // }
+
+    // /**
+    //  * Creates a table row from an XML element
+    //  * @param {Element} element - The XML element containing row data
+    //  * @returns {HTMLTableRowElement} The created table row
+    //  */
+    // createTableRow(element) {
+    //     const row = document.createElement('tr');
+    //     row.setAttribute('data-nar', element.getElementsByTagName('NAR')[0]?.textContent?.trim().toLowerCase() || '');
+
+    //     Object.keys(this.columns).forEach(field => {
+    //         const cell = document.createElement('td');
+    //         let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+
+    //         // Format amount values
+    //         if (field === 'AMOUNT') {
+    //             try {
+    //                 value = parseFloat(value).toLocaleString('en-US');
+    //             } catch (error) {
+    //                 console.warn(`Invalid amount value: ${value}`);
+    //                 value = '0';
+    //             }
+    //         }
+
+    //         cell.textContent = value;
+    //         cell.setAttribute('data-field', field);
+
+    //         // Apply status colors
+    //         if (field === 'DD') {
+    //             const statusClass = this.getStatusColor(value);
+    //             cell.className = statusClass;
+    //         }
+
+    //         row.appendChild(cell);
+    //     });
+
+    //     return row;
+    // }
+
+  
