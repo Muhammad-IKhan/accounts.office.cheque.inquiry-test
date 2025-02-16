@@ -16,6 +16,46 @@
 
     <style>
 
+        /* Status color definitions */
+.status-orange {
+    background-color: #FFB74D;
+    color: #000;
+}
+
+.status-green {
+    background-color: #81C784;
+    color: #000;
+}
+
+.status-red {
+    background-color: #E57373;
+    color: #000;
+}
+
+.status-blue {
+    background-color: #64B5F6;
+    color: #000;
+}
+
+.status-gray {
+    background-color: #E0E0E0;
+    color: #000;
+}
+
+/* Hover effects for better visibility */
+td[data-field="DD"]:hover {
+    opacity: 0.9;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Make sure the cells have proper padding */
+td[data-field="DD"] {
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+        
+
         .status-green { background-color: #d4edda; color: #155724; } /* Green */
 .status-red { background-color: #f8d7da; color: #721c24; }   /* Red */
 .status-blue { background-color: #cce5ff; color: #004085; }  /* Blue */
