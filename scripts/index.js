@@ -204,7 +204,38 @@ class XMLTableHandler {
     }
 
     sortTable(columnName) {
-       c
+        const column = this.columns[columnName];
+        if (!column) return;
+
+        const header = document.querySelector(`th[data-column="${columnName}"]`);
+        const isAscending = !header.classList.contains('sort-asc');
+
+        // Update sort indicators
+        document.querySelectorAll('th').forEach(th => {
+            th.classList.remove('sort-asc', 'sort-desc');
+        });
+        header.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
+
+        const rows = Array.from(this.tableBody.querySelectorAll('tr'));
+        
+        rows.sort((a, b) => {
+            const aValue = a.cells[column.index].textContent.trim();
+            const bValue = b.cells[column.index].textContent.trim();
+
+            if (column.type === 'number') {
+                const aNum = parseFloat(aValue.replace(/,/g, '')) || 0;
+                const bNum = parseFloat(bValue.replace(/,/g, '')) || 0;
+                return isAscending ? aNum - bNum : bNum - aNum;
+            }
+
+            return isAscending
+                ? aValue.localeCompare(bValue, undefined, { numeric: true })
+                : bValue.localeCompare(aValue, undefined, { numeric: true });
+        });
+
+        rows.forEach(row => this.tableBody.appendChild(row));
+    }
+
     resetTable() {
         this.searchInput.value = '';
         this.tableContainer.style.display = 'none';
@@ -242,4 +273,3 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
-
