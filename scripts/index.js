@@ -16,6 +16,11 @@ class XMLTableHandler {
             DD: { index: 4, type: 'string' },
         };
 
+        this.sortState = {
+            column: '',
+            ascending: true
+        };
+
         this.enableLiveUpdate = false;
         this.tableResetEnabled = true;
         this.BackspaceDefault = true;
@@ -24,6 +29,7 @@ class XMLTableHandler {
     }
 
     initializeEventListeners() {
+        // Search and backspace handling
         this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && this.tableResetEnabled) {
                 let inputBefore = this.searchInput.value.trim();
@@ -54,8 +60,54 @@ class XMLTableHandler {
         });
 
         this.narFilter.addEventListener('change', () => {
-            this.filterByNar();
+            this.search();
         });
+
+        // Add sorting event listeners to table headers
+        document.querySelectorAll('th[data-column]').forEach(header => {
+            header.addEventListener('click', () => {
+                const column = header.getAttribute('data-column');
+                this.sortTable(column);
+            });
+        });
+    }
+
+    sortTable(column) {
+        const rows = Array.from(this.tableBody.getElementsByTagName('tr'));
+        const type = this.columns[column].type;
+        const ascending = this.sortState.column === column ? !this.sortState.ascending : true;
+
+        rows.sort((a, b) => {
+            let aValue = a.querySelector(`td[data-field="${column}"]`).textContent.trim();
+            let bValue = b.querySelector(`td[data-field="${column}"]`).textContent.trim();
+
+            if (type === 'number') {
+                aValue = parseFloat(aValue.replace(/,/g, '')) || 0;
+                bValue = parseFloat(bValue.replace(/,/g, '')) || 0;
+            }
+
+            if (aValue < bValue) return ascending ? -1 : 1;
+            if (aValue > bValue) return ascending ? 1 : -1;
+            return 0;
+        });
+
+        // Update sort icons
+        document.querySelectorAll('th[data-column] .sort-icon').forEach(icon => {
+            icon.textContent = '';
+        });
+
+        const currentHeader = document.querySelector(`th[data-column="${column}"]`);
+        const sortIcon = currentHeader.querySelector('.sort-icon');
+        sortIcon.textContent = ascending ? ' ↑' : ' ↓';
+
+        // Update sort state
+        this.sortState = { column, ascending };
+
+        // Clear and re-append rows
+        while (this.tableBody.firstChild) {
+            this.tableBody.removeChild(this.tableBody.firstChild);
+        }
+        rows.forEach(row => this.tableBody.appendChild(row));
     }
 
     parseXMLToTable(xmlString = null) {
@@ -67,13 +119,13 @@ class XMLTableHandler {
                 throw new Error('XML parsing error');
             }
 
-            const gPvnElements = xmlDoc.getElementsByTagName('G_PVN');
+            const entries = xmlDoc.getElementsByTagName('G_PVN');
             if (!this.tableBody) {
                 throw new Error('Table body element not found');
             }
 
             this.tableBody.innerHTML = '';
-            Array.from(gPvnElements).forEach((element) => {
+            Array.from(entries).forEach((element) => {
                 const row = this.createTableRow(element);
                 this.tableBody.appendChild(row);
             });
@@ -133,17 +185,17 @@ class XMLTableHandler {
             if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
             const xmlFiles = await filesResponse.json();
 
-            let combinedXMLData = '<root>';
+            let combinedXML = '<root>';
             for (const file of xmlFiles) {
                 const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
-                combinedXMLData += await fileResponse.text();
+                combinedXML += await fileResponse.text();
             }
-            combinedXMLData += '</root>';
+            combinedXML += '</root>';
 
-            localStorage.setItem('xmlData', combinedXMLData);
-            this.xmlData = combinedXMLData;
-            return this.parseXMLToTable(combinedXMLData);
+            localStorage.setItem('xmlData', combinedXML);
+            this.xmlData = combinedXML;
+            return this.parseXMLToTable(combinedXML);
         } catch (error) {
             console.error('Error fetching XML:', error);
             const storedXML = localStorage.getItem('xmlData');
@@ -155,35 +207,45 @@ class XMLTableHandler {
 
     search() {
         const searchTerm = this.searchInput.value.toLowerCase();
-        if (!searchTerm) return this.resetTable();
-        
+        const selectedCategory = this.narFilter.value.toLowerCase();
+
+        if (!searchTerm && selectedCategory === 'all') {
+            return this.resetTable();
+        }
+
         this.tableContainer.style.display = 'block';
         this.emptyState.style.display = 'none';
         this.resultContainer.style.display = 'block';
-        
+
         let matchCount = 0;
         this.tableBody.querySelectorAll('tr').forEach(row => {
-            const matchesSearch = Array.from(row.getElementsByTagName('td'))
-                .some(cell => cell.textContent.toLowerCase().includes(searchTerm));
-            row.style.display = matchesSearch ? '' : 'none';
-            if (matchesSearch) matchCount++;
-        });
-        
-        this.updateSearchResults(searchTerm, matchCount);
-    }
-
-    filterByNar() {
-        const category = this.narFilter.value.toLowerCase();
-        this.tableBody.querySelectorAll('tr').forEach(row => {
             const narValue = row.getAttribute('data-nar');
-            row.style.display = (category === "all" || narValue.includes(category)) ? '' : 'none';
+            const cells = Array.from(row.getElementsByTagName('td'));
+
+            const matchesCategory = selectedCategory === 'all' || narValue.includes(selectedCategory);
+            const matchesSearch = !searchTerm || cells.some(cell => 
+                cell.textContent.toLowerCase().includes(searchTerm)
+            );
+
+            const visible = matchesCategory && matchesSearch;
+            row.style.display = visible ? '' : 'none';
+            if (visible) matchCount++;
         });
+
+        this.updateSearchResults(searchTerm, selectedCategory, matchCount);
     }
 
-    updateSearchResults(searchTerm, matchCount) {
-        this.resultContainer.innerHTML = matchCount > 0
-            ? `Found ${matchCount} results for "${searchTerm}"`
-            : 'No results found.';
+    updateSearchResults(searchTerm, category, matchCount) {
+        let message = '';
+        if (searchTerm && category !== 'all') {
+            message = `Found ${matchCount} results for "${searchTerm}" in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
+        } else if (searchTerm) {
+            message = `Found ${matchCount} results for "${searchTerm}" in all categories`;
+        } else if (category !== 'all') {
+            message = `Found ${matchCount} results in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
+        }
+
+        this.resultContainer.innerHTML = matchCount > 0 ? message : 'No results found.';
     }
 
     resetTable() {
@@ -207,19 +269,13 @@ document.addEventListener('DOMContentLoaded', () => {
     handler.fetchXMLData().then(() => handler.resetTable());
 });
 
-// Service Worker registration
+// Register Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        const swPath = '/accounts.office.cheque.inquiry/service-worker.js';
-        
-        navigator.serviceWorker.register(swPath, {
-            scope: '/accounts.office.cheque.inquiry/'
+        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { 
+            scope: '/accounts.office.cheque.inquiry/' 
         })
-        .then(registration => {
-            console.log('ServiceWorker registration successful with scope:', registration.scope);
-        })
-        .catch(err => {
-            console.error('ServiceWorker registration failed:', err);
-        });
+        .then(registration => console.log('ServiceWorker registered:', registration.scope))
+        .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
