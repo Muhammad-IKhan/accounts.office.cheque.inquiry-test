@@ -1,3 +1,7 @@
+/**
+ * XMLTableHandler - Handles XML data display and manipulation in tabular format
+ * with improved error handling, performance optimizations, and robust data management
+ */
 class XMLTableHandler {
     constructor() {
         console.log('🚀 Initializing XMLTableHandler...');
@@ -7,16 +11,19 @@ class XMLTableHandler {
             this.initializeDOMElements();
             this.initializeState();
             this.initializeEventListeners();
-            this.initializePagination(); // Initialize pagination
+            this.initializePagination();
             
-            // Immediately fetch and display data
-            this.fetchXMLData().then(() => {
-                this.resetTable();
-                console.log('✅ Initial data load complete');
-            }).catch(error => {
-                console.error('❌ Initial data load failed:', error);
-                this.showError('Failed to load initial data');
-            });
+            // Initial data load with retry mechanism
+            this.fetchXMLData()
+                .then(() => {
+                    this.resetTable();
+                    console.log('✅ Initial data load complete');
+                })
+                .catch(error => {
+                    console.error('❌ Initial data load failed:', error);
+                    this.retryFetchData(3);
+                    this.showError('Failed to load initial data. Retrying...');
+                });
         } catch (error) {
             console.error('❌ Constructor Error:', error.message);
             this.showError('Failed to initialize table handler: ' + error.message);
@@ -72,7 +79,7 @@ class XMLTableHandler {
             'tableContainer': 'tableContainer',
             'emptyState': 'emptyState',
             'result': 'resultContainer',
-            'paginationContainer': 'paginationContainer', // Updated to match the HTML
+            'paginationContainer': 'paginationContainer',
             'searchBtn': 'searchBtn',
             'rowsPerPage': 'rowsPerPage'
         };
@@ -104,27 +111,48 @@ class XMLTableHandler {
     }
 
     initializeEventListeners() {
-        // Search events
-        this.searchInput.addEventListener('keydown', (e) => {
+        // Remove existing listeners if they exist
+        if (this.boundHandleSearch) {
+            this.searchInput.removeEventListener('keydown', this.boundHandleSearch);
+        }
+
+        // Bind event handlers
+        this.boundHandleSearch = (e) => {
             if (e.key === 'Enter') {
                 this.performSearch();
             }
             this.handleBackspace(e);
-        });
+        };
 
+        // Add new listeners with debouncing
+        this.searchInput.addEventListener('keydown', this.boundHandleSearch);
         this.searchBtn.addEventListener('click', () => this.performSearch());
-
-        // Filter events
         this.narFilter.addEventListener('change', () => this.applyFilters());
         this.statusFilter.addEventListener('change', () => this.applyFilters());
 
-        // Sorting events
+        // Sorting events with debouncing
         document.querySelectorAll('th[data-column]').forEach(header => {
-            header.addEventListener('click', () => {
+            header.addEventListener('click', this.debounce(() => {
                 const column = header.dataset.column;
                 this.sortTable(column);
-            });
+            }, 250));
         });
+    }
+
+    async retryFetchData(attempts) {
+        while (attempts > 0) {
+            try {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                await this.fetchXMLData();
+                console.log('✅ Data load successful after retry');
+                this.resetTable();
+                return;
+            } catch (error) {
+                attempts--;
+                console.error(`❌ Retry failed. ${attempts} attempts remaining:`, error);
+            }
+        }
+        this.showError('Failed to load data after multiple attempts');
     }
 
     handleBackspace(e) {
@@ -177,16 +205,25 @@ class XMLTableHandler {
     }
 
     parseXMLToTable(xmlString) {
+        if (!xmlString) {
+            throw new Error('No XML data provided');
+        }
+
         const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlString || this.state.xmlData, "text/xml");
+        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
 
         if (xmlDoc.querySelector('parsererror')) {
             throw new Error('XML parsing error: ' + xmlDoc.querySelector('parsererror').textContent);
         }
 
         const entries = xmlDoc.getElementsByTagName('G_PVN');
-        this.tableBody.innerHTML = '';
+        if (!entries || entries.length === 0) {
+            console.warn('No entries found in XML data');
+            this.showError('No data entries found');
+            return false;
+        }
 
+        this.tableBody.innerHTML = '';
         Array.from(entries).forEach((element) => {
             const row = this.createTableRow(element);
             this.tableBody.appendChild(row);
@@ -225,10 +262,15 @@ class XMLTableHandler {
     }
 
     formatAmount(value) {
-        try {
-            return parseFloat(value).toLocaleString('en-US');
-        } catch {
+        if (!value || typeof value !== 'string') {
             console.warn(`Invalid amount value: ${value}`);
+            return '0';
+        }
+        try {
+            const cleanValue = value.replace(/[^\d.-]/g, '');
+            return parseFloat(cleanValue).toLocaleString('en-US');
+        } catch (error) {
+            console.warn(`Error formatting amount: ${value}`, error);
             return '0';
         }
     }
@@ -379,7 +421,15 @@ class XMLTableHandler {
 
     initializePagination() {
         this.rowsPerPage.addEventListener('change', () => {
-            this.state.rowsPerPage = parseInt(this.rowsPerPage.value, 10);
+            const newValue = parseInt(this.rowsPerPage.value, 10);
+            // Validate rows per page value
+            if (isNaN(newValue) || newValue < 1) {
+                console.warn('Invalid rows per page value:', this.rowsPerPage.value);
+                this.rowsPerPage.value = 10;
+                this.state.rowsPerPage = 10;
+            } else {
+                this.state.rowsPerPage = newValue;
+            }
             this.state.currentPage = 1;
             this.updatePagination();
             this.renderTableRows();
@@ -389,7 +439,9 @@ class XMLTableHandler {
     }
 
     updatePagination() {
-        const totalPages = Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage);
+        const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
+            .filter(row => row.style.display !== 'none').length;
+        const totalPages = Math.ceil(visibleRows / this.state.rowsPerPage);
         const paginationContainer = this.paginationContainer;
         paginationContainer.innerHTML = '';
 
@@ -411,12 +463,10 @@ class XMLTableHandler {
         // Previous Button
         paginationContainer.appendChild(createButton('Previous', this.state.currentPage - 1, false, this.state.currentPage === 1));
 
-        // Page Numbers
+        // Page Numbers with Ellipsis
         for (let i = 1; i <= totalPages; i++) {
-            if (i === this.state.currentPage) {
-                paginationContainer.appendChild(createButton(i, i, true));
-            } else if (i === 1 || i === totalPages || Math.abs(this.state.currentPage - i) <= 2) {
-                paginationContainer.appendChild(createButton(i, i));
+            if (i === 1 || i === totalPages || Math.abs(this.state.currentPage - i) <= 2) {
+                paginationContainer.appendChild(createButton(i, i, i === this.state.currentPage));
             } else if (Math.abs(this.state.currentPage - i) === 3) {
                 const ellipsis = document.createElement('span');
                 ellipsis.className = 'page-ellipsis';
@@ -430,21 +480,40 @@ class XMLTableHandler {
     }
 
     renderTableRows() {
-        const rows = Array.from(this.tableBody.querySelectorAll('tr'));
+        const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
+            .filter(row => row.style.display !== 'none');
         const start = (this.state.currentPage - 1) * this.state.rowsPerPage;
         const end = start + this.state.rowsPerPage;
 
-        rows.forEach((row, index) => {
+        visibleRows.forEach((row, index) => {
             row.style.display = (index >= start && index < end) ? '' : 'none';
         });
     }
+
+    // Utility function for debouncing
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
 }
 
-// Initialize handler
+// Initialize handler with improved error handling
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🌟 DOM Content Loaded - Starting initialization');
     
     try {
+        if (window.tableHandler) {
+            console.warn('TableHandler already initialized, cleaning up...');
+            // Cleanup existing instance if needed
+            delete window.tableHandler;
+        }
         window.tableHandler = new XMLTableHandler();
     } catch (error) {
         console.error('❌ Initialization failed:', error);
@@ -455,11 +524,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Register service worker
+// Service worker registration with error recovery and update handling
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
-            .then(registration => console.log('ServiceWorker registered:', registration.scope))
-            .catch(err => console.error('ServiceWorker registration failed:', err));
+        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', {
+            scope: '/accounts.office.cheque.inquiry/'
+        })
+        .then(registration => {
+            console.log('✅ ServiceWorker registered:', registration.scope);
+            // Check for updates
+            registration.update();
+
+            // Handle updates
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('🔄 ServiceWorker update found, installing...');
+
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('🔄 New ServiceWorker installed, ready for activation');
+                    }
+                });
+            });
+        })
+        .catch(err => {
+            console.error('❌ ServiceWorker registration failed:', err);
+            // Attempt to unregister and re-register on failure
+            navigator.serviceWorker.getRegistrations()
+                .then(registrations => {
+                    registrations.forEach(registration => registration.unregister());
+                    console.log('🔄 Attempting to re-register ServiceWorker...');
+                    // Re-registration will be handled by the next page load
+                });
+        });
     });
 }
