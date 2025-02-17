@@ -1,9 +1,6 @@
-This XML file does not appear to have any style information associated with it. The document tree is shown below.
-<CHEQUE_LIST_DATEWISE>
+<CHEQUE_LIST_DATEWISE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <LIST_G_PVN>
 <G_PVN>
-<ENO>22</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>1</PVN>
 <NARRATION>IRFAN ULLAH SST GHSS DOMEL BANNU</NARRATION>
@@ -11,12 +8,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498745</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>22</ENO>
+<SNO>1001</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>23</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>2</PVN>
 <NARRATION>RAFIQ ULLAH SST GHS GHAZI MARJAN SDW BANNU</NARRATION>
@@ -24,12 +21,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498746</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>23</ENO>
+<SNO>1002</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>24</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>3</PVN>
 <NARRATION>AHMAD ULLAH SST GHS HABIB ULLAH SDW BANNU</NARRATION>
@@ -37,12 +34,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498747</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>24</ENO>
+<SNO>1003</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>25</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>4</PVN>
 <NARRATION>HAMID MUHAMMAD SST GHS AL MOMIN BACHAKI JANI KHEL BANNU</NARRATION>
@@ -50,12 +47,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498748</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>25</ENO>
+<SNO>1004</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>26</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>5</PVN>
 <NARRATION>ASHRAF ULLAH KHAN CT GHS GHORIWALA BANNU</NARRATION>
@@ -63,12 +60,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498749</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>26</ENO>
+<SNO>1005</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>27</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>6</PVN>
 <NARRATION>HAFEEZ ULLAH SET WFGHS SHAHBAZ AZMAT KHEL BANNU</NARRATION>
@@ -76,12 +73,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498750</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>27</ENO>
+<SNO>1006</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>28</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>7</PVN>
 <NARRATION>WAQAR ULLAH KHAN PST GPS UMAR GUL WALIGI BANNU</NARRATION>
@@ -89,12 +86,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498751</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>28</ENO>
+<SNO>1007</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>29</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>8</PVN>
 <NARRATION>ABID ALI KHAN SST GHSS GHULAM JAN BAKA KKHEL BANNU</NARRATION>
@@ -102,12 +99,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498752</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>29</ENO>
+<SNO>1008</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>30</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>9</PVN>
 <NARRATION>ABDUL HALEEM SST GHS NO. 2 BANNU</NARRATION>
@@ -115,12 +112,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498753</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>30</ENO>
+<SNO>1009</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>31</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>11</PVN>
 <NARRATION>BAKHTIYAR ALI SCT GHS KAKKI BANNU</NARRATION>
@@ -128,12 +125,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498755</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>31</ENO>
+<SNO>1010</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>32</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>12</PVN>
 <NARRATION>NAHEED ULLAH SCT GHS HASSAN KHEL JAFFAR KHAN BANNU</NARRATION>
@@ -141,12 +138,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498756</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>32</ENO>
+<SNO>1011</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>33</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>15</PVN>
 <NARRATION>NAIMAT ULLAH SST GHS MAMASH KHEL BANNU</NARRATION>
@@ -154,12 +151,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498759</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>33</ENO>
+<SNO>1012</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>34</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>16</PVN>
 <NARRATION>SHAFI ULLAH KHAN SCT GHSS MAMASH KHEL BANNU</NARRATION>
@@ -167,12 +164,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498760</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>34</ENO>
+<SNO>1013</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>35</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>17</PVN>
 <NARRATION>AFTAR ULLAH CT GHS SATTI KALA BANNU</NARRATION>
@@ -180,12 +177,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498761</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>35</ENO>
+<SNO>1014</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>36</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>18</PVN>
 <NARRATION>TAJ WALI KHAN SST GHS GANJI DAUD SHAH BANNU</NARRATION>
@@ -193,12 +190,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498762</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>36</ENO>
+<SNO>1015</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>37</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>19</PVN>
 <NARRATION>ABID KHAN CT GHSS MAMASH KHEL BANNU</NARRATION>
@@ -206,12 +203,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498763</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>37</ENO>
+<SNO>1016</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>38</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>21</PVN>
 <NARRATION>SHAHID NAWAZ LECTURER AKDC BANNU</NARRATION>
@@ -219,12 +216,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498765</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>38</ENO>
+<SNO>1017</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>39</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>2</PVN>
 <NARRATION>SHAHID IQBALSCT GHS NO.1 BANNU</NARRATION>
@@ -232,12 +229,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498771</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>39</ENO>
+<SNO>1018</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>40</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>3</PVN>
 <NARRATION>GUL QIAZ KHAN SCT GHS GHORIWALA BANNU</NARRATION>
@@ -245,12 +242,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498772</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>40</ENO>
+<SNO>1019</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>41</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>4</PVN>
 <NARRATION>IBRAR ULLAH KHAN SCT GHS SHAMSHI KHEL BANNU</NARRATION>
@@ -258,12 +255,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498773</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>41</ENO>
+<SNO>1020</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>42</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>5</PVN>
 <NARRATION>ZAHID ULLAH KHAN CT GHS BIZAN KHEL BANNU</NARRATION>
@@ -271,12 +268,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498774</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>42</ENO>
+<SNO>1021</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>43</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>7</PVN>
 <NARRATION>NASIR MEHMOOD SS AKDC BANNU</NARRATION>
@@ -284,12 +281,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498776</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>43</ENO>
+<SNO>1022</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>44</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>8</PVN>
 <NARRATION>JALIL KHAN SS AKDC BANNU</NARRATION>
@@ -297,12 +294,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498777</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>44</ENO>
+<SNO>1023</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>45</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>9</PVN>
 <NARRATION>EJAZ ULLAH KHAN SST GHS NO2 TAJORI LAKKI</NARRATION>
@@ -310,12 +307,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498778</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>45</ENO>
+<SNO>1024</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>46</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>10</PVN>
 <NARRATION>MUHAMMAD SAJJAD KHAN SST GHS BAKA KHEL BANNU</NARRATION>
@@ -323,12 +320,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498779</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>46</ENO>
+<SNO>1025</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>47</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>11</PVN>
 <NARRATION>WASIM ULLAH KHAN PST GPS PIRAN TITAR KHEL BANNU</NARRATION>
@@ -336,12 +333,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498780</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>47</ENO>
+<SNO>1026</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>48</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>1</PVN>
 <NARRATION>ZAHEEN ULLAH S. QARI GHS NO. 2 BANNU</NARRATION>
@@ -349,12 +346,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498795</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>48</ENO>
+<SNO>1027</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>49</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>2</PVN>
 <NARRATION>HAKEEM ZAMAN AT GHS NO. 2 BANNU</NARRATION>
@@ -362,12 +359,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498796</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>49</ENO>
+<SNO>1028</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>50</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>3</PVN>
 <NARRATION>INAM ULLAH SHAH AT GHS NO. 2 BANNU</NARRATION>
@@ -375,12 +372,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498797</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>50</ENO>
+<SNO>1029</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>51</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>4</PVN>
 <NARRATION>ASMAT ULLAH AT GHS KING BAHADUR BANNU</NARRATION>
@@ -388,12 +385,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498798</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>51</ENO>
+<SNO>1030</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>52</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>13</PVN>
 <NARRATION>KAMRAN ULLAH SST GHS MIRA KHEL BANNU</NARRATION>
@@ -401,12 +398,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498807</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>52</ENO>
+<SNO>1031</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>53</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>14</PVN>
 <NARRATION>IJAZ UL HAQ SST GHS ADHAMI RASOOL KHAN BANNU</NARRATION>
@@ -414,12 +411,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498808</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>53</ENO>
+<SNO>1032</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>54</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>15</PVN>
 <NARRATION>SAFDAR ALI SHAH SST GHS BHARATI MACHAN KHEL BANNU</NARRATION>
@@ -427,12 +424,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498809</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>54</ENO>
+<SNO>1033</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>55</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>16</PVN>
 <NARRATION>ARSHAD KHAN SST GHS GHULAM JAN BAKA KHEL BANNU</NARRATION>
@@ -440,12 +437,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498810</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>55</ENO>
+<SNO>1034</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>56</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>18</PVN>
 <NARRATION>MUZAFAR IQBAL SST GHS KOTI SADAT BANNU</NARRATION>
@@ -453,12 +450,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498812</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>56</ENO>
+<SNO>1035</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>57</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>19</PVN>
 <NARRATION>ABDULLAH KHAN SST GHS BOZA KHEL BANNU</NARRATION>
@@ -466,12 +463,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498813</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>57</ENO>
+<SNO>1036</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>58</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>20</PVN>
 <NARRATION>HAZRAT ALI CT GHSS DOMEL BANNU</NARRATION>
@@ -479,12 +476,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498814</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>58</ENO>
+<SNO>1037</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>59</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>21</PVN>
 <NARRATION>ZEESHAN KHAN SST GHS GHULAM JAN BAKA KHEL BANNU</NARRATION>
@@ -492,12 +489,12 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498815</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>59</ENO>
+<SNO>1038</SNO>
 </G_PVN>
 <G_PVN>
-<ENO>60</ENO>
-<BNO/>
 <HEAD>1716</HEAD>
 <PVN>12</PVN>
 <NARRATION>JAVED ULLAH SDM GHS SAAD ULLAH SDW BANNU</NARRATION>
@@ -505,8 +502,80 @@ This XML file does not appear to have any style information associated with it. 
 <ENT_DAT>01-FEB-25</ENT_DAT>
 <CHEQ_NO>4498831</CHEQ_NO>
 <CHEQ_DATE>04-FEB-25</CHEQ_DATE>
-<DD>Sent to Chairman Sb. for Sign </DD>
-<NAR>MARKING SSC</NAR>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>60</ENO>
+<SNO>1039</SNO>
+</G_PVN>
+<G_PVN>
+<BNO>13</BNO>
+<HEAD>1716</HEAD>
+<PVN>18</PVN>
+<NARRATION>KHALIL UR REHMAN SST GHS SHAMSHI KHEL BANNU</NARRATION>
+<AMOUNT>110527</AMOUNT>
+<ENT_DAT>01-FEB-25</ENT_DAT>
+<CHEQ_NO>4498964</CHEQ_NO>
+<CHEQ_DATE>12-FEB-25</CHEQ_DATE>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>1</ENO>
+<SNO>1040</SNO>
+</G_PVN>
+<G_PVN>
+<BNO>13</BNO>
+<HEAD>1716</HEAD>
+<PVN>19</PVN>
+<NARRATION>SABIR SHAH SCT GHS NAR SHUKRULLAH BANNU</NARRATION>
+<AMOUNT>89868</AMOUNT>
+<ENT_DAT>01-FEB-25</ENT_DAT>
+<CHEQ_NO>4498965</CHEQ_NO>
+<CHEQ_DATE>12-FEB-25</CHEQ_DATE>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>4</ENO>
+<SNO>1041</SNO>
+</G_PVN>
+<G_PVN>
+<BNO>13</BNO>
+<HEAD>1716</HEAD>
+<PVN>20</PVN>
+<NARRATION>ZAHID ULLAH QURESHI SCT GHS NAR SHUKRULLAH BANNU</NARRATION>
+<AMOUNT>104378</AMOUNT>
+<ENT_DAT>01-FEB-25</ENT_DAT>
+<CHEQ_NO>4498966</CHEQ_NO>
+<CHEQ_DATE>12-FEB-25</CHEQ_DATE>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>2</ENO>
+<SNO>1042</SNO>
+</G_PVN>
+<G_PVN>
+<BNO>13</BNO>
+<HEAD>1716</HEAD>
+<PVN>21</PVN>
+<NARRATION>RABAZ KHAN SCT GHS NAR SHUKRULLAH BANNU</NARRATION>
+<AMOUNT>67391</AMOUNT>
+<ENT_DAT>01-FEB-25</ENT_DAT>
+<CHEQ_NO>4498967</CHEQ_NO>
+<CHEQ_DATE>12-FEB-25</CHEQ_DATE>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>5</ENO>
+<SNO>1043</SNO>
+</G_PVN>
+<G_PVN>
+<BNO>13</BNO>
+<HEAD>1716</HEAD>
+<PVN>22</PVN>
+<NARRATION>RAHAT ULLAH KHAN SCT GHS NAR SHUKRULLAH BANNU</NARRATION>
+<AMOUNT>96442</AMOUNT>
+<ENT_DAT>01-FEB-25</ENT_DAT>
+<CHEQ_NO>4498968</CHEQ_NO>
+<CHEQ_DATE>12-FEB-25</CHEQ_DATE>
+<DD>Sent to Chairman Sb. for Sign</DD>
+<NAR>SECRECY</NAR>
+<ENO>3</ENO>
+<SNO>1044</SNO>
 </G_PVN>
 </LIST_G_PVN>
-</CHEQUE_LIST_DATEWISE>
+</CHEQUE_LIST_DAT
