@@ -6,25 +6,32 @@
     <title>Cheque Inquiry System</title>
     <style>
 
-        .pagination-btn {
-    margin: 0 4px;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    background: #fff;
-    cursor: pointer;
-}
-
-.pagination-btn.active {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-.pagination-btn.disabled {
-    background: #f8f9fa;
-    cursor: not-allowed;
-    color: #6c757d;
-}
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .page-btn {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+        }
+        
+        .page-btn.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .page-btn:disabled {
+            background: #eee;
+            cursor: not-allowed;
+        }
+        
+        .page-ellipsis {
+            padding: 5px;
+        }
         /* Core styles */
         :root {
             --primary-color: #4a90e2;
@@ -298,6 +305,14 @@
 
         <!-- Pagination -->
         <div id="pagination" class="pagination"></div>
+        <select id="rowsPerPage">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+
+<div id="paginationContainer"></div>
     </div>
 
     <!-- Scripts -->
