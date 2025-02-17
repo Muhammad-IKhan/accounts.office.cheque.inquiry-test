@@ -72,7 +72,7 @@ class XMLTableHandler {
             'tableContainer': 'tableContainer',
             'emptyState': 'emptyState',
             'result': 'resultContainer',
-            'pagination': 'paginationContainer',
+            'paginationContainer': 'paginationContainer', // Updated to match the HTML
             'searchBtn': 'searchBtn',
             'rowsPerPage': 'rowsPerPage'
         };
