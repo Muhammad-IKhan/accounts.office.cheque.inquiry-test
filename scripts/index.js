@@ -29,31 +29,35 @@ class XMLTableHandler {
                 type: 'string', 
                 required: true,
                 title: 'Narration',
-                searchable: true
+                searchable: true  // Only Narration is searchable
             },
             AMOUNT: { 
                 index: 1, 
                 type: 'number', 
                 required: true,
-                title: 'Amount'
+                title: 'Amount',
+                searchable: false
             },
             CHEQ_NO: { 
                 index: 2, 
                 type: 'number', 
                 required: true,
-                title: 'Cheque No'
+                title: 'Cheque No',
+                searchable: false
             },
             NAR: { 
                 index: 3, 
                 type: 'string', 
                 required: true,
-                title: 'NAR'
+                title: 'NAR',
+                searchable: false
             },
             DD: { 
                 index: 4, 
                 type: 'string', 
                 required: true,
-                title: 'Status'
+                title: 'Status',
+                searchable: false
             }
         };
     }
@@ -118,6 +122,63 @@ class XMLTableHandler {
         });
     }
 
+    performSearch() {
+        const searchTerm = this.searchInput.value.toLowerCase();
+        this.state.lastSearchTerm = searchTerm;
+        this.applyFilters();
+    }
+
+    applyFilters() {
+        const searchTerm = this.state.lastSearchTerm;
+        const narCategory = this.narFilter.value.toLowerCase();
+        const statusFilter = this.statusFilter.value.toLowerCase();
+
+        if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
+            this.resetTable();
+            return;
+        }
+
+        this.tableContainer.style.display = 'block';
+        this.emptyState.style.display = 'none';
+        this.resultContainer.style.display = 'block';
+
+        // Filter rows based on search term (Narration only) and other filters
+        this.state.filteredRows = Array.from(this.tableBody.querySelectorAll('tr')).filter(row => {
+            const narValue = row.getAttribute('data-nar');
+            const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
+            
+            // Only search in Narration column
+            const narrationCell = row.querySelector('td[data-field="NARRATION"]');
+            const narrationText = narrationCell ? narrationCell.textContent.toLowerCase() : '';
+            
+            const matchesCategory = narCategory === 'all' || narValue === narCategory;
+            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+            const matchesSearch = !searchTerm || narrationText.includes(searchTerm);
+
+            return matchesCategory && matchesStatus && matchesSearch;
+        });
+
+        this.state.currentPage = 1;
+        this.updateSearchResults(this.state.filteredRows.length);
+        this.displayCurrentPage();
+        this.updatePagination();
+    }
+
+    updateSearchResults(matchCount) {
+        const searchTerm = this.state.lastSearchTerm;
+        const narCategory = this.narFilter.value;
+        const statusFilter = this.statusFilter.value;
+
+        let message = `Found ${matchCount} results`;
+        if (searchTerm) message += ` for "${searchTerm}" in Narration`;  // Updated to specify search is in Narration
+        if (narCategory !== 'all') message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
+        if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
+
+        this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
+    }
+
+    // ... (Previous pagination methods remain the same)
+
     updatePagination() {
         const totalPages = Math.ceil(this.state.filteredRows.length / this.state.rowsPerPage);
         this.paginationContainer.innerHTML = '';
@@ -175,58 +236,6 @@ class XMLTableHandler {
         });
     }
 
-    performSearch() {
-        const searchTerm = this.searchInput.value.toLowerCase();
-        this.state.lastSearchTerm = searchTerm;
-        this.applyFilters();
-    }
-
-    applyFilters() {
-        const searchTerm = this.state.lastSearchTerm;
-        const narCategory = this.narFilter.value.toLowerCase();
-        const statusFilter = this.statusFilter.value.toLowerCase();
-
-        if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
-            this.resetTable();
-            return;
-        }
-
-        this.tableContainer.style.display = 'block';
-        this.emptyState.style.display = 'none';
-        this.resultContainer.style.display = 'block';
-
-        this.state.filteredRows = Array.from(this.tableBody.querySelectorAll('tr')).filter(row => {
-            const narValue = row.getAttribute('data-nar');
-            const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
-            const narrationCell = row.querySelector('td[data-field="NARRATION"]');
-            
-            const matchesCategory = narCategory === 'all' || narValue === narCategory;
-            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-            const matchesSearch = !searchTerm || 
-                                (narrationCell && narrationCell.textContent.toLowerCase().includes(searchTerm));
-
-            return matchesCategory && matchesStatus && matchesSearch;
-        });
-
-        this.state.currentPage = 1;
-        this.updateSearchResults(this.state.filteredRows.length);
-        this.displayCurrentPage();
-        this.updatePagination();
-    }
-
-    updateSearchResults(matchCount) {
-        const searchTerm = this.state.lastSearchTerm;
-        const narCategory = this.narFilter.value;
-        const statusFilter = this.statusFilter.value;
-
-        let message = `Found ${matchCount} results`;
-        if (searchTerm) message += ` for "${searchTerm}"`;
-        if (narCategory !== 'all') message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
-        if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
-
-        this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
-    }
-
     resetTable() {
         this.searchInput.value = '';
         this.narFilter.value = 'all';
@@ -243,7 +252,7 @@ class XMLTableHandler {
         this.updatePagination();
     }
 
-    // ... (rest of the existing methods remain the same)
+    // ... (rest of the methods remain the same)
 }
 
 // Initialize handler
