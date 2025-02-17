@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Register service worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry-test/' })
+        navigator.serviceWorker.register('/accounts.office.cheque.inquiry-test/service-worker.js', { scope: '/accounts.office.cheque.inquiry-test/' })
             .then(registration => console.log('ServiceWorker registered:', registration.scope))
             .catch(err => console.error('ServiceWorker registration failed:', err));
     });
