@@ -5,33 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cheque Inquiry System</title>
     <style>
-
-        .pagination-controls {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-        }
-        
-        .page-btn {
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            background: #fff;
-            cursor: pointer;
-        }
-        
-        .page-btn.active {
-            background: #007bff;
-            color: white;
-        }
-        
-        .page-btn:disabled {
-            background: #eee;
-            cursor: not-allowed;
-        }
-        
-        .page-ellipsis {
-            padding: 5px;
-        }
         /* Core styles */
         :root {
             --primary-color: #4a90e2;
@@ -199,6 +172,43 @@
             color: #721c24;
         }
 
+        /* Pagination styles */
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .page-btn {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .page-btn.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .page-btn:disabled {
+            background: #eee;
+            cursor: not-allowed;
+        }
+
+        .page-ellipsis {
+            padding: 5px;
+        }
+
+        /* Rows per page selector */
+        #rowsPerPage {
+            margin-top: 10px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .controls {
@@ -226,20 +236,18 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-        <div style="display: flex; align-items: center;">
-        <h1>Cheque Inquiry System:</h1>
-        <span style="padding-left: 20px;">Board of Intermediate & Secondary Education Bannu</span>
-    </div>
+            <div style="display: flex; align-items: center;">
+                <h1>Cheque Inquiry System:</h1>
+                <span style="padding-left: 20px;">Board of Intermediate & Secondary Education Bannu</span>
+            </div>
         </div>
 
         <!-- Controls -->
         <div class="controls">
-            
-
             <div class="filter-box">
                 <label for="narCategory">Bill Category (Select a Category to Narrow Down)</label>
                 <select id="narCategory">
-                   <option value="all" selected>Search in All</option>
+                    <option value="all" selected>Search in All</option>
                     <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
                     <option value="TA/DA TO PRACTICAL EXMR: SSC">Practical Staff SSC</option>
                     <option value="TA/DA TO INSEPCTORS SSC">Inspections Staff SSC</option>
@@ -260,10 +268,9 @@
                 <input type="text" id="search" placeholder="Enter your name or school name...">
             </div>
 
-
             <button id="searchBtn">Search</button>
 
-             <div class="filter-box">
+            <div class="filter-box">
                 <label for="statusFilter">Filter by Status</label>
                 <select id="statusFilter">
                     <option value="all">all Statuses</option>
@@ -304,15 +311,13 @@
         </div>
 
         <!-- Pagination -->
-        <div id="pagination" class="pagination"></div>
+        <div id="paginationContainer" class="pagination-controls"></div>
         <select id="rowsPerPage">
             <option value="10">10</option>
             <option value="25">25</option>
             <option value="50">50</option>
             <option value="100">100</option>
         </select>
-
-<div id="paginationContainer"></div>
     </div>
 
     <!-- Scripts -->
