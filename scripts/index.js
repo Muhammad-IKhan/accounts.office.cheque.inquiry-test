@@ -306,7 +306,7 @@ class XMLTableHandler {
         this.tableBody.innerHTML = '';
         rows.forEach(row => this.tableBody.appendChild(row));
     }
-}
+
 }
 
 // Initialize handler
