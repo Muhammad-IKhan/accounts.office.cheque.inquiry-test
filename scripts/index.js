@@ -63,29 +63,52 @@ class XMLTableHandler {
         };
     }
 
-    initializeDOMElements() {
-        console.log('🔍 Initializing DOM elements...');
-        const required_elements = {
-            'checksTable': 'tableBody',
-            'search': 'searchInput',
-            'narCategory': 'narFilter',
-            'statusFilter': 'statusFilter',
-            'tableContainer': 'tableContainer',
-            'emptyState': 'emptyState',
-            'result': 'resultContainer',
-            'pagination': 'paginationContainer',
-            'searchBtn': 'searchBtn',
-            'rowsPerPageSelect': 'rowsPerPage'
-        };
+    // initializeDOMElements() {
+    //     console.log('🔍 Initializing DOM elements...');
+    //     const required_elements = {
+    //         'checksTable': 'tableBody',
+    //         'search': 'searchInput',
+    //         'narCategory': 'narFilter',
+    //         'statusFilter': 'statusFilter',
+    //         'tableContainer': 'tableContainer',
+    //         'emptyState': 'emptyState',
+    //         'result': 'resultContainer',
+    //         'pagination': 'paginationContainer',
+    //         'searchBtn': 'searchBtn',
+    //         'rowsPerPageSelect': 'rowsPerPage'
+    //     };
 
-        for (const [id, prop] of Object.entries(required_elements)) {
-            const element = document.getElementById(id);
-            if (!element) {
-                throw new Error(`Required element #${id} not found in DOM`);
-            }
-            this[prop] = element;
+    //     for (const [id, prop] of Object.entries(required_elements)) {
+    //         const element = document.getElementById(id);
+    //         if (!element) {
+    //             throw new Error(`Required element #${id} not found in DOM`);
+    //         }
+    //         this[prop] = element;
+    //     }
+    // }
+    initializeDOMElements() {
+    console.log('🔍 Initializing DOM elements...');
+    const required_elements = {
+        'checksTable': 'tableBody',
+        'search': 'searchInput',
+        'narCategory': 'narFilter',
+        'statusFilter': 'statusFilter',
+        'tableContainer': 'tableContainer',
+        'emptyState': 'emptyState',
+        'result': 'resultContainer',
+        'pagination': 'paginationContainer',
+        'searchBtn': 'searchBtn',
+        'rowsPerPage': 'rowsPerPage'  // Changed from 'rowsPerPageSelect' to match HTML
+    };
+
+    for (const [id, prop] of Object.entries(required_elements)) {
+        const element = document.getElementById(id);
+        if (!element) {
+            throw new Error(`Required element #${id} not found in DOM`);
         }
+        this[prop] = element;
     }
+}
 
     initializeState() {
         console.log('💾 Initializing application state...');
