@@ -10,7 +10,6 @@ class XMLTableHandler {
             
             this.fetchXMLData().then(() => {
                 this.resetTable();
-                this.updatePagination();
                 console.log('✅ Initial data load complete');
             }).catch(error => {
                 console.error('❌ Initial data load failed:', error);
@@ -28,36 +27,31 @@ class XMLTableHandler {
                 index: 0, 
                 type: 'string', 
                 required: true,
-                title: 'Narration',
-                searchable: true  // Only Narration is searchable
+                title: 'Narration'
             },
             AMOUNT: { 
                 index: 1, 
                 type: 'number', 
                 required: true,
-                title: 'Amount',
-                searchable: false
+                title: 'Amount'
             },
             CHEQ_NO: { 
                 index: 2, 
                 type: 'number', 
                 required: true,
-                title: 'Cheque No',
-                searchable: false
+                title: 'Cheque No'
             },
             NAR: { 
                 index: 3, 
                 type: 'string', 
                 required: true,
-                title: 'NAR',
-                searchable: false
+                title: 'NAR'
             },
             DD: { 
                 index: 4, 
                 type: 'string', 
                 required: true,
-                title: 'Status',
-                searchable: false
+                title: 'Status'
             }
         };
     }
@@ -122,6 +116,127 @@ class XMLTableHandler {
         });
     }
 
+    handleBackspace(e) {
+        if (e.key === 'Backspace' && this.state.tableResetEnabled) {
+            const inputBefore = this.searchInput.value.trim();
+            setTimeout(() => {
+                const inputAfter = this.searchInput.value.trim();
+                if (this.state.backspaceDefault && inputBefore.length > 1) {
+                    const caretPosition = this.searchInput.selectionStart;
+                    this.resetTable();
+                    this.searchInput.value = inputAfter;
+                    this.searchInput.setSelectionRange(caretPosition, caretPosition);
+                    this.state.backspaceDefault = false;
+                }
+                if (inputAfter.length > 0) {
+                    this.state.backspaceDefault = true;
+                }
+            }, 0);
+        }
+    }
+
+    async fetchXMLData() {
+        try {
+            const filesResponse = await fetch('/accounts.office.cheque.inquiry-test/public/data/files.json');
+            if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
+            const xmlFiles = await filesResponse.json();
+
+            let combinedXML = '<root>';
+            for (const file of xmlFiles) {
+                const fileResponse = await fetch(`/accounts.office.cheque.inquiry-test/public/data/${file}`);
+                if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
+                let xmlContent = await fileResponse.text();
+                xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '').replace(/<\/?root>/g, '');
+                combinedXML += xmlContent;
+            }
+            combinedXML += '</root>';
+
+            localStorage.setItem('xmlData', combinedXML);
+            this.state.xmlData = combinedXML;
+            return this.parseXMLToTable(combinedXML);
+        } catch (error) {
+            console.error('Error fetching XML:', error);
+            const storedXML = localStorage.getItem('xmlData');
+            if (storedXML) {
+                console.log('Using cached XML data');
+                return this.parseXMLToTable(storedXML);
+            }
+            throw error;
+        }
+    }
+
+    parseXMLToTable(xmlString) {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString || this.state.xmlData, "text/xml");
+
+        if (xmlDoc.querySelector('parsererror')) {
+            throw new Error('XML parsing error: ' + xmlDoc.querySelector('parsererror').textContent);
+        }
+
+        const entries = xmlDoc.getElementsByTagName('G_PVN');
+        this.tableBody.innerHTML = '';
+
+        Array.from(entries).forEach((element) => {
+            const row = this.createTableRow(element);
+            this.tableBody.appendChild(row);
+        });
+
+        this.state.filteredRows = Array.from(this.tableBody.getElementsByTagName('tr'));
+        this.state.totalRows = this.state.filteredRows.length;
+        return true;
+    }
+
+    createTableRow(element) {
+        const row = document.createElement('tr');
+        const narValue = element.getElementsByTagName('NAR')[0]?.textContent?.trim() || '';
+        row.setAttribute('data-nar', narValue.toLowerCase());
+
+        Object.entries(this.columns).forEach(([field, config]) => {
+            const cell = document.createElement('td');
+            let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+
+            if (config.type === 'number' && field === 'AMOUNT') {
+                value = this.formatAmount(value);
+            }
+
+            cell.textContent = value;
+            cell.setAttribute('data-field', field);
+
+            if (field === 'DD') {
+                cell.className = this.getStatusColor(value);
+            }
+
+            row.appendChild(cell);
+        });
+
+        return row;
+    }
+
+    formatAmount(value) {
+        try {
+            return parseFloat(value).toLocaleString('en-US');
+        } catch {
+            console.warn(`Invalid amount value: ${value}`);
+            return '0';
+        }
+    }
+
+    getStatusColor(status) {
+        const statusMap = {
+            'cheque ready': 'status-green',
+            'ready but not signed yet': 'status-green',
+            'despatched through gpo': 'status-orange',
+            'despatched to lakki camp office': 'status-purple',
+            'sent to chairman': 'status-blue',
+            'cancelled': 'status-dark-red',
+            'received by': 'status-yellow',
+            'processing': 'status-cyan'
+        };
+
+        const lowerStatus = status.toLowerCase();
+        return Object.entries(statusMap).find(([key]) => lowerStatus.includes(key))?.[1] || 'status-gray';
+    }
+
     performSearch() {
         const searchTerm = this.searchInput.value.toLowerCase();
         this.state.lastSearchTerm = searchTerm;
@@ -142,24 +257,31 @@ class XMLTableHandler {
         this.emptyState.style.display = 'none';
         this.resultContainer.style.display = 'block';
 
-        // Filter rows based on search term (Narration only) and other filters
-        this.state.filteredRows = Array.from(this.tableBody.querySelectorAll('tr')).filter(row => {
-            const narValue = row.getAttribute('data-nar');
-            const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
-            
-            // Only search in Narration column
+        let matchCount = 0;
+        this.state.filteredRows = [];
+
+        Array.from(this.tableBody.querySelectorAll('tr')).forEach(row => {
             const narrationCell = row.querySelector('td[data-field="NARRATION"]');
             const narrationText = narrationCell ? narrationCell.textContent.toLowerCase() : '';
             
+            const narValue = row.getAttribute('data-nar');
+            const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
+
+            const matchesNarration = !searchTerm || narrationText.includes(searchTerm);
             const matchesCategory = narCategory === 'all' || narValue === narCategory;
             const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-            const matchesSearch = !searchTerm || narrationText.includes(searchTerm);
 
-            return matchesCategory && matchesStatus && matchesSearch;
+            const isVisible = matchesNarration && matchesCategory && matchesStatus;
+            
+            if (isVisible) {
+                this.state.filteredRows.push(row);
+                matchCount++;
+            }
+            row.style.display = 'none';
         });
 
+        this.updateSearchResults(matchCount);
         this.state.currentPage = 1;
-        this.updateSearchResults(this.state.filteredRows.length);
         this.displayCurrentPage();
         this.updatePagination();
     }
@@ -170,14 +292,12 @@ class XMLTableHandler {
         const statusFilter = this.statusFilter.value;
 
         let message = `Found ${matchCount} results`;
-        if (searchTerm) message += ` for "${searchTerm}" in Narration`;  // Updated to specify search is in Narration
+        if (searchTerm) message += ` matching "${searchTerm}" in Narration`;
         if (narCategory !== 'all') message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
         if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
 
         this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
     }
-
-    // ... (Previous pagination methods remain the same)
 
     updatePagination() {
         const totalPages = Math.ceil(this.state.filteredRows.length / this.state.rowsPerPage);
@@ -248,11 +368,69 @@ class XMLTableHandler {
         
         this.state.filteredRows = Array.from(this.tableBody.getElementsByTagName('tr'));
         this.state.currentPage = 1;
+        
+        this.state.filteredRows.forEach(row => {
+            row.style.display = '';
+        });
+        
         this.displayCurrentPage();
         this.updatePagination();
     }
 
-    // ... (rest of the methods remain the same)
+    sortTable(column) {
+        if (!this.columns[column]) return;
+
+        const direction = this.state.sortColumn === column && this.state.sortDirection === 'asc' ? 'desc' : 'asc';
+        const type = this.columns[column].type;
+
+        const rows = Array.from(this.tableBody.getElementsByTagName('tr'));
+        rows.sort((a, b) => {
+            const aValue = this.getCellValue(a, column, type);
+            const bValue = this.getCellValue(b, column, type);
+            
+            return direction === 'asc' ? 
+                aValue > bValue ? 1 : -1 :
+                aValue < bValue ? 1 : -1;
+        });
+
+        this.updateSortIndicators(column, direction);
+        this.reorderRows(rows);
+        
+        this.state.sortColumn = column;
+        this.state.sortDirection = direction;
+    }
+
+    getCellValue(row, column, type) {
+        const cell = row.querySelector(`td[data-field="${column}"]`);
+        const value = cell.textContent.trim();
+        return type === 'number' ? parseFloat(value.replace(/,/g, '')) || 0 : value.toLowerCase();
+    }
+
+    updateSortIndicators(column, direction) {
+        document.querySelectorAll('th[data-column] .sort-icon').forEach(icon => {
+            icon.textContent = '';
+        });
+
+        const currentHeader = document.querySelector(`th[data-column="${column}"]`);
+        const sortIcon = currentHeader.querySelector('.sort-icon');
+        sortIcon.textContent = direction === 'asc' ? ' ↑' : ' ↓';
+    }
+
+    reorderRows(rows) {
+        const fragment = document.createDocumentFragment();
+        rows.forEach(row => fragment.appendChild(row));
+        this.tableBody.appendChild(fragment);
+    }
+
+    showError(message) {
+        console.error('Error:', message);
+        this.resultContainer.innerHTML = `
+            <div class="alert alert-danger">
+                ${message}
+            </div>
+        `;
+        this.resultContainer.style.display = 'block';
+    }
 }
 
 // Initialize handler
@@ -269,3 +447,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.insertBefore(errorDiv, document.body.firstChild);
     }
 });
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/accounts.office.cheque.inquiry-test/service-worker.js', { scope: '/accounts.office.cheque.inquiry-test/' })
+            .then(registration => console.log('ServiceWorker registered:', registration.scope))
+            .catch(err => console.error('ServiceWorker registration failed:', err));
+    });
+}
