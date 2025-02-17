@@ -237,10 +237,112 @@ class XMLTableHandler {
         return Object.entries(statusMap).find(([key]) => lowerStatus.includes(key))?.[1] || 'status-gray';
     }
 
-    performSearch() {
-        const searchTerm = this.searchInput.value.toLowerCase();
+   performSearch() {
+        const searchTerm = this.searchInput.value.trim().toLowerCase();
+        
+        // Check if search term contains any numbers
+        if (/\d/.test(searchTerm)) {
+            this.showError('Search can only contain letters - numeric searches are not allowed');
+            return;
+        }
+
+        // Check if search term contains any special characters
+        if (/[^a-zA-Z\s]/.test(searchTerm)) {
+            this.showError('Search can only contain letters - special characters are not allowed');
+            return;
+        }
+
         this.state.lastSearchTerm = searchTerm;
         this.applyFilters();
+    }
+
+    applyFilters() {
+        const searchTerm = this.state.lastSearchTerm;
+        const narCategory = this.narFilter.value.toLowerCase();
+        const statusFilter = this.statusFilter.value.toLowerCase();
+
+        if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
+            this.resetTable();
+            return;
+        }
+
+        this.tableContainer.style.display = 'block';
+        this.emptyState.style.display = 'none';
+        this.resultContainer.style.display = 'block';
+
+        let matchCount = 0;
+        this.state.filteredRows = [];
+
+        Array.from(this.tableBody.querySelectorAll('tr')).forEach(row => {
+            // Only search in Narration column
+            const narrationCell = row.querySelector('td[data-field="NARRATION"]');
+            const narrationText = narrationCell ? narrationCell.textContent.toLowerCase() : '';
+            
+            // Only match if the narration text contains the search term as a whole word
+            const wordsInNarration = narrationText.split(/\s+/);
+            const searchWords = searchTerm.split(/\s+/);
+            
+            // Check if all search words appear in the narration
+            const matchesNarration = !searchTerm || searchWords.every(word => 
+                wordsInNarration.some(narWord => narWord.includes(word))
+            );
+
+            // Only consider NAR and Status filters if no search term is present
+            const narValue = row.getAttribute('data-nar');
+            const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
+            
+            const matchesCategory = narCategory === 'all' || (!searchTerm && narValue === narCategory);
+            const matchesStatus = statusFilter === 'all' || (!searchTerm && status.includes(statusFilter));
+
+            const isVisible = matchesNarration && matchesCategory && matchesStatus;
+            
+            if (isVisible) {
+                this.state.filteredRows.push(row);
+                matchCount++;
+            }
+            row.style.display = 'none';
+        });
+
+        this.updateSearchResults(matchCount);
+        this.state.currentPage = 1;
+        this.displayCurrentPage();
+        this.updatePagination();
+    }
+
+    updateSearchResults(matchCount) {
+        const searchTerm = this.state.lastSearchTerm;
+
+        let message;
+        if (searchTerm) {
+            message = `Found ${matchCount} results matching "${searchTerm}" in Narration`;
+        } else {
+            const narCategory = this.narFilter.value;
+            const statusFilter = this.statusFilter.value;
+            
+            message = `Found ${matchCount} results`;
+            if (narCategory !== 'all') {
+                message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
+            }
+            if (statusFilter !== 'all') {
+                message += ` with status "${statusFilter}"`;
+            }
+        }
+
+        this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
+    }
+
+    showError(message) {
+        console.error('Search Error:', message);
+        this.resultContainer.innerHTML = `
+            <div class="alert alert-danger">
+                ${message}
+            </div>
+        `;
+        this.resultContainer.style.display = 'block';
+        
+        // Clear the invalid search
+        this.searchInput.value = '';
+        this.state.lastSearchTerm = '';
     }
 
     applyFilters() {
