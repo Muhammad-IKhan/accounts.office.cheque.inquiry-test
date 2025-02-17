@@ -174,22 +174,60 @@ class XMLTableHandler {
         }
     }
 
-    async fetchXMLData() {
+    // async fetchXMLData() {
+    //     try {
+    //         const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
+    //         if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
+    //         const xmlFiles = await filesResponse.json();
+
+    //         let combinedXML = '<root>';
+    //         for (const file of xmlFiles) {
+    //             const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
+    //             if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
+    //             let xmlContent = await fileResponse.text();
+    //             xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '').replace(/<\/?root>/g, '');
+    //             combinedXML += xmlContent;
+    //         }
+    //         combinedXML += '</root>';
+
+    //         localStorage.setItem('xmlData', combinedXML);
+    //         this.state.xmlData = combinedXML;
+    //         return this.parseXMLToTable(combinedXML);
+    //     } catch (error) {
+    //         console.error('Error fetching XML:', error);
+    //         const storedXML = localStorage.getItem('xmlData');
+    //         if (storedXML) {
+    //             console.log('Using cached XML data');
+    //             return this.parseXMLToTable(storedXML);
+    //         }
+    //         throw error;
+    //     }
+    // }
+
+        async fetchXMLData() {
         try {
             const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
             if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
             const xmlFiles = await filesResponse.json();
-
+    
             let combinedXML = '<root>';
             for (const file of xmlFiles) {
                 const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 let xmlContent = await fileResponse.text();
+    
+                // Log the fetched XML content for debugging
+                console.log(`Fetched XML content from ${file}:`, xmlContent);
+    
+                // Remove XML declaration and root tags (if any)
                 xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '').replace(/<\/?root>/g, '');
                 combinedXML += xmlContent;
             }
             combinedXML += '</root>';
-
+    
+            // Log the combined XML for debugging
+            console.log('Combined XML:', combinedXML);
+    
             localStorage.setItem('xmlData', combinedXML);
             this.state.xmlData = combinedXML;
             return this.parseXMLToTable(combinedXML);
