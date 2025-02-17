@@ -147,7 +147,7 @@ class XMLTableHandler {
 
             let combinedXML = '<root>';
             for (const file of xmlFiles) {
-                const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
+                const fileResponse = await fetch(`/accounts.office.cheque.inquiry-test/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 let xmlContent = await fileResponse.text();
                 xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '').replace(/<\/?root>/g, '');
@@ -226,15 +226,13 @@ class XMLTableHandler {
 
     getStatusColor(status) {
         const statusMap = {
-            'despatched through gpo': 'status-orange',
-            'ready but not signed yet': 'status-green',
             'cheque ready': 'status-green',
-            'despatched to lakki camp office': 'status-red',
+            'ready but not signed yet': 'status-green',
+             'despatched through gpo': 'status-orange',
+            'despatched to lakki camp office': 'status-purple',
             'sent to chairman': 'status-blue',
-            'expired': 'status-purple',
             'cancelled': 'status-dark-red',
-            'rejected': 'status-dark-red',
-            'on hold': 'status-yellow',
+            'received by': 'status-yellow',
             'processing': 'status-cyan'
         };
 
@@ -380,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Register service worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
+        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry-test/' })
             .then(registration => console.log('ServiceWorker registered:', registration.scope))
             .catch(err => console.error('ServiceWorker registration failed:', err));
     });
