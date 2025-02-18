@@ -74,7 +74,6 @@ class XMLTableHandler {
             'result': 'resultContainer',
             'paginationContainer': 'paginationContainer',
              'rowsPerPageSelect': 'rowsPerPage',
-            'rowsPerPage': 'rowsPerPage',
             'searchBtn': 'searchBtn'
         };
 
