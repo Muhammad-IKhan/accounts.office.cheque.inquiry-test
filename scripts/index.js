@@ -7,7 +7,6 @@ class XMLTableHandler {
             this.initializeDOMElements();
             this.initializeState();
             this.initializeEventListeners();
-            this.initializePagination(); // Initialize pagination
             
             // Immediately fetch and display data
             this.fetchXMLData().then(() => {
@@ -72,9 +71,8 @@ class XMLTableHandler {
             'tableContainer': 'tableContainer',
             'emptyState': 'emptyState',
             'result': 'resultContainer',
-            'paginationContainer': 'paginationContainer',
-            'searchBtn': 'searchBtn',
-            'rowsPerPage': 'rowsPerPage'
+            'pagination': 'paginationContainer',
+            'searchBtn': 'searchBtn'
         };
 
         for (const [id, prop] of Object.entries(required_elements)) {
@@ -157,18 +155,10 @@ class XMLTableHandler {
                 const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 let xmlContent = await fileResponse.text();
-
-                // Log the fetched XML content for debugging
-                console.log(`Fetched XML content from ${file}:`, xmlContent);
-
-                // Remove XML declaration and root tags (if any)
                 xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '').replace(/<\/?root>/g, '');
                 combinedXML += xmlContent;
             }
             combinedXML += '</root>';
-
-            // Log the combined XML for debugging
-            console.log('Combined XML:', combinedXML);
 
             localStorage.setItem('xmlData', combinedXML);
             this.state.xmlData = combinedXML;
@@ -201,8 +191,6 @@ class XMLTableHandler {
         });
 
         this.state.visibleRowsCount = entries.length;
-        this.updatePagination();
-        this.renderTableRows();
         return true;
     }
 
@@ -298,8 +286,6 @@ class XMLTableHandler {
         });
 
         this.updateSearchResults(matchCount);
-        this.updatePagination();
-        this.renderTableRows();
     }
 
     updateSearchResults(matchCount) {
@@ -326,8 +312,6 @@ class XMLTableHandler {
         this.resultContainer.style.display = 'none';
         
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
-        this.updatePagination();
-        this.renderTableRows();
     }
 
     showError(message) {
@@ -382,69 +366,6 @@ class XMLTableHandler {
     reorderRows(rows) {
         this.tableBody.innerHTML = '';
         rows.forEach(row => this.tableBody.appendChild(row));
-        this.renderTableRows();
-    }
-
-    initializePagination() {
-        this.rowsPerPage.addEventListener('change', () => {
-            this.state.rowsPerPage = parseInt(this.rowsPerPage.value, 10);
-            this.state.currentPage = 1;
-            this.updatePagination();
-            this.renderTableRows();
-        });
-
-        this.updatePagination();
-    }
-
-    updatePagination() {
-        const totalPages = Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage);
-        const paginationContainer = this.paginationContainer;
-        paginationContainer.innerHTML = '';
-
-        if (totalPages <= 1) return;
-
-        const createButton = (text, page, isActive = false, isDisabled = false) => {
-            const button = document.createElement('button');
-            button.className = `page-btn ${isActive ? 'active' : ''}`;
-            button.textContent = text;
-            button.disabled = isDisabled;
-            button.addEventListener('click', () => {
-                this.state.currentPage = page;
-                this.renderTableRows();
-                this.updatePagination();
-            });
-            return button;
-        };
-
-        // Previous Button
-        paginationContainer.appendChild(createButton('Previous', this.state.currentPage - 1, false, this.state.currentPage === 1));
-
-        // Page Numbers
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === this.state.currentPage) {
-                paginationContainer.appendChild(createButton(i, i, true));
-            } else if (i === 1 || i === totalPages || Math.abs(this.state.currentPage - i) <= 2) {
-                paginationContainer.appendChild(createButton(i, i));
-            } else if (Math.abs(this.state.currentPage - i) === 3) {
-                const ellipsis = document.createElement('span');
-                ellipsis.className = 'page-ellipsis';
-                ellipsis.textContent = '...';
-                paginationContainer.appendChild(ellipsis);
-            }
-        }
-
-        // Next Button
-        paginationContainer.appendChild(createButton('Next', this.state.currentPage + 1, false, this.state.currentPage === totalPages));
-    }
-
-    renderTableRows() {
-        const rows = Array.from(this.tableBody.querySelectorAll('tr'));
-        const start = (this.state.currentPage - 1) * this.state.rowsPerPage;
-        const end = start + this.state.rowsPerPage;
-
-        rows.forEach((row, index) => {
-            row.style.display = (index >= start && index < end) ? '' : 'none';
-        });
     }
 }
 
