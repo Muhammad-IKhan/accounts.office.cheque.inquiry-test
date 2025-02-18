@@ -1,326 +1,326 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cheque Inquiry System</title>
-    <style>
-        /* Core styles */
-        :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #f5f5f5;
-            --border-color: #ddd;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cheque Inquiry System</title>
+  <style>
+    /* Core styles */
+    :root {
+      --primary-color: #4a90e2;
+      --secondary-color: #f5f5f5;
+      --border-color: #ddd;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #ffc107;
+      --info-color: #17a2b8;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
 
-        /* Container styles */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+    /* Container styles */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
 
-        /* Header styles */
-        .header {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
+    /* Header styles */
+    .header {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-        .header h1 {
-            color: var(--primary-color);
-            margin: 0;
-            font-size: 24px;
-        }
+    .header h1 {
+      color: var(--primary-color);
+      margin: 0;
+      font-size: 24px;
+    }
 
-        /* Search and filter section */
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
-            gap: 15px;
-            margin-bottom: 20px;
-            align-items: end;
-        }
+    /* Search and filter section */
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: end;
+    }
 
-        .search-box, .filter-box {
-            display: flex;
-            flex-direction: column;
-        }
+    .search-box, .filter-box {
+      display: flex;
+      flex-direction: column;
+    }
 
-        label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-        }
+    label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 5px;
+    }
 
-        input, select {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 14px;
-        }
+    input, select {
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 14px;
+    }
 
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-        }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    }
 
-        button {
-            padding: 8px 16px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            height: 35px;
-        }
+    button {
+      padding: 8px 16px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      height: 35px;
+    }
 
-        button:hover {
-            background-color: #357abd;
-        }
+    button:hover {
+      background-color: #357abd;
+    }
 
-        /* Table styles */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 20px;
-            display: none;
-        }
+    /* Table styles */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      display: none;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+    }
 
-        th {
-            background-color: var(--secondary-color);
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #333;
-            position: relative;
-            cursor: pointer;
-        }
+    th {
+      background-color: var(--secondary-color);
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      position: relative;
+      cursor: pointer;
+    }
 
-        th:hover {
-            background-color: #eee;
-        }
+    th:hover {
+      background-color: #eee;
+    }
 
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-        tr:hover {
-            background-color: #f8f9fa;
-        }
+    tr:hover {
+      background-color: #f8f9fa;
+    }
 
-        /* Status colors */
-        .status-orange { color: #fd7e14; }
-        .status-green { color: var(--success-color); }
-        .status-red { color: var(--danger-color); }
-        .status-blue { color: var(--primary-color); }
-        .status-purple { color: #6f42c1; }
-        .status-dark-red { color: #721c24; }
-        .status-yellow { color: var(--warning-color); }
-        .status-cyan { color: var(--info-color); }
-        .status-gray { color: #6c757d; }
+    /* Status colors */
+    .status-orange { color: #fd7e14; }
+    .status-green { color: var(--success-color); }
+    .status-red { color: var(--danger-color); }
+    .status-blue { color: var(--primary-color); }
+    .status-purple { color: #6f42c1; }
+    .status-dark-red { color: #721c24; }
+    .status-yellow { color: var(--warning-color); }
+    .status-cyan { color: var(--info-color); }
+    .status-gray { color: #6c757d; }
 
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            background-color: var(--secondary-color);
-            border-radius: 4px;
-            color: #666;
-        }
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      background-color: var(--secondary-color);
+      border-radius: 4px;
+      color: #666;
+    }
 
-        /* Result container */
-        .result-container {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            display: none;
-        }
+    /* Result container */
+    .result-container {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
 
-        /* Alert styles */
-        .alert {
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
+    /* Alert styles */
+    .alert {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
 
-        .alert-danger {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
+    .alert-danger {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
 
-        /* Pagination styles */
-        .pagination-controls {
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-            justify-content: center;
-        }
+    /* Pagination styles */
+    .pagination-controls {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+      justify-content: center;
+    }
 
-        .page-btn {
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            background: #fff;
-            cursor: pointer;
-            border-radius: 4px;
-        }
+    .page-btn {
+      padding: 5px 10px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      border-radius: 4px;
+    }
 
-        .page-btn.active {
-            background: #007bff;
-            color: white;
-        }
+    .page-btn.active {
+      background: #007bff;
+      color: white;
+    }
 
-        .page-btn:disabled {
-            background: #eee;
-            cursor: not-allowed;
-        }
+    .page-btn:disabled {
+      background: #eee;
+      cursor: not-allowed;
+    }
 
-        .page-ellipsis {
-            padding: 5px;
-        }
+    .page-ellipsis {
+      padding: 5px;
+    }
 
-        /* Rows per page selector */
-        #rowsPerPage {
-            margin-top: 10px;
-            padding: 5px;
-            border-radius: 4px;
-        }
+    /* Rows per page selector */
+    #rowsPerPage {
+      margin-top: 10px;
+      padding: 5px;
+      border-radius: 4px;
+    }
 
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .controls {
-                grid-template-columns: 1fr;
-            }
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
 
-            .container {
-                padding: 10px;
-            }
+      .container {
+        padding: 10px;
+      }
 
-            th, td {
-                padding: 8px;
-            }
-        }
+      th, td {
+        padding: 8px;
+      }
+    }
 
-        /* Sort icons */
-        .sort-icon {
-            display: inline-block;
-            margin-left: 5px;
-            font-size: 12px;
-        }
-    </style>
+    /* Sort icons */
+    .sort-icon {
+      display: inline-block;
+      margin-left: 5px;
+      font-size: 12px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div style="display: flex; align-items: center;">
-                <h1>Cheque Inquiry System:</h1>
-                <span style="padding-left: 20px;">Board of Intermediate & Secondary Education Bannu</span>
-            </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="controls">
-            <div class="filter-box">
-                <label for="narCategory">Bill Category (Select a Category to Narrow Down)</label>
-                <select id="narCategory">
-                    <option value="all" selected>Search in All</option>
-                    <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
-                    <option value="TA/DA TO PRACTICAL EXMR: SSC">Practical Staff SSC</option>
-                    <option value="TA/DA TO INSEPCTORS SSC">Inspections Staff SSC</option>
-                    <option value="REMUNERATION RES: INSPECTORS">Resedent Inspectors</option>
-                    <option value="LABORATORY CHARGES">Laboratory Charges</option>
-                    <option value="SECRECY">Secrecy Bills</option>
-                    <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
-                    <option value="TA/DA TO PRACTICAL EXMR: HSSC">Practical Staff HSSC</option>
-                    <option value="TA/DA TO INSEPCTORS HSSC">Inspections Staf HSSC</option>
-                    <option value="TA/DA GENERAL">TA/DA General</option>
-                    <option value="REFUND OF FEE">Refund Fee</option>
-                    <option value="EXPIRED CHECK RENEWED">Check Renewal</option>    
-                    <option value="HONORARIA">Honoraria & Others</option>
-                </select>
-            </div>
-
-            <div class="search-box">
-                <input type="text" id="search" placeholder="Enter your name or school name...">
-            </div>
-
-            <button id="searchBtn">Search</button>
-
-            <div class="filter-box">
-                <label for="statusFilter">Filter by Status</label>
-                <select id="statusFilter">
-                    <option value="all">all Statuses</option>
-                    <option value="expired">cheque ready</option>
-                    <option value="ready but not signed yet">Not Signed Yet</option>
-                    <option value="sent to chairman">Sent to Chairman</option>
-                    <option value="despatched through gpo">Despatched Through GPO Bannu</option>
-                    <option value="despatched to lakki camp office">Despatched to Lakki</option>     
-                    <option value="received by">Received by</option>
-                    <option value="processing">Processing</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Results -->
-        <div id="result" class="result-container"></div>
-
-        <!-- Empty State -->
-        <div id="emptyState" class="empty-state">
-            <h3>Welcome to Office for Live Inquiry, Updation and Information</h3>
-            <p>Use the search and filters above to find cheque information.</p>
-        </div>
-
-        <!-- Table -->
-        <div id="tableContainer" class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th data-column="NARRATION">NAME AND ADDRESS<span class="sort-icon"></span></th>
-                        <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
-                        <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
-                        <th data-column="NAR">IN C/O <span class="sort-icon"></span></th>
-                        <th data-column="DD">Status <span class="sort-icon"></span></th>
-                    </tr>
-                </thead>
-                <tbody id="checksTable"></tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div id="paginationContainer" class="pagination-controls"></div>
-        <select id="rowsPerPage">
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </select>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div style="display: flex; align-items: center;">
+        <h1>Cheque Inquiry System:</h1>
+        <span style="padding-left: 20px;">Board of Intermediate & Secondary Education Bannu</span>
+      </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="scripts/index.js"></script>
+    <!-- Controls -->
+    <div class="controls">
+      <div class="filter-box">
+        <label for="narCategory">Bill Category (Select a Category to Narrow Down)</label>
+        <select id="narCategory">
+          <option value="all" selected>Search in All</option>
+          <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
+          <option value="TA/DA TO PRACTICAL EXMR: SSC">Practical Staff SSC</option>
+          <option value="TA/DA TO INSEPCTORS SSC">Inspections Staff SSC</option>
+          <option value="REMUNERATION RES: INSPECTORS">Resedent Inspectors</option>
+          <option value="LABORATORY CHARGES">Laboratory Charges</option>
+          <option value="SECRECY">Secrecy Bills</option>
+          <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
+          <option value="TA/DA TO PRACTICAL EXMR: HSSC">Practical Staff HSSC</option>
+          <option value="TA/DA TO INSEPCTORS HSSC">Inspections Staf HSSC</option>
+          <option value="TA/DA GENERAL">TA/DA General</option>
+          <option value="REFUND OF FEE">Refund Fee</option>
+          <option value="EXPIRED CHECK RENEWED">Check Renewal</option>    
+          <option value="HONORARIA">Honoraria & Others</option>
+        </select>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Enter your name or school name...">
+      </div>
+
+      <button id="searchBtn">Search</button>
+
+      <div class="filter-box">
+        <label for="statusFilter">Filter by Status</label>
+        <select id="statusFilter">
+          <option value="all">all Statuses</option>
+          <option value="expired">cheque ready</option>
+          <option value="ready but not signed yet">Not Signed Yet</option>
+          <option value="sent to chairman">Sent to Chairman</option>
+          <option value="despatched through gpo">Despatched Through GPO Bannu</option>
+          <option value="despatched to lakki camp office">Despatched to Lakki</option>     
+          <option value="received by">Received by</option>
+          <option value="processing">Processing</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="result" class="result-container"></div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state">
+      <h3>Welcome to Office for Live Inquiry, Updation and Information</h3>
+      <p>Use the search and filters above to find cheque information.</p>
+    </div>
+
+    <!-- Table -->
+    <div id="tableContainer" class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th data-column="NARRATION">NAME AND ADDRESS<span class="sort-icon"></span></th>
+            <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
+            <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
+            <th data-column="NAR">IN C/O <span class="sort-icon"></span></th>
+            <th data-column="DD">Status <span class="sort-icon"></span></th>
+          </tr>
+        </thead>
+        <tbody id="checksTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div id="paginationContainer" class="pagination-controls"></div>
+    <select id="rowsPerPage">
+      <option value="10">10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+
+  <!-- Scripts -->
+  <script src="scripts/index.js"></script>
 </body>
 </html>
