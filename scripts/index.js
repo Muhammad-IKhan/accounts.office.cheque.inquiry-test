@@ -73,7 +73,8 @@ class XMLTableHandler {
             'emptyState': 'emptyState',
             'result': 'resultContainer',
             'paginationContainer': 'paginationContainer',
-            'rowsPerPageSelect': 'rowsPerPage',
+            // 'rowsPerPageSelect': 'rowsPerPage',
+            'rowsPerPage': 'rowsPerPage',
             'searchBtn': 'searchBtn'
         };
 
