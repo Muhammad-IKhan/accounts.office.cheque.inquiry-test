@@ -71,7 +71,7 @@ class XMLTableHandler {
             'tableContainer': 'tableContainer',
             'emptyState': 'emptyState',
             'result': 'resultContainer',
-            'pagination': 'paginationContainer',
+            // 'pagination': 'paginationContainer',
             'searchBtn': 'searchBtn'
         };
 
