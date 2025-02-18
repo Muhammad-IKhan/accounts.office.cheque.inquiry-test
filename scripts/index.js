@@ -7,7 +7,7 @@ class XMLTableHandler {
             this.initializeDOMElements();
             this.initializeState();
             this.initializeEventListeners();
-            this.initializePagination(); // Add this line
+            this.initializePagination(); // Initialize pagination controls
             
             // Immediately fetch and display data
             this.fetchXMLData().then(() => {
@@ -72,8 +72,8 @@ class XMLTableHandler {
             'tableContainer': 'tableContainer',
             'emptyState': 'emptyState',
             'result': 'resultContainer',
-             'paginationContainer': 'paginationContainer',
-            'rowsPerPageSelect': 'rowsPerPage'
+            'paginationContainer': 'paginationContainer',
+            'rowsPerPageSelect': 'rowsPerPage',
             'searchBtn': 'searchBtn'
         };
 
@@ -146,138 +146,113 @@ class XMLTableHandler {
             }, 0);
         }
     }
-    //PAGINATION CODE
-    // Add these pagination-related methods to the class:
 
-/**
- * Initializes pagination controls and event listeners
- */
-initializePagination() {
-    console.log('🔢 Initializing pagination controls...');
-    
-    // Add rows per page change listener
-    this.rowsPerPageSelect.addEventListener('change', () => {
-        console.log(`📊 Rows per page changed to ${this.rowsPerPageSelect.value}`);
-        this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
-        this.state.currentPage = 1;
+    initializePagination() {
+        console.log('🔢 Initializing pagination controls...');
+        
+        // Add rows per page change listener
+        this.rowsPerPageSelect.addEventListener('change', () => {
+            console.log(`📊 Rows per page changed to ${this.rowsPerPageSelect.value}`);
+            this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
+            this.state.currentPage = 1;
+            this.updatePagination();
+        });
+
+        // Initial pagination render
         this.updatePagination();
-    });
-
-    // Initial pagination render
-    this.updatePagination();
-}
-
-/**
- * Updates pagination controls and visible rows
- */
-updatePagination() {
-    if (!this.state.paginationEnabled) return;
-    
-    console.log('🔄 Updating pagination...');
-    
-    const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
-        .filter(row => row.style.display !== 'none');
-    
-    const totalPages = Math.ceil(visibleRows.length / this.state.rowsPerPage);
-    this.state.currentPage = Math.min(this.state.currentPage, totalPages);
-    
-    // Update row visibility based on current page
-    const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
-    const endIndex = startIndex + this.state.rowsPerPage;
-    
-    visibleRows.forEach((row, index) => {
-        row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
-    });
-
-    this.renderPaginationControls(totalPages);
-    console.log(`📄 Page ${this.state.currentPage} of ${totalPages} displayed`);
-}
-
-/**
- * Renders pagination control buttons
- * @param {number} totalPages - Total number of pages
- */
-renderPaginationControls(totalPages) {
-    const controls = this.paginationContainer;
-    controls.innerHTML = '';
-    
-    if (totalPages <= 1) {
-        controls.style.display = 'none';
-        return;
     }
-    
-    controls.style.display = 'flex';
-    
-    // Previous button
-    this.createPaginationButton('«', () => {
-        if (this.state.currentPage > 1) {
-            this.state.currentPage--;
-            this.updatePagination();
-        }
-    }, this.state.currentPage === 1);
 
-    // Page buttons with ellipsis
-    const pages = this.getPageNumbers(this.state.currentPage, totalPages);
-    pages.forEach(page => {
-        if (page === '...') {
-            const span = document.createElement('span');
-            span.className = 'page-ellipsis';
-            span.textContent = '...';
-            controls.appendChild(span);
-        } else {
-            this.createPaginationButton(page, () => {
-                this.state.currentPage = page;
+    updatePagination() {
+        if (!this.state.paginationEnabled) return;
+        
+        console.log('🔄 Updating pagination...');
+        
+        const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
+            .filter(row => row.style.display !== 'none');
+        
+        const totalPages = Math.ceil(visibleRows.length / this.state.rowsPerPage);
+        this.state.currentPage = Math.min(this.state.currentPage, totalPages);
+        
+        // Update row visibility based on current page
+        const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
+        const endIndex = startIndex + this.state.rowsPerPage;
+        
+        visibleRows.forEach((row, index) => {
+            row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+        });
+
+        this.renderPaginationControls(totalPages);
+        console.log(`📄 Page ${this.state.currentPage} of ${totalPages} displayed`);
+    }
+
+    renderPaginationControls(totalPages) {
+        const controls = this.paginationContainer;
+        controls.innerHTML = '';
+        
+        if (totalPages <= 1) {
+            controls.style.display = 'none';
+            return;
+        }
+        
+        controls.style.display = 'flex';
+        
+        // Previous button
+        this.createPaginationButton('«', () => {
+            if (this.state.currentPage > 1) {
+                this.state.currentPage--;
                 this.updatePagination();
-            }, false, this.state.currentPage === page);
+            }
+        }, this.state.currentPage === 1);
+
+        // Page buttons with ellipsis
+        const pages = this.getPageNumbers(this.state.currentPage, totalPages);
+        pages.forEach(page => {
+            if (page === '...') {
+                const span = document.createElement('span');
+                span.className = 'page-ellipsis';
+                span.textContent = '...';
+                controls.appendChild(span);
+            } else {
+                this.createPaginationButton(page, () => {
+                    this.state.currentPage = page;
+                    this.updatePagination();
+                }, false, this.state.currentPage === page);
+            }
+        });
+
+        // Next button
+        this.createPaginationButton('»', () => {
+            if (this.state.currentPage < totalPages) {
+                this.state.currentPage++;
+                this.updatePagination();
+            }
+        }, this.state.currentPage === totalPages);
+    }
+
+    createPaginationButton(text, onClick, disabled = false, active = false) {
+        const button = document.createElement('button');
+        button.className = `page-btn${active ? ' active' : ''}`;
+        button.textContent = text;
+        button.disabled = disabled;
+        button.addEventListener('click', onClick);
+        this.paginationContainer.appendChild(button);
+    }
+
+    getPageNumbers(currentPage, totalPages) {
+        if (totalPages <= 7) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
         }
-    });
 
-    // Next button
-    this.createPaginationButton('»', () => {
-        if (this.state.currentPage < totalPages) {
-            this.state.currentPage++;
-            this.updatePagination();
+        if (currentPage <= 3) {
+            return [1, 2, 3, 4, '...', totalPages];
         }
-    }, this.state.currentPage === totalPages);
-}
 
-/**
- * Creates a pagination button element
- * @param {string} text - Button text
- * @param {Function} onClick - Click handler
- * @param {boolean} disabled - Whether button is disabled
- * @param {boolean} active - Whether button is active
- */
-createPaginationButton(text, onClick, disabled = false, active = false) {
-    const button = document.createElement('button');
-    button.className = `page-btn${active ? ' active' : ''}`;
-    button.textContent = text;
-    button.disabled = disabled;
-    button.addEventListener('click', onClick);
-    this.paginationContainer.appendChild(button);
-}
+        if (currentPage >= totalPages - 2) {
+            return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+        }
 
-/**
- * Generates array of page numbers with ellipsis
- * @param {number} currentPage - Current page number
- * @param {number} totalPages - Total number of pages
- * @returns {Array} Array of page numbers and ellipsis
- */
-getPageNumbers(currentPage, totalPages) {
-    if (totalPages <= 7) {
-        return Array.from({ length: totalPages }, (_, i) => i + 1);
+        return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
     }
-
-    if (currentPage <= 3) {
-        return [1, 2, 3, 4, '...', totalPages];
-    }
-
-    if (currentPage >= totalPages - 2) {
-        return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-    }
-
-    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
-}
 
     async fetchXMLData() {
         try {
@@ -421,7 +396,7 @@ getPageNumbers(currentPage, totalPages) {
         });
 
         this.updateSearchResults(matchCount);
-         this.updatePagination();
+        this.updatePagination();
     }
 
     updateSearchResults(matchCount) {
