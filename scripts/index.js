@@ -29,31 +29,37 @@ class XMLTableHandler {
                 index: 0, 
                 type: 'string', 
                 required: true,
-                title: 'Narration'
+                title: 'Narration',
+                searchable: true
             },
             AMOUNT: { 
                 index: 1, 
                 type: 'number', 
                 required: true,
-                title: 'Amount'
+                title: 'Amount',
+                searchable: false
             },
             CHEQ_NO: { 
                 index: 2, 
                 type: 'number', 
                 required: true,
-                title: 'Cheque No'
+                title: 'Cheque No',
+                searchable: false
             },
             NAR: { 
                 index: 3, 
                 type: 'string', 
                 required: true,
-                title: 'NAR'
+                title: 'NAR',
+                searchable: false
             },
             DD: { 
                 index: 4, 
                 type: 'string', 
                 required: true,
-                title: 'Status'
+                title: 'Status',
+                searchable: false
+
             }
         };
     }
@@ -263,6 +269,21 @@ class XMLTableHandler {
         this.resultContainer.style.display = 'block';
 
         let matchCount = 0;
+        // this.tableBody.querySelectorAll('tr').forEach(row => {
+        //     const narValue = row.getAttribute('data-nar');
+        //     const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
+        //     const cells = Array.from(row.getElementsByTagName('td'));
+
+        //     const matchesCategory = narCategory === 'all' || narValue === narCategory;
+        //     const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+        //     const matchesSearch = !searchTerm || cells.some(cell => 
+        //         cell.textContent.toLowerCase().includes(searchTerm)
+        //     );
+
+        //     const visible = matchesCategory && matchesStatus && matchesSearch;
+        //     row.style.display = visible ? '' : 'none';
+        //     if (visible) matchCount++;
+        // });
         this.tableBody.querySelectorAll('tr').forEach(row => {
             const narValue = row.getAttribute('data-nar');
             const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
@@ -270,13 +291,14 @@ class XMLTableHandler {
 
             const matchesCategory = narCategory === 'all' || narValue === narCategory;
             const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-            const matchesSearch = !searchTerm || cells.some(cell => 
-                cell.textContent.toLowerCase().includes(searchTerm)
-            );
-
-            const visible = matchesCategory && matchesStatus && matchesSearch;
-            row.style.display = visible ? '' : 'none';
-            if (visible) matchCount++;
+            const matchesSearch = !searchTerm || cells.some(cell => {
+                
+            // Get the field name (column) of this cell
+            const field = cell.getAttribute('data-field');
+            // Get the column configuration
+            const columnConfig = this.columns[field];
+            // Only search if column is searchable
+            return columnConfig.searchable && cell.textContent.toLowerCase().includes(searchTerm);
         });
 
         this.updateSearchResults(matchCount);
