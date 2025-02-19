@@ -95,6 +95,7 @@ class XMLTableHandler {
             lastSearchTerm: '',
             currentStatusFilter: 'all',
             lastFilterCategory: 'all',
+            paginationEnabled: true,
             rowsPerPage: 10,
             currentPage: 1,
             visibleRowsCount: 0,
@@ -145,7 +146,82 @@ class XMLTableHandler {
             }, 0);
         }
     }
-
+  //initializePagination
+    initializePagination() {
+        console.log('🔢 Initializing pagination controls...');
+    
+        // Add rows per page change listener
+        this.rowsPerPageSelect.addEventListener('change', () => {
+            console.log(`📊 Rows per page changed to ${this.rowsPerPageSelect.value}`);
+            this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
+            this.state.currentPage = 1; // Reset to the first page
+            this.updatePagination();
+        });
+    
+        // Initial pagination render
+        this.updatePagination();
+    }
+    updatePagination() {
+        if (!this.state.paginationEnabled) return;
+    
+        console.log('🔄 Updating pagination...');
+    
+        // Get all visible rows (after filtering)
+        const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
+            .filter(row => row.style.display !== 'none');
+    
+        // Calculate total pages
+        const totalPages = Math.ceil(visibleRows.length / this.state.rowsPerPage);
+        this.state.currentPage = Math.min(this.state.currentPage, totalPages);
+    
+        // Update row visibility based on current page
+        const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
+        const endIndex = startIndex + this.state.rowsPerPage;
+    
+        visibleRows.forEach((row, index) => {
+            row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+        });
+    
+        // Render pagination controls (Previous and Next buttons)
+        this.renderPaginationControls(totalPages);
+        console.log(`📄 Page ${this.state.currentPage} of ${totalPages} displayed`);
+    }
+    renderPaginationControls(totalPages) {
+        const controls = this.paginationContainer;
+        controls.innerHTML = ''; // Clear existing controls
+    
+        if (totalPages <= 1) {
+            controls.style.display = 'none'; // Hide pagination if there's only one page
+            return;
+        }
+    
+        controls.style.display = 'flex'; // Show pagination controls
+    
+        // Previous Button
+        this.createPaginationButton('Previous', () => {
+            if (this.state.currentPage > 1) {
+                this.state.currentPage--;
+                this.updatePagination();
+            }
+        }, this.state.currentPage === 1); // Disable if on the first page
+    
+        // Next Button
+        this.createPaginationButton('Next', () => {
+            if (this.state.currentPage < totalPages) {
+                this.state.currentPage++;
+                this.updatePagination();
+            }
+        }, this.state.currentPage === totalPages); // Disable if on the last page
+    }
+    createPaginationButton(text, onClick, disabled = false) {
+        const button = document.createElement('button');
+        button.className = `page-btn${disabled ? ' disabled' : ''}`;
+        button.textContent = text;
+        button.disabled = disabled;
+        button.addEventListener('click', onClick);
+        this.paginationContainer.appendChild(button);
+    }
+    
     async fetchXMLData() {
         try {
             const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
@@ -249,66 +325,12 @@ class XMLTableHandler {
         return Object.entries(statusMap).find(([key]) => lowerStatus.includes(key))?.[1] || 'status-gray';
     }
 
-    // performSearch() {
-    //     const searchTerm = this.searchInput.value.toLowerCase();
-    //     this.state.lastSearchTerm = searchTerm;
-    //     this.applyFilters();
-    // }
-
-    // applyFilters() {
-    //     const searchTerm = this.state.lastSearchTerm;
-    //     const narCategory = this.narFilter.value.toLowerCase();
-    //     const statusFilter = this.statusFilter.value.toLowerCase();
-
-    //     if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
-    //         return this.resetTable();
-    //     }
-
-    //     this.tableContainer.style.display = 'block';
-    //     this.emptyState.style.display = 'none';
-    //     this.resultContainer.style.display = 'block';
-
-    //     let matchCount = 0;
-    //     // this.tableBody.querySelectorAll('tr').forEach(row => {
-    //     //     const narValue = row.getAttribute('data-nar');
-    //     //     const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
-    //     //     const cells = Array.from(row.getElementsByTagName('td'));
-
-    //     //     const matchesCategory = narCategory === 'all' || narValue === narCategory;
-    //     //     const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-    //     //     const matchesSearch = !searchTerm || cells.some(cell => 
-    //     //         cell.textContent.toLowerCase().includes(searchTerm)
-    //     //     );
-
-    //     //     const visible = matchesCategory && matchesStatus && matchesSearch;
-    //     //     row.style.display = visible ? '' : 'none';
-    //     //     if (visible) matchCount++;
-    //     // });
-    //     this.tableBody.querySelectorAll('tr').forEach(row => {
-    //         const narValue = row.getAttribute('data-nar');
-    //         const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
-    //         const cells = Array.from(row.getElementsByTagName('td'));
-
-    //         const matchesCategory = narCategory === 'all' || narValue === narCategory;
-    //         const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-    //         const matchesSearch = !searchTerm || cells.some(cell => {
-                
-    //         // Get the field name (column) of this cell
-    //         const field = cell.getAttribute('data-field');
-    //         // Get the column configuration
-    //         const columnConfig = this.columns[field];
-    //         // Only search if column is searchable
-    //         return columnConfig.searchable && cell.textContent.toLowerCase().includes(searchTerm);
-    //     });
-
-    //     this.updateSearchResults(matchCount);
-    // }
 
     performSearch() {
-    const searchTerm = this.searchInput.value.toLowerCase();
-    this.state.lastSearchTerm = searchTerm;
-    this.applyFilters();
-}
+        const searchTerm = this.searchInput.value.toLowerCase();
+        this.state.lastSearchTerm = searchTerm;
+        this.applyFilters();
+    }
     
     applyFilters() {
         const searchTerm = this.state.lastSearchTerm;
@@ -333,11 +355,9 @@ class XMLTableHandler {
             const cells = Array.from(row.getElementsByTagName('td'));
             
             // Check category match
-            const matchesCategory = narCategory === 'all' || narValue === narCategory;
-            
+            const matchesCategory = narCategory === 'all' || narValue === narCategory;  
             // Check status match
-            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-            
+            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);  
             // Check search term match
             const matchesSearch = !searchTerm || cells.some(cell => {
                 const field = cell.getAttribute('data-field');
