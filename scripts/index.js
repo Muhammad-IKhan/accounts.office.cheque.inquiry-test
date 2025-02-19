@@ -7,7 +7,7 @@ class XMLTableHandler {
             this.initializeDOMElements();
             this.initializeState();
             this.initializeEventListeners();
-            this.initializePagination(); // Initialize pagination controls
+            this.initializePagination(); // Initialize pagination
             
             // Immediately fetch and display data
             this.fetchXMLData().then(() => {
@@ -73,8 +73,8 @@ class XMLTableHandler {
             'emptyState': 'emptyState',
             'result': 'resultContainer',
             'paginationContainer': 'paginationContainer',
-            'rowsPerPageSelect': 'rowsPerPageSelect',
-            'searchBtn': 'searchBtn'
+            'searchBtn': 'searchBtn',
+            'rowsPerPage': 'rowsPerPage'
         };
 
         for (const [id, prop] of Object.entries(required_elements)) {
@@ -99,8 +99,7 @@ class XMLTableHandler {
             currentPage: 1,
             visibleRowsCount: 0,
             sortColumn: null,
-            sortDirection: 'asc',
-            paginationEnabled: true
+            sortDirection: 'asc'
         };
     }
 
@@ -147,140 +146,6 @@ class XMLTableHandler {
         }
     }
 
-    initializePagination() {
-    console.log('🔢 Initializing pagination controls...');
-    
-    // Add rows per page change listener
-    this.rowsPerPageSelect.addEventListener('change', () => {
-        console.log(`📊 Rows per page changed to ${this.rowsPerPageSelect.value}`);
-        this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
-        this.state.currentPage = 1;
-        this.updatePagination();
-    });
-
-    // Initial pagination render
-    this.updatePagination();
-}
-
-updatePagination() {
-    if (!this.state.paginationEnabled) return;
-    
-    console.log('🔄 Updating pagination...');
-    
-    const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
-        .filter(row => row.style.display !== 'none');
-    
-    const totalPages = Math.ceil(visibleRows.length / this.state.rowsPerPage);
-    this.state.currentPage = Math.min(this.state.currentPage, totalPages);
-    
-    // Update row visibility based on current page
-    const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
-    const endIndex = startIndex + this.state.rowsPerPage;
-    
-    visibleRows.forEach((row, index) => {
-        row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
-    });
-
-    this.renderPaginationControls(totalPages);
-    console.log(`📄 Page ${this.state.currentPage} of ${totalPages} displayed`);
-}
-
-renderPaginationControls(totalPages) {
-    const controls = this.paginationContainer;
-    controls.innerHTML = '';
-    
-    if (totalPages <= 1) {
-        controls.style.display = 'none';
-        return;
-    }
-    
-    controls.style.display = 'flex';
-    
-    // First button
-    this.createPaginationButton('« First', () => {
-        this.state.currentPage = 1;
-        this.updatePagination();
-    }, this.state.currentPage === 1);
-
-    // Previous button
-    this.createPaginationButton('‹', () => {
-        if (this.state.currentPage > 1) {
-            this.state.currentPage--;
-            this.updatePagination();
-        }
-    }, this.state.currentPage === 1);
-
-    // Page buttons with ellipsis
-    const pages = this.getPageNumbers(this.state.currentPage, totalPages);
-    pages.forEach(page => {
-        if (page === '...') {
-            const span = document.createElement('span');
-            span.className = 'page-ellipsis';
-            span.textContent = '...';
-            controls.appendChild(span);
-        } else {
-            this.createPaginationButton(page, () => {
-                this.state.currentPage = page;
-                this.updatePagination();
-            }, false, this.state.currentPage === page);
-        }
-    });
-
-    // Next button
-    this.createPaginationButton('›', () => {
-        if (this.state.currentPage < totalPages) {
-            this.state.currentPage++;
-            this.updatePagination();
-        }
-    }, this.state.currentPage === totalPages);
-
-    // Last button
-    this.createPaginationButton('Last »', () => {
-        this.state.currentPage = totalPages;
-        this.updatePagination();
-    }, this.state.currentPage === totalPages);
-}
-
-createPaginationButton(text, onClick, disabled = false, active = false) {
-    const button = document.createElement('button');
-    button.className = `page-btn${active ? ' active' : ''}`;
-    button.textContent = text;
-    button.disabled = disabled;
-    button.addEventListener('click', onClick);
-    this.paginationContainer.appendChild(button);
-}
-
-getPageNumbers(currentPage, totalPages) {
-    const delta = 2;
-    const range = [];
-    const rangeWithDots = [];
-    let l;
-
-    range.push(1);
-    for (let i = currentPage - delta; i <= currentPage + delta; i++) {
-        if (i >= 4 && i < totalPages) {
-            range.push(i);
-        }
-    }
-    range.push(totalPages);
-
-    range.forEach(i => {
-        if (l) {
-            if (i - l === 2) {
-                rangeWithDots.push(l + 1);
-            } else if (i - l !== 1) {
-                rangeWithDots.push('...');
-            }
-        }
-        rangeWithDots.push(i);
-        l = i;
-    });
-
-    return rangeWithDots;
-}
-        
-        
-
     async fetchXMLData() {
         try {
             const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
@@ -292,10 +157,18 @@ getPageNumbers(currentPage, totalPages) {
                 const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 let xmlContent = await fileResponse.text();
+
+                // Log the fetched XML content for debugging
+                console.log(`Fetched XML content from ${file}:`, xmlContent);
+
+                // Remove XML declaration and root tags (if any)
                 xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '').replace(/<\/?root>/g, '');
                 combinedXML += xmlContent;
             }
             combinedXML += '</root>';
+
+            // Log the combined XML for debugging
+            console.log('Combined XML:', combinedXML);
 
             localStorage.setItem('xmlData', combinedXML);
             this.state.xmlData = combinedXML;
@@ -328,6 +201,8 @@ getPageNumbers(currentPage, totalPages) {
         });
 
         this.state.visibleRowsCount = entries.length;
+        this.updatePagination();
+        this.renderTableRows();
         return true;
     }
 
@@ -424,6 +299,7 @@ getPageNumbers(currentPage, totalPages) {
 
         this.updateSearchResults(matchCount);
         this.updatePagination();
+        this.renderTableRows();
     }
 
     updateSearchResults(matchCount) {
@@ -450,8 +326,8 @@ getPageNumbers(currentPage, totalPages) {
         this.resultContainer.style.display = 'none';
         
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
-        this.state.currentPage = 1;
         this.updatePagination();
+        this.renderTableRows();
     }
 
     showError(message) {
@@ -506,6 +382,69 @@ getPageNumbers(currentPage, totalPages) {
     reorderRows(rows) {
         this.tableBody.innerHTML = '';
         rows.forEach(row => this.tableBody.appendChild(row));
+        this.renderTableRows();
+    }
+
+    initializePagination() {
+        this.rowsPerPage.addEventListener('change', () => {
+            this.state.rowsPerPage = parseInt(this.rowsPerPage.value, 10);
+            this.state.currentPage = 1;
+            this.updatePagination();
+            this.renderTableRows();
+        });
+
+        this.updatePagination();
+    }
+
+    updatePagination() {
+        const totalPages = Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage);
+        const paginationContainer = this.paginationContainer;
+        paginationContainer.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        const createButton = (text, page, isActive = false, isDisabled = false) => {
+            const button = document.createElement('button');
+            button.className = `page-btn ${isActive ? 'active' : ''}`;
+            button.textContent = text;
+            button.disabled = isDisabled;
+            button.addEventListener('click', () => {
+                this.state.currentPage = page;
+                this.renderTableRows();
+                this.updatePagination();
+            });
+            return button;
+        };
+
+        // Previous Button
+        paginationContainer.appendChild(createButton('Previous', this.state.currentPage - 1, false, this.state.currentPage === 1));
+
+        // Page Numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === this.state.currentPage) {
+                paginationContainer.appendChild(createButton(i, i, true));
+            } else if (i === 1 || i === totalPages || Math.abs(this.state.currentPage - i) <= 2) {
+                paginationContainer.appendChild(createButton(i, i));
+            } else if (Math.abs(this.state.currentPage - i) === 3) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'page-ellipsis';
+                ellipsis.textContent = '...';
+                paginationContainer.appendChild(ellipsis);
+            }
+        }
+
+        // Next Button
+        paginationContainer.appendChild(createButton('Next', this.state.currentPage + 1, false, this.state.currentPage === totalPages));
+    }
+
+    renderTableRows() {
+        const rows = Array.from(this.tableBody.querySelectorAll('tr'));
+        const start = (this.state.currentPage - 1) * this.state.rowsPerPage;
+        const end = start + this.state.rowsPerPage;
+
+        rows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? '' : 'none';
+        });
     }
 }
 
@@ -531,4 +470,4 @@ if ('serviceWorker' in navigator) {
             .then(registration => console.log('ServiceWorker registered:', registration.scope))
             .catch(err => console.error('ServiceWorker registration failed:', err));
     });
-    }
+}
