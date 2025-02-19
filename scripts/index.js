@@ -1,13 +1,13 @@
+//  PAGINATION remains
 class XMLTableHandler {
     constructor() {
-        console.log('🚀 Initializing XMLTableHandler...');
+        // console.log('🚀 Initializing XMLTableHandler...');
         
         try {
             this.defineColumns();
             this.initializeDOMElements();
             this.initializeState();
             this.initializeEventListeners();
-            this.initializePagination(); // New: Initialize pagination controls
             
             // Immediately fetch and display data
             this.fetchXMLData().then(() => {
@@ -29,36 +29,31 @@ class XMLTableHandler {
                 index: 0, 
                 type: 'string', 
                 required: true,
-                title: 'Narration',
-                searchable: true  // New: Search restriction
+                title: 'Narration'
             },
             AMOUNT: { 
                 index: 1, 
                 type: 'number', 
                 required: true,
-                title: 'Amount',
-                searchable: false
+                title: 'Amount'
             },
             CHEQ_NO: { 
                 index: 2, 
                 type: 'number', 
                 required: true,
-                title: 'Cheque No',
-                searchable: false
+                title: 'Cheque No'
             },
             NAR: { 
                 index: 3, 
                 type: 'string', 
                 required: true,
-                title: 'NAR',
-                searchable: false
+                title: 'NAR'
             },
             DD: { 
                 index: 4, 
                 type: 'string', 
                 required: true,
-                title: 'Status',
-                searchable: false
+                title: 'Status'
             }
         };
     }
@@ -72,8 +67,7 @@ class XMLTableHandler {
             'tableContainer': 'tableContainer',
             'emptyState': 'emptyState',
             'result': 'resultContainer',
-            'paginationContainer': 'paginationContainer', // New: Pagination container
-            'rowsPerPageSelect': 'rowsPerPageSelect',    // New: Rows per page selector
+            'pagination': 'paginationContainer',
             'searchBtn': 'searchBtn'
         };
 
@@ -99,81 +93,8 @@ class XMLTableHandler {
             currentPage: 1,
             visibleRowsCount: 0,
             sortColumn: null,
-            sortDirection: 'asc',
-            paginationEnabled: true  // New: Pagination state
+            sortDirection: 'asc'
         };
-    }
-
-    // New: Pagination initialization
-    initializePagination() {
-        console.log('🔢 Initializing pagination controls...');
-        
-        this.rowsPerPageSelect.addEventListener('change', () => {
-            console.log(`📊 Rows per page changed to ${this.rowsPerPageSelect.value}`);
-            this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
-            this.state.currentPage = 1;
-            this.updatePagination();
-        });
-
-        this.updatePagination();
-    }
-
-    // New: Pagination update method
-    updatePagination() {
-        if (!this.state.paginationEnabled) return;
-        
-        const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
-            .filter(row => row.style.display !== 'none');
-        
-        const totalPages = Math.ceil(visibleRows.length / this.state.rowsPerPage);
-        this.state.currentPage = Math.min(this.state.currentPage, totalPages);
-        
-        const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
-        const endIndex = startIndex + this.state.rowsPerPage;
-        
-        visibleRows.forEach((row, index) => {
-            row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
-        });
-
-        this.renderPaginationControls(totalPages);
-        console.log(`📄 Page ${this.state.currentPage} of ${totalPages} displayed`);
-    }
-
-    // New: Pagination controls render method
-    renderPaginationControls(totalPages) {
-        const controls = this.paginationContainer;
-        controls.innerHTML = '';
-        
-        if (totalPages <= 1) {
-            controls.style.display = 'none';
-            return;
-        }
-        
-        controls.style.display = 'flex';
-        
-        this.createPaginationButton('Previous', () => {
-            if (this.state.currentPage > 1) {
-                this.state.currentPage--;
-                this.updatePagination();
-            }
-        }, this.state.currentPage === 1);
-
-        this.createPaginationButton('Next', () => {
-            if (this.state.currentPage < totalPages) {
-                this.state.currentPage++;
-                this.updatePagination();
-            }
-        }, this.state.currentPage === totalPages);
-    }
-
-    // New: Pagination button creation method
-    createPaginationButton(text, onClick, disabled = false) {
-        const button = document.createElement('button');
-        button.className = `page-btn${disabled ? ' disabled' : ''}`;
-        button.textContent = text;
-        button.disabled = disabled;
-        button.addEventListener('click', onClick);
-        this.paginationContainer.appendChild(button);
     }
 
     initializeEventListeners() {
@@ -266,7 +187,6 @@ class XMLTableHandler {
         });
 
         this.state.visibleRowsCount = entries.length;
-        this.updatePagination(); // Update pagination after loading data
         return true;
     }
 
@@ -350,11 +270,9 @@ class XMLTableHandler {
 
             const matchesCategory = narCategory === 'all' || narValue === narCategory;
             const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-            const matchesSearch = !searchTerm || cells.some(cell => {
-                const field = cell.getAttribute('data-field');
-                const columnConfig = this.columns[field];
-                return columnConfig.searchable && cell.textContent.toLowerCase().includes(searchTerm);
-            });
+            const matchesSearch = !searchTerm || cells.some(cell => 
+                cell.textContent.toLowerCase().includes(searchTerm)
+            );
 
             const visible = matchesCategory && matchesStatus && matchesSearch;
             row.style.display = visible ? '' : 'none';
@@ -362,7 +280,6 @@ class XMLTableHandler {
         });
 
         this.updateSearchResults(matchCount);
-        this.updatePagination(); // Update pagination after filtering
     }
 
     updateSearchResults(matchCount) {
@@ -389,10 +306,6 @@ class XMLTableHandler {
         this.resultContainer.style.display = 'none';
         
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
-        
-        // Reset pagination
-        this.state.currentPage = 1;
-        this.updatePagination();
     }
 
     showError(message) {
@@ -426,7 +339,6 @@ class XMLTableHandler {
         
         this.state.sortColumn = column;
         this.state.sortDirection = direction;
-        this.updatePagination(); // Update pagination after sorting
     }
 
     getCellValue(row, column, type) {
@@ -453,7 +365,7 @@ class XMLTableHandler {
 
 // Initialize handler
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🌟 DOM Content Loaded - Starting initialization');
+    // console.log('🌟 DOM Content Loaded - Starting initialization');
     
     try {
         window.tableHandler = new XMLTableHandler();
@@ -470,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
+            // .then(registration => console.log('ServiceWorker registered:', registration.scope))
             .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
