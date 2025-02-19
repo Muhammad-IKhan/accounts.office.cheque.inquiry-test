@@ -249,58 +249,113 @@ class XMLTableHandler {
         return Object.entries(statusMap).find(([key]) => lowerStatus.includes(key))?.[1] || 'status-gray';
     }
 
-    performSearch() {
-        const searchTerm = this.searchInput.value.toLowerCase();
-        this.state.lastSearchTerm = searchTerm;
-        this.applyFilters();
-    }
+    // performSearch() {
+    //     const searchTerm = this.searchInput.value.toLowerCase();
+    //     this.state.lastSearchTerm = searchTerm;
+    //     this.applyFilters();
+    // }
 
+    // applyFilters() {
+    //     const searchTerm = this.state.lastSearchTerm;
+    //     const narCategory = this.narFilter.value.toLowerCase();
+    //     const statusFilter = this.statusFilter.value.toLowerCase();
+
+    //     if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
+    //         return this.resetTable();
+    //     }
+
+    //     this.tableContainer.style.display = 'block';
+    //     this.emptyState.style.display = 'none';
+    //     this.resultContainer.style.display = 'block';
+
+    //     let matchCount = 0;
+    //     // this.tableBody.querySelectorAll('tr').forEach(row => {
+    //     //     const narValue = row.getAttribute('data-nar');
+    //     //     const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
+    //     //     const cells = Array.from(row.getElementsByTagName('td'));
+
+    //     //     const matchesCategory = narCategory === 'all' || narValue === narCategory;
+    //     //     const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+    //     //     const matchesSearch = !searchTerm || cells.some(cell => 
+    //     //         cell.textContent.toLowerCase().includes(searchTerm)
+    //     //     );
+
+    //     //     const visible = matchesCategory && matchesStatus && matchesSearch;
+    //     //     row.style.display = visible ? '' : 'none';
+    //     //     if (visible) matchCount++;
+    //     // });
+    //     this.tableBody.querySelectorAll('tr').forEach(row => {
+    //         const narValue = row.getAttribute('data-nar');
+    //         const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
+    //         const cells = Array.from(row.getElementsByTagName('td'));
+
+    //         const matchesCategory = narCategory === 'all' || narValue === narCategory;
+    //         const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+    //         const matchesSearch = !searchTerm || cells.some(cell => {
+                
+    //         // Get the field name (column) of this cell
+    //         const field = cell.getAttribute('data-field');
+    //         // Get the column configuration
+    //         const columnConfig = this.columns[field];
+    //         // Only search if column is searchable
+    //         return columnConfig.searchable && cell.textContent.toLowerCase().includes(searchTerm);
+    //     });
+
+    //     this.updateSearchResults(matchCount);
+    // }
+
+    performSearch() {
+    const searchTerm = this.searchInput.value.toLowerCase();
+    this.state.lastSearchTerm = searchTerm;
+    this.applyFilters();
+}
+    
     applyFilters() {
         const searchTerm = this.state.lastSearchTerm;
         const narCategory = this.narFilter.value.toLowerCase();
         const statusFilter = this.statusFilter.value.toLowerCase();
-
+    
+        // Reset if no filters are applied
         if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
             return this.resetTable();
         }
-
+    
+        // Show table and hide empty state
         this.tableContainer.style.display = 'block';
         this.emptyState.style.display = 'none';
         this.resultContainer.style.display = 'block';
-
+    
         let matchCount = 0;
-        // this.tableBody.querySelectorAll('tr').forEach(row => {
-        //     const narValue = row.getAttribute('data-nar');
-        //     const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
-        //     const cells = Array.from(row.getElementsByTagName('td'));
-
-        //     const matchesCategory = narCategory === 'all' || narValue === narCategory;
-        //     const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-        //     const matchesSearch = !searchTerm || cells.some(cell => 
-        //         cell.textContent.toLowerCase().includes(searchTerm)
-        //     );
-
-        //     const visible = matchesCategory && matchesStatus && matchesSearch;
-        //     row.style.display = visible ? '' : 'none';
-        //     if (visible) matchCount++;
-        // });
+    
         this.tableBody.querySelectorAll('tr').forEach(row => {
             const narValue = row.getAttribute('data-nar');
             const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
             const cells = Array.from(row.getElementsByTagName('td'));
-
+            
+            // Check category match
             const matchesCategory = narCategory === 'all' || narValue === narCategory;
+            
+            // Check status match
             const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+            
+            // Check search term match
             const matchesSearch = !searchTerm || cells.some(cell => {
-                
-            // Get the field name (column) of this cell
-            const field = cell.getAttribute('data-field');
-            // Get the column configuration
-            const columnConfig = this.columns[field];
-            // Only search if column is searchable
-            return columnConfig.searchable && cell.textContent.toLowerCase().includes(searchTerm);
+                const field = cell.getAttribute('data-field');
+                // Ensure columns exists and has the field
+                if (!this.columns || !this.columns[field]) {
+                    return false;
+                }
+                const columnConfig = this.columns[field];
+                return columnConfig?.searchable && cell.textContent.toLowerCase().includes(searchTerm);
+            });
+    
+            // Determine visibility
+            const visible = matchesCategory && matchesStatus && matchesSearch;
+            row.style.display = visible ? '' : 'none';
+            
+            if (visible) matchCount++;
         });
-
+    
         this.updateSearchResults(matchCount);
     }
 
