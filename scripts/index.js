@@ -187,6 +187,13 @@ class XMLTableHandler {
         this.renderPaginationControls(totalPages);
         console.log(`📄 Page ${this.state.currentPage} of ${totalPages} displayed`);
     }
+
+     ///////////////////////logs//////////////////////
+        console.log('Visible rows:', visibleRows.length);
+        console.log('Total pages:', totalPages);
+        console.log('Current page:', this.state.currentPage);
+        console.log('Next button clicked');
+    
     renderPaginationControls(totalPages) {
         const controls = this.paginationContainer;
         controls.innerHTML = ''; // Clear existing controls
@@ -197,6 +204,7 @@ class XMLTableHandler {
         }
     
         controls.style.display = 'flex'; // Show pagination controls
+       
     
         // Previous Button
         this.createPaginationButton('Previous', () => {
