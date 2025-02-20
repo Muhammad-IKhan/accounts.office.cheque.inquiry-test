@@ -97,7 +97,7 @@ class XMLTableHandler {
             currentStatusFilter: 'all',
             lastFilterCategory: 'all',
             paginationEnabled: true,
-            rowsPerPage: 10,
+            rowsPerPage: 5,
             currentPage: 1,
             visibleRowsCount: 0,
             sortColumn: null,
