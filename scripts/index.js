@@ -74,7 +74,8 @@ class XMLTableHandler {
             'emptyState': 'emptyState',
             'result': 'resultContainer',
             'pagination': 'paginationContainer',
-            'searchBtn': 'searchBtn'
+            'searchBtn': 'searchBtn',
+            'rowsPerPage': 'rowsPerPageSelect' 
         };
 
         for (const [id, prop] of Object.entries(required_elements)) {
@@ -241,6 +242,7 @@ class XMLTableHandler {
             localStorage.setItem('xmlData', combinedXML);
             this.state.xmlData = combinedXML;
             return this.parseXMLToTable(combinedXML);
+            this.initializePagination(); 
         } catch (error) {
             console.error('Error fetching XML:', error);
             const storedXML = localStorage.getItem('xmlData');
@@ -336,6 +338,9 @@ class XMLTableHandler {
         const searchTerm = this.state.lastSearchTerm;
         const narCategory = this.narFilter.value.toLowerCase();
         const statusFilter = this.statusFilter.value.toLowerCase();
+
+        // Reset pagination to the first page
+        this.state.currentPage = 1;
     
         // Reset if no filters are applied
         if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
@@ -377,6 +382,7 @@ class XMLTableHandler {
         });
     
         this.updateSearchResults(matchCount);
+        this.updatePagination(); // Update pagination after filtering
     }
 
     updateSearchResults(matchCount) {
@@ -390,6 +396,10 @@ class XMLTableHandler {
         if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
 
         this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
+        // Hide pagination if no results
+        if (matchCount === 0) {
+            this.paginationContainer.style.display = 'none';
+        }
     }
 
     resetTable() {
@@ -397,12 +407,14 @@ class XMLTableHandler {
         this.narFilter.value = 'all';
         this.statusFilter.value = 'all';
         this.state.lastSearchTerm = '';
+        this.state.currentPage = 1; // Reset to the first page
         
         this.tableContainer.style.display = 'none';
         this.emptyState.style.display = 'block';
         this.resultContainer.style.display = 'none';
         
         this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
+        this.updatePagination(); // Update pagination after reset
     }
 
     showError(message) {
