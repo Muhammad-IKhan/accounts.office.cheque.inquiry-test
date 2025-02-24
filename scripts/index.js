@@ -42,31 +42,133 @@ class XMLTableHandler {
 
     /**
      * Initialize all required DOM elements
-     * Throws error if any required element is missing
+     * Creates missing pagination elements if needed
+     * Falls back gracefully for non-critical elements
      */
     initializeDOMElements() {
         console.log('🔍 Finding DOM elements...');
-        const requiredElements = {
+        
+        // Essential elements that must exist
+        const essentialElements = {
             'checksTable': 'tableBody',
+            'tableContainer': 'tableContainer',
+            'emptyState': 'emptyState',
+            'result': 'resultContainer'
+        };
+
+        // Optional elements that can be created if missing
+        const optionalElements = {
             'search': 'searchInput',
             'narCategory': 'narFilter',
             'statusFilter': 'statusFilter',
-            'tableContainer': 'tableContainer',
-            'emptyState': 'emptyState',
-            'result': 'resultContainer',
             'pagination': 'paginationContainer',
             'searchBtn': 'searchBtn',
             'rowsPerPage': 'rowsPerPageSelect'
         };
 
-        for (const [id, prop] of Object.entries(requiredElements)) {
+        // Check essential elements
+        for (const [id, prop] of Object.entries(essentialElements)) {
             const element = document.getElementById(id);
             if (!element) {
                 throw new Error(`Required element #${id} not found in DOM`);
             }
             this[prop] = element;
-            console.log(`✓ Found element #${id}`);
+            console.log(`✓ Found essential element #${id}`);
         }
+
+        // Check optional elements and create if missing
+        for (const [id, prop] of Object.entries(optionalElements)) {
+            let element = document.getElementById(id);
+            
+            if (!element) {
+                console.warn(`⚠️ Element #${id} not found in DOM. Creating fallback.`);
+                element = this.createFallbackElement(id);
+                this[prop] = element;
+            } else {
+                this[prop] = element;
+                console.log(`✓ Found optional element #${id}`);
+            }
+        }
+    }
+
+    /**
+     * Create fallback elements for missing DOM elements
+     * @param {string} id - ID of the missing element
+     * @returns {HTMLElement} - Created fallback element
+     */
+    createFallbackElement(id) {
+        const container = document.createElement('div');
+        container.id = id + '_fallback';
+        
+        switch (id) {
+            case 'pagination':
+                container.className = 'pagination-container';
+                // Append to result container or table container
+                if (this.resultContainer) {
+                    this.resultContainer.after(container);
+                } else if (this.tableContainer) {
+                    this.tableContainer.after(container);
+                } else {
+                    document.body.appendChild(container);
+                }
+                console.log('📄 Created fallback pagination container');
+                break;
+                
+            case 'search':
+                container.innerHTML = `<input type="text" placeholder="Search..." class="form-control" />`;
+                this.tableContainer.before(container);
+                console.log('🔍 Created fallback search input');
+                return container.querySelector('input');
+                
+            case 'searchBtn':
+                container.innerHTML = `<button class="btn btn-primary">Search</button>`;
+                // Try to append next to search input if it exists
+                const searchInput = document.getElementById('search');
+                if (searchInput) {
+                    searchInput.after(container);
+                } else {
+                    this.tableContainer.before(container);
+                }
+                console.log('🔍 Created fallback search button');
+                return container.querySelector('button');
+                
+            case 'narCategory':
+                container.innerHTML = `<select class="form-control"><option value="all">All Categories</option></select>`;
+                this.tableContainer.before(container);
+                console.log('📋 Created fallback NAR filter');
+                return container.querySelector('select');
+                
+            case 'statusFilter':
+                container.innerHTML = `<select class="form-control"><option value="all">All Statuses</option></select>`;
+                this.tableContainer.before(container);
+                console.log('📋 Created fallback status filter');
+                return container.querySelector('select');
+                
+            case 'rowsPerPage':
+                container.innerHTML = `
+                    <select class="form-control">
+                        <option value="10">10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                    </select>
+                `;
+                // Try to append near pagination if it exists
+                const paginationContainer = document.getElementById('pagination');
+                if (paginationContainer) {
+                    paginationContainer.before(container);
+                } else {
+                    this.tableContainer.after(container);
+                }
+                console.log('📄 Created fallback rows per page selector');
+                return container.querySelector('select');
+                
+            default:
+                console.log(`⚠️ No fallback created for #${id}`);
+                return container;
+        }
+        
+        return container;
     }
 
     /**
@@ -93,62 +195,87 @@ class XMLTableHandler {
 
     /**
      * Setup all event listeners for search, filter, pagination and sorting
+     * Checks if elements exist before attaching listeners
      */
     initializeEventListeners() {
         console.log('👂 Setting up event listeners...');
         
-        // Search events
-        this.searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                console.log('🔎 Search triggered by Enter key');
-                this.performSearch();
-            }
-            this.handleBackspace(e);
-        });
-
-        this.searchBtn.addEventListener('click', () => {
-            console.log('🔎 Search triggered by button click');
-            this.performSearch();
-        });
-
-        // Filter events
-        this.narFilter.addEventListener('change', () => {
-            console.log('🔄 NAR filter changed:', this.narFilter.value);
-            this.applyFilters();
-        });
-        
-        this.statusFilter.addEventListener('change', () => {
-            console.log('🔄 Status filter changed:', this.statusFilter.value);
-            this.applyFilters();
-        });
-
-        // Rows per page change
-        this.rowsPerPageSelect.addEventListener('change', () => {
-            const newValue = parseInt(this.rowsPerPageSelect.value);
-            console.log(`📄 Rows per page changed to ${newValue}`);
-            this.state.rowsPerPage = newValue;
-            this.state.currentPage = 1; // Reset to first page
-            this.updatePagination();
-        });
-
-        // Sorting events
-        document.querySelectorAll('th[data-column]').forEach(header => {
-            header.addEventListener('click', () => {
-                const column = header.dataset.column;
-                console.log(`🔃 Sort requested for column: ${column}`);
-                this.sortTable(column);
+        // Search events - check if elements exist first
+        if (this.searchInput) {
+            this.searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    console.log('🔎 Search triggered by Enter key');
+                    this.performSearch();
+                }
+                this.handleBackspace(e);
             });
-        });
+            console.log('✓ Added search input listeners');
+        }
+
+        if (this.searchBtn) {
+            this.searchBtn.addEventListener('click', () => {
+                console.log('🔎 Search triggered by button click');
+                this.performSearch();
+            });
+            console.log('✓ Added search button listener');
+        }
+
+        // Filter events - check if elements exist first
+        if (this.narFilter) {
+            this.narFilter.addEventListener('change', () => {
+                console.log('🔄 NAR filter changed:', this.narFilter.value);
+                this.applyFilters();
+            });
+            console.log('✓ Added NAR filter listener');
+        }
         
-        console.log('✅ All event listeners initialized');
+        if (this.statusFilter) {
+            this.statusFilter.addEventListener('change', () => {
+                console.log('🔄 Status filter changed:', this.statusFilter.value);
+                this.applyFilters();
+            });
+            console.log('✓ Added status filter listener');
+        }
+
+        // Rows per page change - check if element exists first
+        if (this.rowsPerPageSelect) {
+            this.rowsPerPageSelect.addEventListener('change', () => {
+                const newValue = parseInt(this.rowsPerPageSelect.value);
+                console.log(`📄 Rows per page changed to ${newValue}`);
+                this.state.rowsPerPage = newValue;
+                this.state.currentPage = 1; // Reset to first page
+                this.updatePagination();
+            });
+            console.log('✓ Added rows per page listener');
+        }
+
+        // Sorting events - check if there are sortable columns
+        const sortableHeaders = document.querySelectorAll('th[data-column]');
+        if (sortableHeaders.length > 0) {
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const column = header.dataset.column;
+                    console.log(`🔃 Sort requested for column: ${column}`);
+                    this.sortTable(column);
+                });
+            });
+            console.log(`✓ Added sorting listeners to ${sortableHeaders.length} column headers`);
+        } else {
+            console.log('⚠️ No sortable column headers found');
+        }
+        
+        console.log('✅ Event listener initialization complete');
     }
 
     /**
      * Handle backspace functionality in search input
      * Resets table when appropriate
+     * Only runs if search input exists
      * @param {KeyboardEvent} e - The keyboard event
      */
     handleBackspace(e) {
+        if (!this.searchInput) return;
+        
         if (e.key === 'Backspace' && this.state.tableResetEnabled) {
             const inputBefore = this.searchInput.value.trim();
             
@@ -171,8 +298,15 @@ class XMLTableHandler {
 
     /**
      * Initialize pagination controls
+     * Only runs if pagination is enabled and container exists
      */
     initializePagination() {
+        if (!this.paginationContainer) {
+            console.log('⚠️ Pagination container is missing, disabling pagination');
+            this.state.paginationEnabled = false;
+            return;
+        }
+        
         console.log('🔢 Initializing pagination controls...');
         this.updatePagination();
     }
@@ -180,10 +314,11 @@ class XMLTableHandler {
     /**
      * Update pagination based on current page and rows per page
      * Handles visibility of rows and rendering pagination controls
+     * Skips if pagination is disabled or container is missing
      */
     updatePagination() {
-        if (!this.state.paginationEnabled) {
-            console.log('⏩ Pagination is disabled, skipping update');
+        if (!this.state.paginationEnabled || !this.paginationContainer) {
+            console.log('⏩ Pagination is disabled or container missing, skipping update');
             return;
         }
 
@@ -215,9 +350,12 @@ class XMLTableHandler {
 
     /**
      * Render pagination control buttons
+     * Only runs if pagination container exists
      * @param {number} totalPages - Total number of pages
      */
     renderPaginationControls(totalPages) {
+        if (!this.paginationContainer) return;
+        
         const controls = this.paginationContainer;
         controls.innerHTML = '';
 
@@ -262,12 +400,15 @@ class XMLTableHandler {
      * @param {boolean} disabled - Whether button should be disabled
      */
     createPaginationButton(text, onClick, disabled = false) {
+        if (!this.paginationContainer) return null;
+        
         const button = document.createElement('button');
         button.className = `page-btn${disabled ? ' disabled' : ''}`;
         button.textContent = text;
         button.disabled = disabled;
         button.addEventListener('click', onClick);
         this.paginationContainer.appendChild(button);
+        return button;
     }
 
     /**
@@ -418,8 +559,14 @@ class XMLTableHandler {
 
     /**
      * Perform search using input value
+     * Only runs if search input exists
      */
     performSearch() {
+        if (!this.searchInput) {
+            console.log('⚠️ Search input is missing, cannot perform search');
+            return;
+        }
+        
         const searchTerm = this.searchInput.value.toLowerCase();
         console.log(`🔎 Performing search for: "${searchTerm}"`);
         this.state.lastSearchTerm = searchTerm;
@@ -432,8 +579,12 @@ class XMLTableHandler {
     applyFilters() {
         console.log('🔍 Applying filters...');
         const searchTerm = this.state.lastSearchTerm;
-        const narCategory = this.narFilter.value.toLowerCase();
-        const statusFilter = this.statusFilter.value.toLowerCase();
+        let narCategory = 'all';
+        let statusFilter = 'all';
+        
+        // Only get values if elements exist
+        if (this.narFilter) narCategory = this.narFilter.value.toLowerCase();
+        if (this.statusFilter) statusFilter = this.statusFilter.value.toLowerCase();
 
         console.log(`🔍 Filter criteria: search="${searchTerm}", category="${narCategory}", status="${statusFilter}"`);
 
@@ -487,35 +638,53 @@ class XMLTableHandler {
 
     /**
      * Update search results message
+     * Handles missing filter elements gracefully
      * @param {number} matchCount - Number of matching rows
      */
     updateSearchResults(matchCount) {
         const searchTerm = this.state.lastSearchTerm;
-        const narCategory = this.narFilter.value;
-        const statusFilter = this.statusFilter.value;
+        let narCategory = 'all';
+        let statusFilter = 'all';
+        let narCategoryText = 'All Categories';
+        
+        // Only get values if elements exist
+        if (this.narFilter) {
+            narCategory = this.narFilter.value;
+            // Get selected option text safely
+            const selectedOption = this.narFilter.options[this.narFilter.selectedIndex];
+            narCategoryText = selectedOption ? selectedOption.text : 'All Categories';
+        }
+        
+        if (this.statusFilter) {
+            statusFilter = this.statusFilter.value;
+        }
 
         let message = `Found ${matchCount} results`;
         if (searchTerm) message += ` for "${searchTerm}"`;
-        if (narCategory !== 'all') message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
+        if (narCategory !== 'all') message += ` in category "${narCategoryText}"`;
         if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
 
         console.log(`📊 Search results: ${message}`);
         this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
         
         // Hide pagination if no results
-        if (matchCount === 0) {
+        if (matchCount === 0 && this.paginationContainer) {
             this.paginationContainer.style.display = 'none';
         }
     }
 
     /**
      * Reset table to initial state
+     * Handles missing filter elements gracefully
      */
     resetTable() {
         console.log('🔄 Resetting table to initial state');
-        this.searchInput.value = '';
-        this.narFilter.value = 'all';
-        this.statusFilter.value = 'all';
+        
+        // Reset elements if they exist
+        if (this.searchInput) this.searchInput.value = '';
+        if (this.narFilter) this.narFilter.value = 'all';
+        if (this.statusFilter) this.statusFilter.value = 'all';
+        
         this.state.lastSearchTerm = '';
         this.state.currentPage = 1; // Reset to the first page
         
@@ -583,6 +752,11 @@ class XMLTableHandler {
      */
     getCellValue(row, column, type) {
         const cell = row.querySelector(`td[data-field="${column}"]`);
+        if (!cell) {
+            console.warn(`⚠️ Cell not found for field ${column}`);
+            return type === 'number' ? 0 : '';
+        }
+        
         const value = cell.textContent.trim();
         
         if (type === 'number') {
@@ -599,16 +773,25 @@ class XMLTableHandler {
      * @param {string} direction - Sort direction
      */
     updateSortIndicators(column, direction) {
-        document.querySelectorAll('th[data-column] .sort-icon').forEach(icon => {
-            icon.textContent = '';
-        });
+        const sortIcons = document.querySelectorAll('th[data-column] .sort-icon');
+        if (sortIcons.length > 0) {
+            sortIcons.forEach(icon => {
+                icon.textContent = '';
+            });
+        }
 
         const currentHeader = document.querySelector(`th[data-column="${column}"]`);
         if (currentHeader) {
-            const sortIcon = currentHeader.querySelector('.sort-icon');
-            if (sortIcon) {
-                sortIcon.textContent = direction === 'asc' ? ' ↑' : ' ↓';
+            let sortIcon = currentHeader.querySelector('.sort-icon');
+            
+            // Create sort icon if it doesn't exist
+            if (!sortIcon) {
+                sortIcon = document.createElement('span');
+                sortIcon.className = 'sort-icon';
+                currentHeader.appendChild(sortIcon);
             }
+            
+            sortIcon.textContent = direction === 'asc' ? ' ↑' : ' ↓';
         }
     }
 
@@ -622,6 +805,8 @@ class XMLTableHandler {
         console.log(`🔄 Reordered ${rows.length} rows in table`);
     }
 }
+
+
 
 // Initialize handler when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
