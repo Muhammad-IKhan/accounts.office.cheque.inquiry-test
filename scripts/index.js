@@ -1,15 +1,12 @@
-//  PAGINATION remains
 class XMLTableHandler {
     constructor() {
-        // console.log('🚀 Initializing XMLTableHandler...');
-        
         try {
             this.defineColumns();
             this.initializeDOMElements();
             this.initializeState();
             this.initializeEventListeners();
-            
-            // Immediately fetch and display data
+
+            // Fetch and display data
             this.fetchXMLData().then(() => {
                 this.resetTable();
                 console.log('✅ Initial data load complete');
@@ -25,47 +22,16 @@ class XMLTableHandler {
 
     defineColumns() {
         this.columns = {
-            NARRATION: { 
-                index: 0, 
-                type: 'string', 
-                required: true,
-                title: 'Narration',
-                searchable: true
-            },
-            AMOUNT: { 
-                index: 1, 
-                type: 'number', 
-                required: true,
-                title: 'Amount',
-                searchable: false
-            },
-            CHEQ_NO: { 
-                index: 2, 
-                type: 'number', 
-                required: true,
-                title: 'Cheque No',
-                searchable: false
-            },
-            NAR: { 
-                index: 3, 
-                type: 'string', 
-                required: true,
-                title: 'NAR',
-                searchable: false
-            },
-            DD: { 
-                index: 4, 
-                type: 'string', 
-                required: true,
-                title: 'Status',
-                searchable: false
-
-            }
+            NARRATION: { index: 0, type: 'string', required: true, title: 'Narration', searchable: true },
+            AMOUNT: { index: 1, type: 'number', required: true, title: 'Amount', searchable: false },
+            CHEQ_NO: { index: 2, type: 'number', required: true, title: 'Cheque No', searchable: false },
+            NAR: { index: 3, type: 'string', required: true, title: 'NAR', searchable: false },
+            DD: { index: 4, type: 'string', required: true, title: 'Status', searchable: false }
         };
     }
 
     initializeDOMElements() {
-        const required_elements = {
+        const requiredElements = {
             'checksTable': 'tableBody',
             'search': 'searchInput',
             'narCategory': 'narFilter',
@@ -75,10 +41,10 @@ class XMLTableHandler {
             'result': 'resultContainer',
             'pagination': 'paginationContainer',
             'searchBtn': 'searchBtn',
-            'rowsPerPage': 'rowsPerPageSelect' 
+            'rowsPerPage': 'rowsPerPageSelect'
         };
 
-        for (const [id, prop] of Object.entries(required_elements)) {
+        for (const [id, prop] of Object.entries(requiredElements)) {
             const element = document.getElementById(id);
             if (!element) {
                 throw new Error(`Required element #${id} not found in DOM`);
@@ -97,7 +63,7 @@ class XMLTableHandler {
             currentStatusFilter: 'all',
             lastFilterCategory: 'all',
             paginationEnabled: true,
-            rowsPerPage: 5,
+            rowsPerPage: 10,
             currentPage: 1,
             visibleRowsCount: 0,
             sortColumn: null,
@@ -119,6 +85,13 @@ class XMLTableHandler {
         // Filter events
         this.narFilter.addEventListener('change', () => this.applyFilters());
         this.statusFilter.addEventListener('change', () => this.applyFilters());
+
+        // Rows per page change
+        this.rowsPerPageSelect.addEventListener('change', () => {
+            this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
+            this.state.currentPage = 1; // Reset to first page
+            this.updatePagination();
+        });
 
         // Sorting events
         document.querySelectorAll('th[data-column]').forEach(header => {
@@ -147,81 +120,63 @@ class XMLTableHandler {
             }, 0);
         }
     }
-  //initializePagination
+
     initializePagination() {
         console.log('🔢 Initializing pagination controls...');
-    
-        // Add rows per page change listener
-        this.rowsPerPageSelect.addEventListener('change', () => {
-            console.log(`📊 Rows per page changed to ${this.rowsPerPageSelect.value}`);
-            this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
-            this.state.currentPage = 1; // Reset to the first page
-            this.updatePagination();
-        });
-    
-        // Initial pagination render
         this.updatePagination();
     }
+
     updatePagination() {
         if (!this.state.paginationEnabled) return;
-    
-        console.log('🔄 Updating pagination...');
-    
-        // Get all visible rows (after filtering)
+
+        // Get visible rows
         const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
             .filter(row => row.style.display !== 'none');
-    
+
         // Calculate total pages
         const totalPages = Math.ceil(visibleRows.length / this.state.rowsPerPage);
         this.state.currentPage = Math.min(this.state.currentPage, totalPages);
-    
+
         // Update row visibility based on current page
         const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
         const endIndex = startIndex + this.state.rowsPerPage;
-    
+
         visibleRows.forEach((row, index) => {
             row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
         });
-    
-        // Render pagination controls (Previous and Next buttons)
+
+        // Render pagination controls
         this.renderPaginationControls(totalPages);
-        console.log(`📄 Page ${this.state.currentPage} of ${totalPages} displayed`);
     }
 
-     ///////////////////////logs//////////////////////
-        console.log('Visible rows:', visibleRows.length);
-        console.log('Total pages:', totalPages);
-        console.log('Current page:', this.state.currentPage);
-        console.log('Next button clicked');
-    
     renderPaginationControls(totalPages) {
         const controls = this.paginationContainer;
-        controls.innerHTML = ''; // Clear existing controls
-    
+        controls.innerHTML = '';
+
         if (totalPages <= 1) {
-            controls.style.display = 'none'; // Hide pagination if there's only one page
+            controls.style.display = 'none'; // Hide pagination if only one page
             return;
         }
-    
+
         controls.style.display = 'flex'; // Show pagination controls
-       
-    
+
         // Previous Button
         this.createPaginationButton('Previous', () => {
             if (this.state.currentPage > 1) {
                 this.state.currentPage--;
                 this.updatePagination();
             }
-        }, this.state.currentPage === 1); // Disable if on the first page
-    
+        }, this.state.currentPage === 1);
+
         // Next Button
         this.createPaginationButton('Next', () => {
             if (this.state.currentPage < totalPages) {
                 this.state.currentPage++;
                 this.updatePagination();
             }
-        }, this.state.currentPage === totalPages); // Disable if on the last page
+        }, this.state.currentPage === totalPages);
     }
+
     createPaginationButton(text, onClick, disabled = false) {
         const button = document.createElement('button');
         button.className = `page-btn${disabled ? ' disabled' : ''}`;
@@ -230,7 +185,8 @@ class XMLTableHandler {
         button.addEventListener('click', onClick);
         this.paginationContainer.appendChild(button);
     }
-    
+
+    // Other methods (fetchXMLData, parseXMLToTable, etc.) remain unchanged
     async fetchXMLData() {
         try {
             const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
@@ -281,6 +237,8 @@ class XMLTableHandler {
         this.state.visibleRowsCount = entries.length;
         return true;
     }
+}
+
 
     createTableRow(element) {
         const row = document.createElement('tr');
@@ -480,10 +438,9 @@ class XMLTableHandler {
     }
 }
 
+
 // Initialize handler
 document.addEventListener('DOMContentLoaded', () => {
-    // console.log('🌟 DOM Content Loaded - Starting initialization');
-    
     try {
         window.tableHandler = new XMLTableHandler();
     } catch (error) {
@@ -503,3 +460,5 @@ if ('serviceWorker' in navigator) {
             .catch(err => console.error('ServiceWorker registration failed:', err));
     });
 }
+
+
