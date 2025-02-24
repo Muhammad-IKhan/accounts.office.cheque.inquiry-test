@@ -1,5 +1,10 @@
 class XMLTableHandler {
+    /**
+     * Initialize the XML Table Handler with all necessary components
+     * This handles XML data loading, parsing, filtering, sorting and pagination
+     */
     constructor() {
+        console.log('🚀 Initializing XMLTableHandler...');
         try {
             this.defineColumns();
             this.initializeDOMElements();
@@ -12,7 +17,7 @@ class XMLTableHandler {
                 console.log('✅ Initial data load complete');
             }).catch(error => {
                 console.error('❌ Initial data load failed:', error);
-                this.showError('Failed to load initial data');
+                this.showError('Failed to load initial data: ' + error.message);
             });
         } catch (error) {
             console.error('❌ Constructor Error:', error.message);
@@ -20,7 +25,12 @@ class XMLTableHandler {
         }
     }
 
+    /**
+     * Define table columns configuration
+     * Each column has its index, data type, display title, and search properties
+     */
     defineColumns() {
+        console.log('📊 Defining table columns...');
         this.columns = {
             NARRATION: { index: 0, type: 'string', required: true, title: 'Narration', searchable: true },
             AMOUNT: { index: 1, type: 'number', required: true, title: 'Amount', searchable: false },
@@ -30,7 +40,12 @@ class XMLTableHandler {
         };
     }
 
+    /**
+     * Initialize all required DOM elements
+     * Throws error if any required element is missing
+     */
     initializeDOMElements() {
+        console.log('🔍 Finding DOM elements...');
         const requiredElements = {
             'checksTable': 'tableBody',
             'search': 'searchInput',
@@ -50,10 +65,15 @@ class XMLTableHandler {
                 throw new Error(`Required element #${id} not found in DOM`);
             }
             this[prop] = element;
+            console.log(`✓ Found element #${id}`);
         }
     }
 
+    /**
+     * Initialize application state with default values
+     */
     initializeState() {
+        console.log('🏁 Initializing application state...');
         this.state = {
             enableLiveUpdate: false,
             tableResetEnabled: true,
@@ -71,24 +91,42 @@ class XMLTableHandler {
         };
     }
 
+    /**
+     * Setup all event listeners for search, filter, pagination and sorting
+     */
     initializeEventListeners() {
+        console.log('👂 Setting up event listeners...');
+        
         // Search events
         this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
+                console.log('🔎 Search triggered by Enter key');
                 this.performSearch();
             }
             this.handleBackspace(e);
         });
 
-        this.searchBtn.addEventListener('click', () => this.performSearch());
+        this.searchBtn.addEventListener('click', () => {
+            console.log('🔎 Search triggered by button click');
+            this.performSearch();
+        });
 
         // Filter events
-        this.narFilter.addEventListener('change', () => this.applyFilters());
-        this.statusFilter.addEventListener('change', () => this.applyFilters());
+        this.narFilter.addEventListener('change', () => {
+            console.log('🔄 NAR filter changed:', this.narFilter.value);
+            this.applyFilters();
+        });
+        
+        this.statusFilter.addEventListener('change', () => {
+            console.log('🔄 Status filter changed:', this.statusFilter.value);
+            this.applyFilters();
+        });
 
         // Rows per page change
         this.rowsPerPageSelect.addEventListener('change', () => {
-            this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
+            const newValue = parseInt(this.rowsPerPageSelect.value);
+            console.log(`📄 Rows per page changed to ${newValue}`);
+            this.state.rowsPerPage = newValue;
             this.state.currentPage = 1; // Reset to first page
             this.updatePagination();
         });
@@ -97,14 +135,23 @@ class XMLTableHandler {
         document.querySelectorAll('th[data-column]').forEach(header => {
             header.addEventListener('click', () => {
                 const column = header.dataset.column;
+                console.log(`🔃 Sort requested for column: ${column}`);
                 this.sortTable(column);
             });
         });
+        
+        console.log('✅ All event listeners initialized');
     }
 
+    /**
+     * Handle backspace functionality in search input
+     * Resets table when appropriate
+     * @param {KeyboardEvent} e - The keyboard event
+     */
     handleBackspace(e) {
         if (e.key === 'Backspace' && this.state.tableResetEnabled) {
             const inputBefore = this.searchInput.value.trim();
+            
             setTimeout(() => {
                 const inputAfter = this.searchInput.value.trim();
                 if (this.state.backspaceDefault && inputBefore.length > 1) {
@@ -113,6 +160,7 @@ class XMLTableHandler {
                     this.searchInput.value = inputAfter;
                     this.searchInput.setSelectionRange(caretPosition, caretPosition);
                     this.state.backspaceDefault = false;
+                    console.log('⌫ Backspace triggered table reset');
                 }
                 if (inputAfter.length > 0) {
                     this.state.backspaceDefault = true;
@@ -121,21 +169,37 @@ class XMLTableHandler {
         }
     }
 
+    /**
+     * Initialize pagination controls
+     */
     initializePagination() {
         console.log('🔢 Initializing pagination controls...');
         this.updatePagination();
     }
 
+    /**
+     * Update pagination based on current page and rows per page
+     * Handles visibility of rows and rendering pagination controls
+     */
     updatePagination() {
-        if (!this.state.paginationEnabled) return;
+        if (!this.state.paginationEnabled) {
+            console.log('⏩ Pagination is disabled, skipping update');
+            return;
+        }
 
+        console.log(`📄 Updating pagination for page ${this.state.currentPage}`);
+        
         // Get visible rows
         const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
             .filter(row => row.style.display !== 'none');
+        
+        console.log(`👁️ Found ${visibleRows.length} visible rows`);
 
         // Calculate total pages
         const totalPages = Math.ceil(visibleRows.length / this.state.rowsPerPage);
-        this.state.currentPage = Math.min(this.state.currentPage, totalPages);
+        this.state.currentPage = Math.min(this.state.currentPage, totalPages || 1);
+        
+        console.log(`📚 Total pages: ${totalPages}, Current page: ${this.state.currentPage}`);
 
         // Update row visibility based on current page
         const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
@@ -149,34 +213,54 @@ class XMLTableHandler {
         this.renderPaginationControls(totalPages);
     }
 
+    /**
+     * Render pagination control buttons
+     * @param {number} totalPages - Total number of pages
+     */
     renderPaginationControls(totalPages) {
         const controls = this.paginationContainer;
         controls.innerHTML = '';
 
         if (totalPages <= 1) {
             controls.style.display = 'none'; // Hide pagination if only one page
+            console.log('🔢 Hiding pagination controls (single page)');
             return;
         }
 
         controls.style.display = 'flex'; // Show pagination controls
+        console.log('🔢 Rendering pagination controls');
 
         // Previous Button
         this.createPaginationButton('Previous', () => {
             if (this.state.currentPage > 1) {
                 this.state.currentPage--;
+                console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
                 this.updatePagination();
             }
         }, this.state.currentPage === 1);
+
+        // Page indicator
+        const pageIndicator = document.createElement('span');
+        pageIndicator.className = 'page-indicator';
+        pageIndicator.textContent = `Page ${this.state.currentPage} of ${totalPages}`;
+        controls.appendChild(pageIndicator);
 
         // Next Button
         this.createPaginationButton('Next', () => {
             if (this.state.currentPage < totalPages) {
                 this.state.currentPage++;
+                console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
                 this.updatePagination();
             }
         }, this.state.currentPage === totalPages);
     }
 
+    /**
+     * Create a pagination button with appropriate handlers
+     * @param {string} text - Button text
+     * @param {Function} onClick - Click handler
+     * @param {boolean} disabled - Whether button should be disabled
+     */
     createPaginationButton(text, onClick, disabled = false) {
         const button = document.createElement('button');
         button.className = `page-btn${disabled ? ' disabled' : ''}`;
@@ -186,15 +270,21 @@ class XMLTableHandler {
         this.paginationContainer.appendChild(button);
     }
 
-    // Other methods (fetchXMLData, parseXMLToTable, etc.) remain unchanged
+    /**
+     * Fetch XML data from server files or use cached data
+     * @returns {Promise<boolean>} - True if data was successfully processed
+     */
     async fetchXMLData() {
+        console.log('📥 Fetching XML data...');
         try {
             const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
             if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
             const xmlFiles = await filesResponse.json();
+            console.log(`📄 Found ${xmlFiles.length} XML files to process`);
 
             let combinedXML = '<root>';
             for (const file of xmlFiles) {
+                console.log(`🔄 Processing file: ${file}`);
                 const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 let xmlContent = await fileResponse.text();
@@ -203,43 +293,65 @@ class XMLTableHandler {
             }
             combinedXML += '</root>';
 
+            console.log('💾 Saving combined XML to local storage');
             localStorage.setItem('xmlData', combinedXML);
             this.state.xmlData = combinedXML;
-            return this.parseXMLToTable(combinedXML);
-            this.initializePagination(); 
+            
+            const result = this.parseXMLToTable(combinedXML);
+            this.initializePagination(); // Initialize pagination after parsing data
+            return result;
         } catch (error) {
-            console.error('Error fetching XML:', error);
+            console.error('❌ Error fetching XML:', error);
             const storedXML = localStorage.getItem('xmlData');
             if (storedXML) {
-                console.log('Using cached XML data');
-                return this.parseXMLToTable(storedXML);
+                console.log('📋 Using cached XML data from local storage');
+                this.state.xmlData = storedXML;
+                const result = this.parseXMLToTable(storedXML);
+                this.initializePagination(); // Initialize pagination after parsing data
+                return result;
             }
             throw error;
         }
     }
 
+    /**
+     * Parse XML string into table rows
+     * @param {string} xmlString - XML data to parse
+     * @returns {boolean} - True if parsing was successful
+     */
     parseXMLToTable(xmlString) {
+        console.log('🔄 Parsing XML data to table...');
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString || this.state.xmlData, "text/xml");
 
         if (xmlDoc.querySelector('parsererror')) {
-            throw new Error('XML parsing error: ' + xmlDoc.querySelector('parsererror').textContent);
+            const error = xmlDoc.querySelector('parsererror').textContent;
+            console.error('❌ XML parsing error:', error);
+            throw new Error('XML parsing error: ' + error);
         }
 
         const entries = xmlDoc.getElementsByTagName('G_PVN');
+        console.log(`📊 Found ${entries.length} entries to display`);
         this.tableBody.innerHTML = '';
 
-        Array.from(entries).forEach((element) => {
+        Array.from(entries).forEach((element, index) => {
             const row = this.createTableRow(element);
             this.tableBody.appendChild(row);
+            if (index === 0 || index === entries.length - 1 || index % 100 === 0) {
+                console.log(`📝 Processed ${index + 1}/${entries.length} rows`);
+            }
         });
 
         this.state.visibleRowsCount = entries.length;
+        console.log('✅ XML parsing complete');
         return true;
     }
-}
 
-
+    /**
+     * Create a table row from XML element
+     * @param {Element} element - XML element to convert to row
+     * @returns {HTMLTableRowElement} - The created table row
+     */
     createTableRow(element) {
         const row = document.createElement('tr');
         const narValue = element.getElementsByTagName('NAR')[0]?.textContent?.trim() || '';
@@ -266,15 +378,25 @@ class XMLTableHandler {
         return row;
     }
 
+    /**
+     * Format amount as locale string
+     * @param {string} value - Amount value to format
+     * @returns {string} - Formatted amount
+     */
     formatAmount(value) {
         try {
             return parseFloat(value).toLocaleString('en-US');
-        } catch {
-            console.warn(`Invalid amount value: ${value}`);
+        } catch (error) {
+            console.warn(`⚠️ Invalid amount value: ${value}`, error);
             return '0';
         }
     }
 
+    /**
+     * Get CSS class name for status color
+     * @param {string} status - Status text
+     * @returns {string} - CSS class name for color
+     */
     getStatusColor(status) {
         const statusMap = {
             'despatched through gpo': 'status-orange',
@@ -290,26 +412,37 @@ class XMLTableHandler {
         };
 
         const lowerStatus = status.toLowerCase();
-        return Object.entries(statusMap).find(([key]) => lowerStatus.includes(key))?.[1] || 'status-gray';
+        const colorClass = Object.entries(statusMap).find(([key]) => lowerStatus.includes(key))?.[1] || 'status-gray';
+        return colorClass;
     }
 
-
+    /**
+     * Perform search using input value
+     */
     performSearch() {
         const searchTerm = this.searchInput.value.toLowerCase();
+        console.log(`🔎 Performing search for: "${searchTerm}"`);
         this.state.lastSearchTerm = searchTerm;
         this.applyFilters();
     }
     
+    /**
+     * Apply all filters (search, category, status)
+     */
     applyFilters() {
+        console.log('🔍 Applying filters...');
         const searchTerm = this.state.lastSearchTerm;
         const narCategory = this.narFilter.value.toLowerCase();
         const statusFilter = this.statusFilter.value.toLowerCase();
+
+        console.log(`🔍 Filter criteria: search="${searchTerm}", category="${narCategory}", status="${statusFilter}"`);
 
         // Reset pagination to the first page
         this.state.currentPage = 1;
     
         // Reset if no filters are applied
         if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
+            console.log('🔄 No filters active, resetting table');
             return this.resetTable();
         }
     
@@ -347,10 +480,15 @@ class XMLTableHandler {
             if (visible) matchCount++;
         });
     
+        console.log(`🔍 Filter found ${matchCount} matching rows`);
         this.updateSearchResults(matchCount);
         this.updatePagination(); // Update pagination after filtering
     }
 
+    /**
+     * Update search results message
+     * @param {number} matchCount - Number of matching rows
+     */
     updateSearchResults(matchCount) {
         const searchTerm = this.state.lastSearchTerm;
         const narCategory = this.narFilter.value;
@@ -361,14 +499,20 @@ class XMLTableHandler {
         if (narCategory !== 'all') message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
         if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
 
+        console.log(`📊 Search results: ${message}`);
         this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
+        
         // Hide pagination if no results
         if (matchCount === 0) {
             this.paginationContainer.style.display = 'none';
         }
     }
 
+    /**
+     * Reset table to initial state
+     */
     resetTable() {
+        console.log('🔄 Resetting table to initial state');
         this.searchInput.value = '';
         this.narFilter.value = 'all';
         this.statusFilter.value = 'all';
@@ -383,8 +527,12 @@ class XMLTableHandler {
         this.updatePagination(); // Update pagination after reset
     }
 
+    /**
+     * Show error message to the user
+     * @param {string} message - Error message to display
+     */
     showError(message) {
-        console.error('Error:', message);
+        console.error('❌ Error:', message);
         this.resultContainer.innerHTML = `
             <div class="alert alert-danger">
                 ${message}
@@ -393,11 +541,20 @@ class XMLTableHandler {
         this.resultContainer.style.display = 'block';
     }
 
+    /**
+     * Sort table by column
+     * @param {string} column - Column name to sort by
+     */
     sortTable(column) {
-        if (!this.columns[column]) return;
+        if (!this.columns[column]) {
+            console.warn(`⚠️ Cannot sort by unknown column: ${column}`);
+            return;
+        }
 
         const direction = this.state.sortColumn === column && this.state.sortDirection === 'asc' ? 'desc' : 'asc';
         const type = this.columns[column].type;
+        
+        console.log(`🔃 Sorting by ${column} (${type}) in ${direction} order`);
 
         const rows = Array.from(this.tableBody.getElementsByTagName('tr'));
         rows.sort((a, b) => {
@@ -414,35 +571,64 @@ class XMLTableHandler {
         
         this.state.sortColumn = column;
         this.state.sortDirection = direction;
+        console.log('✅ Sorting complete');
     }
 
+    /**
+     * Get cell value for sorting
+     * @param {HTMLTableRowElement} row - Table row
+     * @param {string} column - Column name
+     * @param {string} type - Data type
+     * @returns {string|number} - Cell value
+     */
     getCellValue(row, column, type) {
         const cell = row.querySelector(`td[data-field="${column}"]`);
         const value = cell.textContent.trim();
-        return type === 'number' ? parseFloat(value.replace(/,/g, '')) || 0 : value.toLowerCase();
+        
+        if (type === 'number') {
+            // Remove commas and convert to number
+            return parseFloat(value.replace(/,/g, '')) || 0;
+        }
+        
+        return value.toLowerCase();
     }
 
+    /**
+     * Update sort indicators in table headers
+     * @param {string} column - Column being sorted
+     * @param {string} direction - Sort direction
+     */
     updateSortIndicators(column, direction) {
         document.querySelectorAll('th[data-column] .sort-icon').forEach(icon => {
             icon.textContent = '';
         });
 
         const currentHeader = document.querySelector(`th[data-column="${column}"]`);
-        const sortIcon = currentHeader.querySelector('.sort-icon');
-        sortIcon.textContent = direction === 'asc' ? ' ↑' : ' ↓';
+        if (currentHeader) {
+            const sortIcon = currentHeader.querySelector('.sort-icon');
+            if (sortIcon) {
+                sortIcon.textContent = direction === 'asc' ? ' ↑' : ' ↓';
+            }
+        }
     }
 
+    /**
+     * Reorder table rows after sorting
+     * @param {Array<HTMLTableRowElement>} rows - Sorted rows
+     */
     reorderRows(rows) {
         this.tableBody.innerHTML = '';
         rows.forEach(row => this.tableBody.appendChild(row));
+        console.log(`🔄 Reordered ${rows.length} rows in table`);
     }
 }
 
-
-// Initialize handler
+// Initialize handler when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🌐 Document loaded, initializing XMLTableHandler...');
     try {
         window.tableHandler = new XMLTableHandler();
+        console.log('✅ XMLTableHandler successfully initialized');
     } catch (error) {
         console.error('❌ Initialization failed:', error);
         const errorDiv = document.createElement('div');
@@ -452,13 +638,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Register service worker
+// Register service worker for offline capabilities
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
+        console.log('🔄 Registering Service Worker...');
         navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
-            // .then(registration => console.log('ServiceWorker registered:', registration.scope))
-            .catch(err => console.error('ServiceWorker registration failed:', err));
+            .then(registration => console.log('✅ ServiceWorker registered successfully, scope:', registration.scope))
+            .catch(err => console.error('❌ ServiceWorker registration failed:', err));
     });
 }
-
-
