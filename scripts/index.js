@@ -4,6 +4,14 @@ class XMLTableHandler {
      * This handles XML data loading, parsing, filtering, sorting, and pagination
      */
     constructor() {
+
+         // Configuration object
+        this.config = {
+            maxPagesToShow: 5, // Maximum number of pages to show in the pagination interface
+            rowsPerPage: 10, // Default rows per page
+            minSearchChars: 5 // Minimum characters required for search
+        };
+        
         console.log('🚀 Initializing XMLTableHandler...');
         try {
             this.defineColumns();
@@ -365,46 +373,75 @@ class XMLTableHandler {
      * @param {number} totalPages - Total number of pages
      */
     renderPaginationControls(totalPages) {
-            if (!this.paginationContainer) return;
-        
-            // Clear existing controls
-            this.paginationContainer.innerHTML = '';
-        
-            // If there's only one page or no pages, hide controls
-            if (totalPages <= 1) {
-                this.paginationContainer.style.display = 'none';
-                console.log('🔢 Hiding pagination controls (single page)');
-                return;
-            }
-        
-            // Always show pagination controls when there are multiple pages
-            this.paginationContainer.style.display = 'flex';
-            console.log('🔢 Rendering pagination controls for', totalPages, 'pages');
-        
-            // Previous Button
-            this.createPaginationButton('Previous', () => {
-                if (this.state.currentPage > 1) {
-                    this.state.currentPage--;
-                    console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
-                    this.updatePagination();
-                }
-            }, this.state.currentPage === 1);
-        
-            // Page indicator
-            const pageIndicator = document.createElement('span');
-            pageIndicator.className = 'page-indicator';
-            pageIndicator.textContent = `Page ${this.state.currentPage} of ${totalPages}`;
-            this.paginationContainer.appendChild(pageIndicator);
-        
-            // Next Button
-            this.createPaginationButton('Next', () => {
-                if (this.state.currentPage < totalPages) {
-                    this.state.currentPage++;
-                    console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
-                    this.updatePagination();
-                }
-            }, this.state.currentPage === totalPages);
+        if (!this.paginationContainer) return;
+    
+        // Clear existing controls
+        this.paginationContainer.innerHTML = '';
+    
+        // If there's only one page or no pages, hide controls
+        if (totalPages <= 1) {
+            this.paginationContainer.style.display = 'none';
+            console.log('🔢 Hiding pagination controls (single page)');
+            return;
         }
+    
+        // Always show pagination controls when there are multiple pages
+        this.paginationContainer.style.display = 'flex';
+        console.log('🔢 Rendering pagination controls for', totalPages, 'pages');
+    
+        // Previous Button
+        this.createPaginationButton('Previous', () => {
+            if (this.state.currentPage > 1) {
+                this.state.currentPage--;
+                console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
+                this.updatePagination();
+            }
+        }, this.state.currentPage === 1);
+    
+        // Page buttons with ellipsis
+        const pages = this.getPageNumbers(this.state.currentPage, totalPages);
+        pages.forEach(page => {
+            if (page === '...') {
+                const span = document.createElement('span');
+                span.className = 'page-ellipsis';
+                span.textContent = '...';
+                this.paginationContainer.appendChild(span);
+            } else {
+                this.createPaginationButton(page, () => {
+                    this.state.currentPage = page;
+                    console.log(`📄 Moving to page: ${page}`);
+                    this.updatePagination();
+                }, false, this.state.currentPage === page);
+            }
+        });
+    
+        // Next Button
+        this.createPaginationButton('Next', () => {
+            if (this.state.currentPage < totalPages) {
+                this.state.currentPage++;
+                console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
+                this.updatePagination();
+            }
+        }, this.state.currentPage === totalPages);
+    }
+
+    getPageNumbers(currentPage, totalPages) {
+        const maxPagesToShow = this.config.maxPagesToShow;
+    
+        if (totalPages <= maxPagesToShow) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
+        }
+    
+        if (currentPage <= Math.ceil(maxPagesToShow / 2)) {
+            return [...Array.from({ length: maxPagesToShow - 1 }, (_, i) => i + 1), '...', totalPages];
+        }
+    
+        if (currentPage >= totalPages - Math.floor(maxPagesToShow / 2)) {
+            return [1, '...', ...Array.from({ length: maxPagesToShow - 1 }, (_, i) => totalPages - (maxPagesToShow - 2) + i)];
+        }
+    
+        return [1, '...', ...Array.from({ length: maxPagesToShow - 2 }, (_, i) => currentPage - Math.floor((maxPagesToShow - 3) / 2) + i), '...', totalPages];
+    }
 
     
     /**
