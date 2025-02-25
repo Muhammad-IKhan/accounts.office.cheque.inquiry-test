@@ -861,41 +861,6 @@ class XMLTableHandler {
     }
 }
 
-///////////////////////////////
-console.log('Filter Criteria:', {
-    searchTerm,
-    narCategory,
-    statusFilter
-});
-
-allRows.forEach(row => {
-    const narValue = row.getAttribute('data-nar');
-    const status = row.querySelector('td[data-field="DD"]')?.textContent?.toLowerCase() || '';
-    const cells = Array.from(row.getElementsByTagName('td'));
-
-    console.log('Row Data:', {
-        narValue,
-        status,
-        cells: cells.map(cell => ({
-            field: cell.getAttribute('data-field'),
-            value: cell.textContent
-        }))
-    });
-
-    const matchesCategory = narCategory === 'all' || narValue === narCategory;
-    const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-    const matchesSearch = !searchTerm || cells.some(cell => {
-        const field = cell.getAttribute('data-field');
-        const columnConfig = this.columns[field];
-        return columnConfig?.searchable && cell.textContent.toLowerCase().includes(searchTerm);
-    });
-
-    const visible = matchesCategory && matchesStatus && matchesSearch;
-    console.log('Row Visibility:', visible);
-    row.style.display = visible ? '' : 'none';
-    if (visible) matchCount++;
-});
-//////////////////////////////
 
 // Initialize handler when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
