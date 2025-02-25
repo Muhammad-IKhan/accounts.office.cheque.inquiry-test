@@ -686,7 +686,7 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         console.log('🔄 Registering Service Worker...');
         navigator.serviceWorker
-            .register('/service-worker.js', { scope: '/https://muhammad-ikhan.github.io/accounts.office.cheque.inquiry/public/data/files.json' })
+            .register('/' })
             .then((registration) => console.log('✅ ServiceWorker registered successfully, scope:', registration.scope))
             .catch((err) => console.error('❌ ServiceWorker registration failed:', err));
     });
