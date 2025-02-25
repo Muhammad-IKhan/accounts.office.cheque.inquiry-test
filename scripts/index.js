@@ -1,7 +1,7 @@
 class XMLTableHandler {
     /**
      * Initialize the XML Table Handler with all necessary components
-     * This handles XML data loading, parsing, filtering, sorting, and pagination
+     * This handles XML data loading, parsing, filtering, sorting and pagination
      */
     constructor() {
         console.log('🚀 Initializing XMLTableHandler...');
@@ -47,7 +47,7 @@ class XMLTableHandler {
      */
     initializeDOMElements() {
         console.log('🔍 Finding DOM elements...');
-
+        
         // Essential elements that must exist
         const essentialElements = {
             'checksTable': 'tableBody',
@@ -79,9 +79,9 @@ class XMLTableHandler {
         // Check optional elements and create if missing
         for (const [id, prop] of Object.entries(optionalElements)) {
             let element = document.getElementById(id);
-
+            
             if (!element) {
-                console.warn(`⚠️ Element #${id} not found in DOM. Creating fallback.`);
+                console.warn(`Press Ctrl+Shift+R ⚠️ Element #${id} not found in DOM. Creating fallback.`);
                 element = this.createFallbackElement(id);
                 this[prop] = element;
             } else {
@@ -99,7 +99,7 @@ class XMLTableHandler {
     createFallbackElement(id) {
         const container = document.createElement('div');
         container.id = id + '_fallback';
-
+        
         switch (id) {
             case 'pagination':
                 container.className = 'pagination-container';
@@ -113,15 +113,15 @@ class XMLTableHandler {
                 }
                 console.log('📄 Created fallback pagination container');
                 break;
-
+                
             case 'search':
-                container.innerHTML = `<input type="text" id="${id}" placeholder="Search...">`;
+                container.innerHTML = `<input type="text" placeholder="Search (min 5 characters)..." class="form-control" />`;
                 this.tableContainer.before(container);
                 console.log('🔍 Created fallback search input');
                 return container.querySelector('input');
-
+                
             case 'searchBtn':
-                container.innerHTML = `<button id="${id}">Search</button>`;
+                container.innerHTML = `<button class="btn btn-primary">Search</button>`;
                 // Try to append next to search input if it exists
                 const searchInput = document.getElementById('search');
                 if (searchInput) {
@@ -131,22 +131,22 @@ class XMLTableHandler {
                 }
                 console.log('🔍 Created fallback search button');
                 return container.querySelector('button');
-
+                
             case 'narCategory':
-                container.innerHTML = `<select id="${id}"><option value="all">All Categories</option></select>`;
+                container.innerHTML = `<select class="form-control"><option value="all">All Categories</option></select>`;
                 this.tableContainer.before(container);
                 console.log('📋 Created fallback NAR filter');
                 return container.querySelector('select');
-
+                
             case 'statusFilter':
-                container.innerHTML = `<select id="${id}"><option value="all">All Statuses</option></select>`;
+                container.innerHTML = `<select class="form-control"><option value="all">All Statuses</option></select>`;
                 this.tableContainer.before(container);
                 console.log('📋 Created fallback status filter');
                 return container.querySelector('select');
-
+                
             case 'rowsPerPage':
                 container.innerHTML = `
-                    <select id="${id}">
+                    <select class="form-control">
                         <option value="10">10 per page</option>
                         <option value="25">25 per page</option>
                         <option value="50">50 per page</option>
@@ -162,12 +162,12 @@ class XMLTableHandler {
                 }
                 console.log('📄 Created fallback rows per page selector');
                 return container.querySelector('select');
-
+                
             default:
                 console.log(`⚠️ No fallback created for #${id}`);
                 return container;
         }
-
+        
         return container;
     }
 
@@ -195,12 +195,12 @@ class XMLTableHandler {
     }
 
     /**
-     * Setup all event listeners for search, filter, pagination, and sorting
+     * Setup all event listeners for search, filter, pagination and sorting
      * Checks if elements exist before attaching listeners
      */
     initializeEventListeners() {
         console.log('👂 Setting up event listeners...');
-
+        
         // Search events - check if elements exist first
         if (this.searchInput) {
             this.searchInput.addEventListener('keydown', (e) => {
@@ -229,7 +229,7 @@ class XMLTableHandler {
             });
             console.log('✓ Added NAR filter listener');
         }
-
+        
         if (this.statusFilter) {
             this.statusFilter.addEventListener('change', () => {
                 console.log('🔄 Status filter changed:', this.statusFilter.value);
@@ -264,7 +264,7 @@ class XMLTableHandler {
         } else {
             console.log('⚠️ No sortable column headers found');
         }
-
+        
         console.log('✅ Event listener initialization complete');
     }
 
@@ -276,10 +276,10 @@ class XMLTableHandler {
      */
     handleBackspace(e) {
         if (!this.searchInput) return;
-
+        
         if (e.key === 'Backspace' && this.state.tableResetEnabled) {
             const inputBefore = this.searchInput.value.trim();
-
+            
             setTimeout(() => {
                 const inputAfter = this.searchInput.value.trim();
                 if (this.state.backspaceDefault && inputBefore.length > 1) {
@@ -307,7 +307,7 @@ class XMLTableHandler {
             this.state.paginationEnabled = false;
             return;
         }
-
+        
         console.log('🔢 Initializing pagination controls...');
         this.updatePagination();
     }
@@ -324,25 +324,25 @@ class XMLTableHandler {
         }
 
         console.log(`📄 Updating pagination for page ${this.state.currentPage}`);
-
+        
         // Store the current visible rows count before any modifications
         const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
             .filter(row => row.style.display !== 'none');
-
+        
         // Store this count in state for reference across methods
         this.state.visibleRowsCount = visibleRows.length;
         console.log(`👁️ Found ${this.state.visibleRowsCount} visible rows`);
 
         // Calculate total pages
         const totalPages = Math.max(1, Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage));
-
+        
         // Ensure current page is valid
         if (totalPages > 0) {
             this.state.currentPage = Math.min(Math.max(1, this.state.currentPage), totalPages);
         } else {
             this.state.currentPage = 1;
         }
-
+        
         console.log(`📚 Total pages: ${totalPages}, Current page: ${this.state.currentPage}`);
 
         // Calculate start and end indices for current page
@@ -357,8 +357,8 @@ class XMLTableHandler {
 
         // Always render pagination controls if we have filtered results
         this.renderPaginationControls(totalPages);
-
-        // Store the pagination state in session storage to preserve across page changes
+        
+        // Store the pagination state in a session storage to preserve across page changes
         try {
             sessionStorage.setItem('paginationState', JSON.stringify({
                 currentPage: this.state.currentPage,
@@ -380,41 +380,42 @@ class XMLTableHandler {
      */
     renderPaginationControls(totalPages) {
         if (!this.paginationContainer) return;
-
+        
         // Clear existing controls
         this.paginationContainer.innerHTML = '';
 
         // If there's only one page or no pages, hide controls
         if (totalPages <= 1) {
             this.paginationContainer.style.display = 'none';
+            console.log('🔢 Hiding pagination controls (single page)');
             return;
         }
 
+        // Always show pagination controls when there are multiple pages
         this.paginationContainer.style.display = 'flex';
+        console.log('🔢 Rendering pagination controls for', totalPages, 'pages');
 
-        // Previous button
+        // Previous Button
         this.createPaginationButton('Previous', () => {
             if (this.state.currentPage > 1) {
                 this.state.currentPage--;
                 console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
                 this.updatePagination();
             }
-        }, this.state.currentPage === 1);
+        }, this.state.currentPage <= 1);
 
-        // Page numbers
-        for (let i = 1; i <= totalPages; i++) {
-            this.createPaginationButton(i.toString(), () => {
-                this.state.currentPage = i;
-                console.log(`➡️ Moving to page: ${i}`);
-                this.updatePagination();
-            }, this.state.currentPage === i);
-        }
+        // Page indicator
+        const pageIndicator = document.createElement('span');
+        pageIndicator.className = 'page-indicator';
+        pageIndicator.textContent = `Page ${this.state.currentPage} of ${totalPages}`;
+        this.paginationContainer.appendChild(pageIndicator);
 
-        // Next button
+        // Next Button
         this.createPaginationButton('Next', () => {
             if (this.state.currentPage < totalPages) {
                 this.state.currentPage++;
                 console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
+                // Important: only update pagination, don't reapply filters
                 this.updatePagination();
             }
         }, this.state.currentPage >= totalPages);
@@ -428,7 +429,7 @@ class XMLTableHandler {
      */
     createPaginationButton(text, onClick, disabled = false) {
         if (!this.paginationContainer) return null;
-
+        
         const button = document.createElement('button');
         button.className = `page-btn${disabled ? ' disabled' : ''}`;
         button.textContent = text;
@@ -440,7 +441,7 @@ class XMLTableHandler {
 
     /**
      * Fetch XML data from server files or use cached data
-     * @returns {Promise} - True if data was successfully processed
+     * @returns {Promise<boolean>} - True if data was successfully processed
      */
     async fetchXMLData() {
         console.log('📥 Fetching XML data...');
@@ -450,21 +451,21 @@ class XMLTableHandler {
             const xmlFiles = await filesResponse.json();
             console.log(`📄 Found ${xmlFiles.length} XML files to process`);
 
-            let combinedXML = '';
+            let combinedXML = '<root>';
             for (const file of xmlFiles) {
                 console.log(`🔄 Processing file: ${file}`);
                 const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 let xmlContent = await fileResponse.text();
-                xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/g, '').replace(/\s+/g, ' ');
+                xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '').replace(/<\/?root>/g, '');
                 combinedXML += xmlContent;
             }
-            combinedXML += '';
+            combinedXML += '</root>';
 
             console.log('💾 Saving combined XML to local storage');
             localStorage.setItem('xmlData', combinedXML);
             this.state.xmlData = combinedXML;
-
+            
             const result = this.parseXMLToTable(combinedXML);
             this.initializePagination(); // Initialize pagination after parsing data
             return result;
@@ -594,25 +595,25 @@ class XMLTableHandler {
             console.log('⚠️ Search input is missing, cannot perform search');
             return;
         }
-
+        
         const searchTerm = this.searchInput.value.trim().toLowerCase();
-
+        
         // Check if search term meets minimum length requirement
         if (searchTerm.length > 0 && searchTerm.length < this.state.minSearchChars) {
             this.showError(`Search term must be at least ${this.state.minSearchChars} characters.`);
             console.log(`🔎 Search rejected, term too short: "${searchTerm}" (${searchTerm.length}/${this.state.minSearchChars})`);
             return;
         }
-
+        
         console.log(`🔎 Performing search for: "${searchTerm}"`);
         this.state.lastSearchTerm = searchTerm;
-
+        
         // Reset to first page when performing a new search
         this.state.currentPage = 1;
-
+        
         this.applyFilters();
     }
-
+    
     /**
      * Apply all filters (search, category, status)
      */
@@ -621,13 +622,13 @@ class XMLTableHandler {
         const searchTerm = this.state.lastSearchTerm;
         let narCategory = 'all';
         let statusFilter = 'all';
-
+        
         // Only get values if elements exist
         if (this.narFilter) {
             narCategory = this.narFilter.value.toLowerCase();
             this.state.lastFilterCategory = narCategory;
         }
-
+        
         if (this.statusFilter) {
             statusFilter = this.statusFilter.value.toLowerCase();
             this.state.currentStatusFilter = statusFilter;
@@ -650,22 +651,22 @@ class XMLTableHandler {
 
         // Apply filters to all rows
         const allRows = Array.from(this.tableBody.querySelectorAll('tr'));
-
+        
         // First: Hide all rows
         allRows.forEach(row => {
             row.style.display = 'none';
         });
-
+        
         // Then: Apply filter and show matching rows
         allRows.forEach(row => {
             const narValue = row.getAttribute('data-nar');
             const status = row.querySelector('td[data-field="DD"]')?.textContent?.toLowerCase() || '';
             const cells = Array.from(row.getElementsByTagName('td'));
-
+            
             // Check category match
-            const matchesCategory = narCategory === 'all' || narValue === narCategory;
+            const matchesCategory = narCategory === 'all' || narValue === narCategory;  
             // Check status match
-            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);  
             // Check search term match
             const matchesSearch = !searchTerm || cells.some(cell => {
                 const field = cell.getAttribute('data-field');
@@ -679,16 +680,15 @@ class XMLTableHandler {
 
             // Determine visibility based on filter criteria
             const visible = matchesCategory && matchesStatus && matchesSearch;
-
+            
             if (visible) {
-                row.style.display = '';
                 matchCount++;
             }
         });
 
         console.log(`🔍 Filter found ${matchCount} matching rows`);
         this.updateSearchResults(matchCount);
-
+        
         // After filtering, reset pagination state and update
         this.state.visibleRowsCount = matchCount;
         this.updatePagination();
@@ -704,7 +704,7 @@ class XMLTableHandler {
         let narCategory = this.state.lastFilterCategory || 'all';
         let statusFilter = this.state.currentStatusFilter || 'all';
         let narCategoryText = 'All Categories';
-
+        
         // Only get values if elements exist
         if (this.narFilter) {
             // Get selected option text safely
@@ -727,27 +727,27 @@ class XMLTableHandler {
      */
     resetTable() {
         console.log('🔄 Resetting table to initial state');
-
+        
         // Clear any error messages
         this.resultContainer.innerHTML = '';
-
+        
         // Reset elements if they exist
         if (this.searchInput) this.searchInput.value = '';
         if (this.narFilter) this.narFilter.value = 'all';
         if (this.statusFilter) this.statusFilter.value = 'all';
-
+        
         this.state.lastSearchTerm = '';
         this.state.currentPage = 1; // Reset to the first page
-
+        
         this.tableContainer.style.display = 'none';
         this.emptyState.style.display = 'block';
         this.resultContainer.style.display = 'none';
-
+        
         // Make all rows visible
         this.tableBody.querySelectorAll('tr').forEach(row => {
             row.style.display = '';
         });
-
+        
         // Reset pagination
         this.state.visibleRowsCount = this.tableBody.querySelectorAll('tr').length;
         this.updatePagination();
@@ -779,22 +779,22 @@ class XMLTableHandler {
 
         const direction = this.state.sortColumn === column && this.state.sortDirection === 'asc' ? 'desc' : 'asc';
         const type = this.columns[column].type;
-
+        
         console.log(`🔃 Sorting by ${column} (${type}) in ${direction} order`);
 
         const rows = Array.from(this.tableBody.getElementsByTagName('tr'));
         rows.sort((a, b) => {
             const aValue = this.getCellValue(a, column, type);
             const bValue = this.getCellValue(b, column, type);
-
-            return direction === 'asc' ?
+            
+            return direction === 'asc' ? 
                 aValue > bValue ? 1 : -1 :
                 aValue < bValue ? 1 : -1;
         });
 
         this.updateSortIndicators(column, direction);
         this.reorderRows(rows);
-
+        
         this.state.sortColumn = column;
         this.state.sortDirection = direction;
         console.log('✅ Sorting complete');
@@ -813,14 +813,14 @@ class XMLTableHandler {
             console.warn(`⚠️ Cell not found for field ${column}`);
             return type === 'number' ? 0 : '';
         }
-
+        
         const value = cell.textContent.trim();
-
+        
         if (type === 'number') {
             // Remove commas and convert to number
             return parseFloat(value.replace(/,/g, '')) || 0;
         }
-
+        
         return value.toLowerCase();
     }
 
@@ -840,21 +840,21 @@ class XMLTableHandler {
         const currentHeader = document.querySelector(`th[data-column="${column}"]`);
         if (currentHeader) {
             let sortIcon = currentHeader.querySelector('.sort-icon');
-
+            
             // Create sort icon if it doesn't exist
             if (!sortIcon) {
                 sortIcon = document.createElement('span');
                 sortIcon.className = 'sort-icon';
                 currentHeader.appendChild(sortIcon);
             }
-
+            
             sortIcon.textContent = direction === 'asc' ? ' ↑' : ' ↓';
         }
     }
 
-    /**
+        /**
      * Reorder table rows after sorting
-     * @param {Array} rows - Sorted rows
+     * @param {Array<HTMLTableRowElement>} rows - Sorted rows
      */
     reorderRows(rows) {
         this.tableBody.innerHTML = '';
