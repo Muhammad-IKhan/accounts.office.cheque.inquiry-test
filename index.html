@@ -285,7 +285,15 @@
                 <span>Board of Intermediate & Secondary Education Bannu</span>
             </div>
         </div>
-
+         <!-- Rows Per Page Selector -->
+        <div>
+            <label for="rowsPerPage">Interface Selection</label>
+            <select id="rowsPerPage">
+                <option value="5" selected>Mobile</option>
+                <option value="10" >Desktop</option>
+                <option value="25">Office</option>
+            </select>
+        </div>
         <!-- Controls -->
         <div class="controls">
             <div class="filter-box">
@@ -330,9 +338,7 @@
             <button id="searchBtn">Search</button>
         </div>
 
-        <!-- Results -->
-        <div id="result" class="result-container"></div>
-
+        
         <!-- Empty State -->
         <div id="emptyState" class="empty-state">
             <h3>Welcome to Office for Live Inquiry, Updation and Information</h3>
@@ -341,17 +347,6 @@
 
         <!-- Table -->
         <div id="tableContainer" class="table-container">
-            <!-- Rows Per Page Selector -->
-            <div>
-                <label for="rowsPerPage">Rows Per Page</label>
-                <select id="rowsPerPage">
-                    <option value="5">5</option>
-                    <option value="10" selected>10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                </select>
-            </div>
-
             <table>
                 <thead>
                     <tr>
@@ -366,6 +361,8 @@
             </table>
         </div>
 
+        <!-- Results -->
+        <div id="result" class="result-container"></div>
         <!-- Pagination -->
         <div id="paginationContainer" class="pagination-controls"></div>
     </div>
