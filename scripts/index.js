@@ -10,7 +10,7 @@ class XMLTableHandler {
             rowsPerPage: 10, // Default rows per page
             minSearchChars: 3, // Minimum characters required for search
             enableCaching: true, // Enable caching of XML data
-            debugMode: true  // Enable detailed logging for debugging
+            debugMode: true // Enable detailed logging for debugging
         };
 
         console.log('🚀 Initializing XMLTableHandler...');
@@ -54,7 +54,6 @@ class XMLTableHandler {
 
     /**
      * Initialize all required DOM elements.
-     * Creates fallback elements if any are missing.
      */
     initializeDOMElements() {
         console.log('🔍 Finding DOM elements...');
@@ -64,11 +63,7 @@ class XMLTableHandler {
             checksTable: 'tableBody',
             tableContainer: 'tableContainer',
             emptyState: 'emptyState',
-            result: 'resultContainer'
-        };
-
-        // Optional elements that can be created if missing
-        const optionalElements = {
+            result: 'resultContainer',
             search: 'searchInput',
             narCategory: 'narFilter',
             statusFilter: 'statusFilter',
@@ -86,62 +81,6 @@ class XMLTableHandler {
             this[prop] = element;
             console.log(`✓ Found essential element #${id}`);
         }
-
-        // Check optional elements and create fallbacks if missing
-        for (const [id, prop] of Object.entries(optionalElements)) {
-            let element = document.getElementById(id);
-            if (!element) {
-                console.warn(`⚠️ Element #${id} not found in DOM. Creating fallback.`);
-                element = this.createFallbackElement(id);
-            }
-            this[prop] = element;
-            console.log(`✓ Found/created element #${id}`);
-        }
-    }
-
-    /**
-     * Create fallback elements for missing DOM elements.
-     * @param {string} id - ID of the missing element
-     * @returns {HTMLElement} - Created fallback element
-     */
-    createFallbackElement(id) {
-        const container = document.createElement('div');
-        container.id = id + '_fallback';
-
-        switch (id) {
-            case 'pagination':
-                container.className = 'pagination-container';
-                container.innerHTML = `<button class="page-btn">1</button>`;
-                this.tableContainer.after(container);
-                break;
-            case 'search':
-                container.innerHTML = `<input type="text" placeholder="Search..." class="form-control" />`;
-                this.tableContainer.before(container);
-                return container.querySelector('input');
-            case 'narCategory':
-                container.innerHTML = `<select class="form-control"><option value="all">All Categories</option></select>`;
-                this.tableContainer.before(container);
-                return container.querySelector('select');
-            case 'statusFilter':
-                container.innerHTML = `<select class="form-control"><option value="all">All Statuses</option></select>`;
-                this.tableContainer.before(container);
-                return container.querySelector('select');
-            case 'rowsPerPage':
-                container.innerHTML = `
-                    <select class="form-control">
-                        <option value="10">10 per page</option>
-                        <option value="25">25 per page</option>
-                        <option value="50">50 per page</option>
-                        <option value="100">100 per page</option>
-                    </select>`;
-                this.tableContainer.after(container);
-                return container.querySelector('select');
-            default:
-                console.warn(`⚠️ No fallback created for #${id}`);
-                return container;
-        }
-
-        return container;
     }
 
     /**
@@ -171,19 +110,17 @@ class XMLTableHandler {
         console.log('👂 Setting up event listeners...');
 
         // Search events
-        if (this.searchInput) {
-            this.searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') this.performSearch();
-            });
-            this.searchBtn?.addEventListener('click', () => this.performSearch());
-        }
+        this.searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') this.performSearch();
+        });
+        this.searchBtn.addEventListener('click', () => this.performSearch());
 
         // Filter events
-        this.narFilter?.addEventListener('change', () => this.applyFilters());
-        this.statusFilter?.addEventListener('change', () => this.applyFilters());
+        this.narFilter.addEventListener('change', () => this.applyFilters());
+        this.statusFilter.addEventListener('change', () => this.applyFilters());
 
         // Pagination events
-        this.rowsPerPageSelect?.addEventListener('change', () => {
+        this.rowsPerPageSelect.addEventListener('change', () => {
             this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
             this.state.currentPage = 1;
             this.updatePagination();
@@ -204,7 +141,7 @@ class XMLTableHandler {
     async fetchXMLData() {
         console.log('📥 Fetching XML data...');
         try {
-            const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/files.json');
+            const filesResponse = await fetch('accounts.office.cheque.inquiry/public/data/files.json');
             if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
             const xmlFiles = await filesResponse.json();
             console.log(`📄 Found ${xmlFiles.length} XML files to process`);
@@ -347,11 +284,6 @@ class XMLTableHandler {
      * Perform search using input value.
      */
     performSearch() {
-        if (!this.searchInput) {
-            console.log('⚠️ Search input is missing, cannot perform search');
-            return;
-        }
-
         const searchTerm = this.searchInput.value.trim().toLowerCase();
         if (searchTerm.length > 0 && searchTerm.length < this.config.minSearchChars) {
             this.showError(`Search term must be at least ${this.config.minSearchChars} characters.`);
@@ -371,8 +303,8 @@ class XMLTableHandler {
     applyFilters() {
         console.log('🔍 Applying filters...');
         const searchTerm = this.state.lastSearchTerm;
-        const narCategory = this.narFilter?.value.toLowerCase() || 'all';
-        const statusFilter = this.statusFilter?.value.toLowerCase() || 'all';
+        const narCategory = this.narFilter.value.toLowerCase();
+        const statusFilter = this.statusFilter.value.toLowerCase();
 
         console.log(`🔍 Filter criteria: search="${searchTerm}", category="${narCategory}", status="${statusFilter}"`);
 
@@ -427,15 +359,9 @@ class XMLTableHandler {
      */
     updateSearchResults(matchCount) {
         const searchTerm = this.state.lastSearchTerm;
-        const narCategory = this.narFilter?.value.toLowerCase() || 'all';
-        const statusFilter = this.statusFilter?.value.toLowerCase() || 'all';
-        let narCategoryText = 'All Categories';
-
-        // Get selected option text safely
-        if (this.narFilter) {
-            const selectedOption = this.narFilter.options[this.narFilter.selectedIndex];
-            narCategoryText = selectedOption ? selectedOption.text : 'All Categories';
-        }
+        const narCategory = this.narFilter.value.toLowerCase();
+        const statusFilter = this.statusFilter.value.toLowerCase();
+        const narCategoryText = this.narFilter.options[this.narFilter.selectedIndex].text;
 
         let message = `Found ${matchCount} results`;
         if (searchTerm) message += ` for "${searchTerm}"`;
@@ -451,24 +377,30 @@ class XMLTableHandler {
      */
     resetTable() {
         console.log('🔄 Resetting table to initial state');
-        if (this.searchInput) this.searchInput.value = '';
-        if (this.narFilter) this.narFilter.value = 'all';
-        if (this.statusFilter) this.statusFilter.value = 'all';
+        this.searchInput.value = '';
+        this.narFilter.value = 'all';
+        this.statusFilter.value = 'all';
 
         this.state.lastSearchTerm = '';
         this.state.currentPage = 1;
-
-        this.tableContainer.style.display = 'none';
-        this.emptyState.style.display = 'block';
-        this.resultContainer.style.display = 'none';
 
         // Make all rows visible
         this.tableBody.querySelectorAll('tr').forEach(row => {
             row.style.display = '';
         });
 
-        // Reset pagination
+        // Update visibility and pagination
         this.state.visibleRowsCount = this.tableBody.querySelectorAll('tr').length;
+        if (this.state.visibleRowsCount === 0) {
+            this.tableContainer.style.display = 'none';
+            this.emptyState.style.display = 'block';
+            this.resultContainer.style.display = 'none';
+        } else {
+            this.tableContainer.style.display = 'block';
+            this.emptyState.style.display = 'none';
+            this.resultContainer.style.display = 'block';
+        }
+
         this.updatePagination();
     }
 
