@@ -333,7 +333,7 @@ class XMLTableHandler {
         this.state.visibleRowsCount = visibleRows.length;
         console.log(`👁️ Found ${this.state.visibleRowsCount} visible rows`);
     
-        // Calculate total pages
+        // Calculate total pages based on total filtered rows
         const totalPages = Math.max(1, Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage));
     
         // Ensure current page is valid
@@ -365,46 +365,48 @@ class XMLTableHandler {
      * @param {number} totalPages - Total number of pages
      */
     renderPaginationControls(totalPages) {
-        if (!this.paginationContainer) return;
-    
-        // Clear existing controls
-        this.paginationContainer.innerHTML = '';
-    
-        // If there's only one page or no pages, hide controls
-        if (totalPages <= 1) {
-            this.paginationContainer.style.display = 'none';
-            console.log('🔢 Hiding pagination controls (single page)');
-            return;
+            if (!this.paginationContainer) return;
+        
+            // Clear existing controls
+            this.paginationContainer.innerHTML = '';
+        
+            // If there's only one page or no pages, hide controls
+            if (totalPages <= 1) {
+                this.paginationContainer.style.display = 'none';
+                console.log('🔢 Hiding pagination controls (single page)');
+                return;
+            }
+        
+            // Always show pagination controls when there are multiple pages
+            this.paginationContainer.style.display = 'flex';
+            console.log('🔢 Rendering pagination controls for', totalPages, 'pages');
+        
+            // Previous Button
+            this.createPaginationButton('Previous', () => {
+                if (this.state.currentPage > 1) {
+                    this.state.currentPage--;
+                    console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
+                    this.updatePagination();
+                }
+            }, this.state.currentPage === 1);
+        
+            // Page indicator
+            const pageIndicator = document.createElement('span');
+            pageIndicator.className = 'page-indicator';
+            pageIndicator.textContent = `Page ${this.state.currentPage} of ${totalPages}`;
+            this.paginationContainer.appendChild(pageIndicator);
+        
+            // Next Button
+            this.createPaginationButton('Next', () => {
+                if (this.state.currentPage < totalPages) {
+                    this.state.currentPage++;
+                    console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
+                    this.updatePagination();
+                }
+            }, this.state.currentPage === totalPages);
         }
+
     
-        // Always show pagination controls when there are multiple pages
-        this.paginationContainer.style.display = 'flex';
-        console.log('🔢 Rendering pagination controls for', totalPages, 'pages');
-    
-        // Previous Button
-        this.createPaginationButton('Previous', () => {
-            if (this.state.currentPage > 1) {
-                this.state.currentPage--;
-                console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
-                this.updatePagination();
-            }
-        }, this.state.currentPage === 1);
-    
-        // Page indicator
-        const pageIndicator = document.createElement('span');
-        pageIndicator.className = 'page-indicator';
-        pageIndicator.textContent = `Page ${this.state.currentPage} of ${totalPages}`;
-        this.paginationContainer.appendChild(pageIndicator);
-    
-        // Next Button
-        this.createPaginationButton('Next', () => {
-            if (this.state.currentPage < totalPages) {
-                this.state.currentPage++;
-                console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
-                this.updatePagination();
-            }
-        }, this.state.currentPage === totalPages);
-    }
     /**
      * Create a pagination button with appropriate handlers
      * @param {string} text - Button text
