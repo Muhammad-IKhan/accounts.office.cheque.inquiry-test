@@ -430,8 +430,11 @@ class XMLTableHandler {
     showError(message) {
         console.error('Error:', message);
         this.resultContainer.innerHTML = `
+             <div class="alert alert-success">
+               Press Ctrl+Shif+R or forwart the message: ${message} to 00
+            </div>
             <div class="alert alert-danger">
-               try by Pressing Ctrl+Shif+R or forwart the message: ${message} to 00
+               not worked? forwart the message: ${message} to 00
             </div>
         `;
         this.resultContainer.style.display = 'block';
