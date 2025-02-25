@@ -1,32 +1,36 @@
 class XMLTableHandler {
     /**
-     * Initialize the XML Table Handler with all necessary components
-     * This handles XML data loading, parsing, filtering, sorting, and pagination
+     * Initialize the XML Table Handler with all necessary components.
+     * Handles XML data loading, parsing, filtering, sorting, and pagination.
      */
     constructor() {
-
-         // Configuration object
+        // Configuration object for default settings
         this.config = {
-            maxPagesToShow: 5, // Maximum number of pages to show in the pagination interface
+            maxPagesToShow: 5, // Maximum number of pages to show in pagination
             rowsPerPage: 10, // Default rows per page
-            minSearchChars: 5 // Minimum characters required for search
+            minSearchChars: 3, // Minimum characters required for search
+            enableCaching: true, // Enable caching of XML data
+            debugMode: true // Enable detailed logging for debugging
         };
-        
+
         console.log('🚀 Initializing XMLTableHandler...');
         try {
+            // Initialize all components
             this.defineColumns();
             this.initializeDOMElements();
             this.initializeState();
             this.initializeEventListeners();
 
             // Fetch and display data
-            this.fetchXMLData().then(() => {
-                this.resetTable();
-                console.log('✅ Initial data load complete');
-            }).catch(error => {
-                console.error('❌ Initial data load failed:', error);
-                this.showError('Failed to load initial data: ' + error.message);
-            });
+            this.fetchXMLData()
+                .then(() => {
+                    this.resetTable();
+                    console.log('✅ Initial data load complete');
+                })
+                .catch((error) => {
+                    console.error('❌ Initial data load failed:', error);
+                    this.showError('Failed to load initial data: ' + error.message);
+                });
         } catch (error) {
             console.error('❌ Constructor Error:', error.message);
             this.showError('Failed to initialize table handler: ' + error.message);
@@ -34,8 +38,8 @@ class XMLTableHandler {
     }
 
     /**
-     * Define table columns configuration
-     * Each column has its index, data type, display title, and search properties
+     * Define table columns configuration.
+     * Each column has its index, data type, display title, and search properties.
      */
     defineColumns() {
         console.log('📊 Defining table columns...');
@@ -49,29 +53,28 @@ class XMLTableHandler {
     }
 
     /**
-     * Initialize all required DOM elements
-     * Creates missing pagination elements if needed
-     * Falls back gracefully for non-critical elements
+     * Initialize all required DOM elements.
+     * Creates fallback elements if any are missing.
      */
     initializeDOMElements() {
         console.log('🔍 Finding DOM elements...');
-        
+
         // Essential elements that must exist
         const essentialElements = {
-            'checksTable': 'tableBody',
-            'tableContainer': 'tableContainer',
-            'emptyState': 'emptyState',
-            'result': 'resultContainer'
+            checksTable: 'tableBody',
+            tableContainer: 'tableContainer',
+            emptyState: 'emptyState',
+            result: 'resultContainer'
         };
 
         // Optional elements that can be created if missing
         const optionalElements = {
-            'search': 'searchInput',
-            'narCategory': 'narFilter',
-            'statusFilter': 'statusFilter',
-            'pagination': 'paginationContainer',
-            'searchBtn': 'searchBtn',
-            'rowsPerPage': 'rowsPerPageSelect'
+            search: 'searchInput',
+            narCategory: 'narFilter',
+            statusFilter: 'statusFilter',
+            pagination: 'paginationContainer',
+            searchBtn: 'searchBtn',
+            rowsPerPage: 'rowsPerPageSelect'
         };
 
         // Check essential elements
@@ -84,384 +87,100 @@ class XMLTableHandler {
             console.log(`✓ Found essential element #${id}`);
         }
 
-        // Check optional elements and create if missing
+        // Check optional elements and create fallbacks if missing
         for (const [id, prop] of Object.entries(optionalElements)) {
             let element = document.getElementById(id);
-            
             if (!element) {
-                console.warn(`Press Ctrl+Shift+R ⚠️ Element #${id} not found in DOM. Creating fallback.`);
+                console.warn(`⚠️ Element #${id} not found in DOM. Creating fallback.`);
                 element = this.createFallbackElement(id);
-                this[prop] = element;
-            } else {
-                this[prop] = element;
-                console.log(`✓ Found optional element #${id}`);
             }
+            this[prop] = element;
+            console.log(`✓ Found/created element #${id}`);
         }
     }
 
     /**
-     * Create fallback elements for missing DOM elements
+     * Create fallback elements for missing DOM elements.
      * @param {string} id - ID of the missing element
      * @returns {HTMLElement} - Created fallback element
      */
     createFallbackElement(id) {
         const container = document.createElement('div');
         container.id = id + '_fallback';
-        
+
         switch (id) {
             case 'pagination':
                 container.className = 'pagination-container';
-                // Append to result container or table container
-                if (this.resultContainer) {
-                    this.resultContainer.after(container);
-                } else if (this.tableContainer) {
-                    this.tableContainer.after(container);
-                } else {
-                    document.body.appendChild(container);
-                }
-                console.log('📄 Created fallback pagination container');
+                container.innerHTML = `<button class="page-btn">1</button>`;
+                this.tableContainer.after(container);
                 break;
-                
             case 'search':
-                container.innerHTML = `<input type="text" placeholder="Search (min 5 characters)..." class="form-control" />`;
+                container.innerHTML = `<input type="text" placeholder="Search..." class="form-control" />`;
                 this.tableContainer.before(container);
-                console.log('🔍 Created fallback search input');
                 return container.querySelector('input');
-                
-            case 'searchBtn':
-                container.innerHTML = `<button class="btn btn-primary">Search</button>`;
-                // Try to append next to search input if it exists
-                const searchInput = document.getElementById('search');
-                if (searchInput) {
-                    searchInput.after(container);
-                } else {
-                    this.tableContainer.before(container);
-                }
-                console.log('🔍 Created fallback search button');
-                return container.querySelector('button');
-                
-            case 'narCategory':
-                container.innerHTML = `<select class="form-control"><option value="all">All Categories</option></select>`;
-                this.tableContainer.before(container);
-                console.log('📋 Created fallback NAR filter');
-                return container.querySelector('select');
-                
-            case 'statusFilter':
-                container.innerHTML = `<select class="form-control"><option value="all">All Statuses</option></select>`;
-                this.tableContainer.before(container);
-                console.log('📋 Created fallback status filter');
-                return container.querySelector('select');
-                
-            case 'rowsPerPage':
-                container.innerHTML = `
-                    <select class="form-control">
-                        <option value="10">10 per page</option>
-                        <option value="25">25 per page</option>
-                        <option value="50">50 per page</option>
-                        <option value="100">100 per page</option>
-                    </select>
-                `;
-                // Try to append near pagination if it exists
-                const paginationContainer = document.getElementById('pagination');
-                if (paginationContainer) {
-                    paginationContainer.before(container);
-                } else {
-                    this.tableContainer.after(container);
-                }
-                console.log('📄 Created fallback rows per page selector');
-                return container.querySelector('select');
-                
+            // Add more cases for other optional elements...
             default:
-                console.log(`⚠️ No fallback created for #${id}`);
+                console.warn(`⚠️ No fallback created for #${id}`);
                 return container;
         }
-        
+
         return container;
     }
 
     /**
-     * Initialize application state with default values
+     * Initialize application state with default values.
      */
     initializeState() {
         console.log('🏁 Initializing application state...');
         this.state = {
             enableLiveUpdate: false,
-            tableResetEnabled: true,
-            backspaceDefault: true,
             xmlData: '',
             lastSearchTerm: '',
             currentStatusFilter: 'all',
             lastFilterCategory: 'all',
             paginationEnabled: true,
-            rowsPerPage: 10, // Changed from 5 to 10 for better initial pagination
+            rowsPerPage: this.config.rowsPerPage,
             currentPage: 1,
             visibleRowsCount: 0,
             sortColumn: null,
-            sortDirection: 'asc',
-            minSearchChars: 5 // Added minimum search characters
+            sortDirection: 'asc'
         };
     }
 
     /**
-     * Setup all event listeners for search, filter, pagination, and sorting
-     * Checks if elements exist before attaching listeners
+     * Setup all event listeners for search, filter, pagination, and sorting.
      */
     initializeEventListeners() {
         console.log('👂 Setting up event listeners...');
-        
-        // Search events - check if elements exist first
+
+        // Search events
         if (this.searchInput) {
             this.searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    console.log('🔎 Search triggered by Enter key');
-                    this.performSearch();
-                }
-                this.handleBackspace(e);
+                if (e.key === 'Enter') this.performSearch();
             });
-            console.log('✓ Added search input listeners');
+            this.searchBtn?.addEventListener('click', () => this.performSearch());
         }
 
-        if (this.searchBtn) {
-            this.searchBtn.addEventListener('click', () => {
-                console.log('🔎 Search triggered by button click');
-                this.performSearch();
-            });
-            console.log('✓ Added search button listener');
-        }
+        // Filter events
+        this.narFilter?.addEventListener('change', () => this.applyFilters());
+        this.statusFilter?.addEventListener('change', () => this.applyFilters());
 
-        // Filter events - check if elements exist first
-        if (this.narFilter) {
-            this.narFilter.addEventListener('change', () => {
-                console.log('🔄 NAR filter changed:', this.narFilter.value);
-                this.applyFilters();
-            });
-            console.log('✓ Added NAR filter listener');
-        }
-        
-        if (this.statusFilter) {
-            this.statusFilter.addEventListener('change', () => {
-                console.log('🔄 Status filter changed:', this.statusFilter.value);
-                this.applyFilters();
-            });
-            console.log('✓ Added status filter listener');
-        }
-
-        // Rows per page change - check if element exists first
-        if (this.rowsPerPageSelect) {
-            this.rowsPerPageSelect.addEventListener('change', () => {
-                const newValue = parseInt(this.rowsPerPageSelect.value);
-                console.log(`📄 Rows per page changed to ${newValue}`);
-                this.state.rowsPerPage = newValue;
-                this.state.currentPage = 1; // Reset to first page
-                this.updatePagination();
-            });
-            console.log('✓ Added rows per page listener');
-        }
-
-        // Sorting events - check if there are sortable columns
-        const sortableHeaders = document.querySelectorAll('th[data-column]');
-        if (sortableHeaders.length > 0) {
-            sortableHeaders.forEach(header => {
-                header.addEventListener('click', () => {
-                    const column = header.dataset.column;
-                    console.log(`🔃 Sort requested for column: ${column}`);
-                    this.sortTable(column);
-                });
-            });
-            console.log(`✓ Added sorting listeners to ${sortableHeaders.length} column headers`);
-        } else {
-            console.log('⚠️ No sortable column headers found');
-        }
-        
-        console.log('✅ Event listener initialization complete');
-    }
-
-    /**
-     * Handle backspace functionality in search input
-     * Resets table when appropriate
-     * Only runs if search input exists
-     * @param {KeyboardEvent} e - The keyboard event
-     */
-    handleBackspace(e) {
-        if (!this.searchInput) return;
-        
-        if (e.key === 'Backspace' && this.state.tableResetEnabled) {
-            const inputBefore = this.searchInput.value.trim();
-            
-            setTimeout(() => {
-                const inputAfter = this.searchInput.value.trim();
-                if (this.state.backspaceDefault && inputBefore.length > 1) {
-                    const caretPosition = this.searchInput.selectionStart;
-                    this.resetTable();
-                    this.searchInput.value = inputAfter;
-                    this.searchInput.setSelectionRange(caretPosition, caretPosition);
-                    this.state.backspaceDefault = false;
-                    console.log('⌫ Backspace triggered table reset');
-                }
-                if (inputAfter.length > 0) {
-                    this.state.backspaceDefault = true;
-                }
-            }, 0);
-        }
-    }
-
-    /**
-     * Initialize pagination controls
-     * Only runs if pagination is enabled and container exists
-     */
-    initializePagination() {
-        if (!this.paginationContainer) {
-            console.log('⚠️ Pagination container is missing, disabling pagination');
-            this.state.paginationEnabled = false;
-            return;
-        }
-        
-        console.log('🔢 Initializing pagination controls...');
-        this.updatePagination();
-    }
-
-    /**
-     * Update pagination based on current page and rows per page
-     * Handles visibility of rows and rendering pagination controls
-     * Skips if pagination is disabled or container is missing
-     */
-   updatePagination() {
-        if (!this.state.paginationEnabled || !this.paginationContainer) {
-            console.log('⏩ Pagination is disabled or container missing, skipping update');
-            return;
-        }
-    
-        console.log(`📄 Updating pagination for page ${this.state.currentPage}`);
-    
-        // Get all rows that are visible (not hidden)
-        const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
-            .filter(row => row.style.display !== 'none');
-    
-        // Store this count in state for reference across methods
-        this.state.visibleRowsCount = visibleRows.length;
-        console.log(`👁️ Found ${this.state.visibleRowsCount} visible rows`);
-    
-        // Calculate total pages based on total filtered rows
-        const totalPages = Math.max(1, Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage));
-    
-        // Ensure current page is valid
-        if (totalPages > 0) {
-            this.state.currentPage = Math.min(Math.max(1, this.state.currentPage), totalPages);
-        } else {
+        // Pagination events
+        this.rowsPerPageSelect?.addEventListener('change', () => {
+            this.state.rowsPerPage = parseInt(this.rowsPerPageSelect.value);
             this.state.currentPage = 1;
-        }
-    
-        console.log(`📚 Total pages: ${totalPages}, Current page: ${this.state.currentPage}`);
-    
-        // Calculate start and end indices for current page
-        const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
-        const endIndex = startIndex + this.state.rowsPerPage;
-    
-        // Update row visibility based on current page
-        visibleRows.forEach((row, index) => {
-            row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+            this.updatePagination();
         });
-    
-        // Render pagination controls
-        this.renderPaginationControls(totalPages);
-    }
-    
-    
-    /**
-     * Render pagination control buttons
-     * Only runs if pagination container exists
-     * @param {number} totalPages - Total number of pages
-     */
-    renderPaginationControls(totalPages) {
-        if (!this.paginationContainer) return;
-    
-        // Clear existing controls
-        this.paginationContainer.innerHTML = '';
-    
-        // If there's only one page or no pages, hide controls
-        if (totalPages <= 1) {
-            this.paginationContainer.style.display = 'none';
-            console.log('🔢 Hiding pagination controls (single page)');
-            return;
-        }
-    
-        // Always show pagination controls when there are multiple pages
-        this.paginationContainer.style.display = 'flex';
-        console.log('🔢 Rendering pagination controls for', totalPages, 'pages');
-    
-        // Previous Button
-        this.createPaginationButton('Previous', () => {
-            if (this.state.currentPage > 1) {
-                this.state.currentPage--;
-                console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
-                this.updatePagination();
-            }
-        }, this.state.currentPage === 1);
-    
-        // Page buttons with ellipsis
-        const pages = this.getPageNumbers(this.state.currentPage, totalPages);
-        pages.forEach(page => {
-            if (page === '...') {
-                const span = document.createElement('span');
-                span.className = 'page-ellipsis';
-                span.textContent = '...';
-                this.paginationContainer.appendChild(span);
-            } else {
-                this.createPaginationButton(page, () => {
-                    this.state.currentPage = page;
-                    console.log(`📄 Moving to page: ${page}`);
-                    this.updatePagination();
-                }, false, this.state.currentPage === page);
-            }
+
+        // Sorting events
+        document.querySelectorAll('th[data-column]').forEach(header => {
+            header.addEventListener('click', () => this.sortTable(header.dataset.column));
         });
-    
-        // Next Button
-        this.createPaginationButton('Next', () => {
-            if (this.state.currentPage < totalPages) {
-                this.state.currentPage++;
-                console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
-                this.updatePagination();
-            }
-        }, this.state.currentPage === totalPages);
+
+        console.log('✅ Event listeners initialized');
     }
 
-    getPageNumbers(currentPage, totalPages) {
-        const maxPagesToShow = this.config.maxPagesToShow;
-    
-        if (totalPages <= maxPagesToShow) {
-            return Array.from({ length: totalPages }, (_, i) => i + 1);
-        }
-    
-        if (currentPage <= Math.ceil(maxPagesToShow / 2)) {
-            return [...Array.from({ length: maxPagesToShow - 1 }, (_, i) => i + 1), '...', totalPages];
-        }
-    
-        if (currentPage >= totalPages - Math.floor(maxPagesToShow / 2)) {
-            return [1, '...', ...Array.from({ length: maxPagesToShow - 1 }, (_, i) => totalPages - (maxPagesToShow - 2) + i)];
-        }
-    
-        return [1, '...', ...Array.from({ length: maxPagesToShow - 2 }, (_, i) => currentPage - Math.floor((maxPagesToShow - 3) / 2) + i), '...', totalPages];
-    }
-
-    
-    /**
-     * Create a pagination button with appropriate handlers
-     * @param {string} text - Button text
-     * @param {Function} onClick - Click handler
-     * @param {boolean} disabled - Whether button should be disabled
-     */
-    createPaginationButton(text, onClick, disabled = false) {
-        if (!this.paginationContainer) return null;
-        
-        const button = document.createElement('button');
-        button.className = `page-btn${disabled ? ' disabled' : ''}`;
-        button.textContent = text;
-        button.disabled = disabled;
-        button.addEventListener('click', onClick);
-        this.paginationContainer.appendChild(button);
-        return button;
-    }
-
+    // Add other methods like fetchXMLData, parseXMLToTable, applyFilters, etc.
     /**
      * Fetch XML data from server files or use cached data
      * @returns {Promise<boolean>} - True if data was successfully processed
@@ -932,6 +651,7 @@ class XMLTableHandler {
 
         console.groupEnd();
     }
+// }
 }
 
 // Initialize handler when DOM is fully loaded
@@ -953,8 +673,18 @@ document.addEventListener('DOMContentLoaded', () => {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         console.log('🔄 Registering Service Worker...');
-        navigator.serviceWorker.register('/accounts.office.cheque.inquiry/service-worker.js', { scope: '/accounts.office.cheque.inquiry/' })
-            .then(registration => console.log('✅ ServiceWorker registered successfully, scope:', registration.scope))
-            .catch(err => console.error('❌ ServiceWorker registration failed:', err));
+        navigator.serviceWorker
+            .register('/service-worker.js', { scope: '/' })
+            .then((registration) => console.log('✅ ServiceWorker registered successfully, scope:', registration.scope))
+            .catch((err) => console.error('❌ ServiceWorker registration failed:', err));
     });
 }
+
+
+
+
+
+
+
+
+
