@@ -204,7 +204,7 @@ class XMLTableHandler {
     async fetchXMLData() {
         console.log('📥 Fetching XML data...');
         try {
-            const filesResponse = await fetch('/data/files.json');
+            const filesResponse = await fetch('https://github.com/Muhammad-IKhan/accounts.office.cheque.inquiry/public/data');
             if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
             const xmlFiles = await filesResponse.json();
             console.log(`📄 Found ${xmlFiles.length} XML files to process`);
