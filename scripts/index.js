@@ -1523,25 +1523,6 @@ updateResultText(totalPages) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-     */
     updateResultText(totalPages) {
         if (this.resultContainer && this.state.visibleRowsCount > 0) {
             const searchTerm = this.state.lastSearchTerm;
