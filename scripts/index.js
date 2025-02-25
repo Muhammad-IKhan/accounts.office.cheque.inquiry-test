@@ -317,7 +317,7 @@ class XMLTableHandler {
      * Handles visibility of rows and rendering pagination controls
      * Skips if pagination is disabled or container is missing
      */
-    updatePagination() {
+   updatePagination() {
         if (!this.state.paginationEnabled || !this.paginationContainer) {
             console.log('⏩ Pagination is disabled or container missing, skipping update');
             return;
@@ -358,6 +358,7 @@ class XMLTableHandler {
         this.renderPaginationControls(totalPages);
     }
     
+    
     /**
      * Render pagination control buttons
      * Only runs if pagination container exists
@@ -365,21 +366,21 @@ class XMLTableHandler {
      */
     renderPaginationControls(totalPages) {
         if (!this.paginationContainer) return;
-        
+    
         // Clear existing controls
         this.paginationContainer.innerHTML = '';
-
+    
         // If there's only one page or no pages, hide controls
         if (totalPages <= 1) {
             this.paginationContainer.style.display = 'none';
             console.log('🔢 Hiding pagination controls (single page)');
             return;
         }
-
+    
         // Always show pagination controls when there are multiple pages
         this.paginationContainer.style.display = 'flex';
         console.log('🔢 Rendering pagination controls for', totalPages, 'pages');
-
+    
         // Previous Button
         this.createPaginationButton('Previous', () => {
             if (this.state.currentPage > 1) {
@@ -387,25 +388,23 @@ class XMLTableHandler {
                 console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
                 this.updatePagination();
             }
-        }, this.state.currentPage <= 1);
-
+        }, this.state.currentPage === 1);
+    
         // Page indicator
         const pageIndicator = document.createElement('span');
         pageIndicator.className = 'page-indicator';
         pageIndicator.textContent = `Page ${this.state.currentPage} of ${totalPages}`;
         this.paginationContainer.appendChild(pageIndicator);
-
+    
         // Next Button
         this.createPaginationButton('Next', () => {
             if (this.state.currentPage < totalPages) {
                 this.state.currentPage++;
                 console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
-                // Important: only update pagination, don't reapply filters
                 this.updatePagination();
             }
-        }, this.state.currentPage >= totalPages);
+        }, this.state.currentPage === totalPages);
     }
-
     /**
      * Create a pagination button with appropriate handlers
      * @param {string} text - Button text
