@@ -318,46 +318,45 @@ class XMLTableHandler {
      * Skips if pagination is disabled or container is missing
      */
     updatePagination() {
-    if (!this.state.paginationEnabled || !this.paginationContainer) {
-        console.log('⏩ Pagination is disabled or container missing, skipping update');
-        return;
+        if (!this.state.paginationEnabled || !this.paginationContainer) {
+            console.log('⏩ Pagination is disabled or container missing, skipping update');
+            return;
+        }
+    
+        console.log(`📄 Updating pagination for page ${this.state.currentPage}`);
+    
+        // Get all rows that are visible (not hidden)
+        const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
+            .filter(row => row.style.display !== 'none');
+    
+        // Store this count in state for reference across methods
+        this.state.visibleRowsCount = visibleRows.length;
+        console.log(`👁️ Found ${this.state.visibleRowsCount} visible rows`);
+    
+        // Calculate total pages
+        const totalPages = Math.max(1, Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage));
+    
+        // Ensure current page is valid
+        if (totalPages > 0) {
+            this.state.currentPage = Math.min(Math.max(1, this.state.currentPage), totalPages);
+        } else {
+            this.state.currentPage = 1;
+        }
+    
+        console.log(`📚 Total pages: ${totalPages}, Current page: ${this.state.currentPage}`);
+    
+        // Calculate start and end indices for current page
+        const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
+        const endIndex = startIndex + this.state.rowsPerPage;
+    
+        // Update row visibility based on current page
+        visibleRows.forEach((row, index) => {
+            row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+        });
+    
+        // Render pagination controls
+        this.renderPaginationControls(totalPages);
     }
-
-    console.log(`📄 Updating pagination for page ${this.state.currentPage}`);
-
-    // Get all rows that are visible (not hidden)
-    const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
-        .filter(row => row.style.display !== 'none');
-
-    // Store this count in state for reference across methods
-    this.state.visibleRowsCount = visibleRows.length;
-    console.log(`👁️ Found ${this.state.visibleRowsCount} visible rows`);
-
-    // Calculate total pages
-    const totalPages = Math.max(1, Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage));
-
-    // Ensure current page is valid
-    if (totalPages > 0) {
-        this.state.currentPage = Math.min(Math.max(1, this.state.currentPage), totalPages);
-    } else {
-        this.state.currentPage = 1;
-    }
-
-    console.log(`📚 Total pages: ${totalPages}, Current page: ${this.state.currentPage}`);
-
-    // Calculate start and end indices for current page
-    const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
-    const endIndex = startIndex + this.state.rowsPerPage;
-
-    // Update row visibility based on current page
-    visibleRows.forEach((row, index) => {
-        row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
-    });
-
-    // Render pagination controls
-    this.renderPaginationControls(totalPages);
-}
-
     
     /**
      * Render pagination control buttons
