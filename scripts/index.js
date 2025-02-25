@@ -723,26 +723,7 @@ updateSearchResults(matchCount) {
 }
 
     
-    if (this.statusFilter) {
-        statusFilter = this.statusFilter.value;
-    }
 
-    let message = `Found ${matchCount} results`;
-    if (searchTerm) message += ` for "${searchTerm}"`;
-    if (narCategory !== 'all') message += ` in category "${narCategoryText}"`;
-    if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
-
-    console.log(`📊 Search results: ${message}`);
-    this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
-    
-    // Only hide pagination if truly no results (don't hide it even if results but on a different page)
-    if (matchCount === 0 && this.paginationContainer) {
-        this.paginationContainer.style.display = 'none';
-    } else if (this.paginationContainer) {
-        // Ensure it's visible otherwise
-        this.paginationContainer.style.display = 'flex';
-    }
-}
     /**
      * Reset table to initial state
      * Handles missing filter elements gracefully
