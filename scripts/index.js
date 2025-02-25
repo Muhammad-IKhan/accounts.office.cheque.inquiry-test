@@ -10,7 +10,7 @@ class XMLTableHandler {
             rowsPerPage: 10, // Default rows per page
             minSearchChars: 3, // Minimum characters required for search
             enableCaching: true, // Enable caching of XML data
-            debugMode: true // Enable detailed logging for debugging
+            debugMode: true  // Enable detailed logging for debugging
         };
 
         console.log('🚀 Initializing XMLTableHandler...');
@@ -204,7 +204,7 @@ class XMLTableHandler {
     async fetchXMLData() {
         console.log('📥 Fetching XML data...');
         try {
-            const filesResponse = await fetch('https://github.com/Muhammad-IKhan/accounts.office.cheque.inquiry/public/data');
+            const filesResponse = await fetch('https://github.com/Muhammad-IKhan/accounts.office.cheque.inquiry/blob/2452ac2995c794dd62604bab6490cac8bb80ec7a/public/data/files.json');
             if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
             const xmlFiles = await filesResponse.json();
             console.log(`📄 Found ${xmlFiles.length} XML files to process`);
