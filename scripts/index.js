@@ -60,20 +60,20 @@ class XMLTableHandler {
 
         // Essential elements that must exist
         const essentialElements = {
-            checksTable: 'tableBody',
+            tableBody: 'checksTable',
             tableContainer: 'tableContainer',
             emptyState: 'emptyState',
-            result: 'resultContainer',
-            search: 'searchInput',
-            narCategory: 'narFilter',
+            resultContainer: 'result',
+            searchInput: 'search',
+            narFilter: 'narCategory',
             statusFilter: 'statusFilter',
-            pagination: 'paginationContainer',
+            paginationContainer: 'pagination',
             searchBtn: 'searchBtn',
-            rowsPerPage: 'rowsPerPageSelect'
+            rowsPerPageSelect: 'rowsPerPage'
         };
 
         // Check essential elements
-        for (const [id, prop] of Object.entries(essentialElements)) {
+        for (const [prop, id] of Object.entries(essentialElements)) {
             const element = document.getElementById(id);
             if (!element) {
                 throw new Error(`Required element #${id} not found in DOM`);
@@ -149,7 +149,7 @@ class XMLTableHandler {
             let combinedXML = '<root>';
             for (const file of xmlFiles) {
                 console.log(`🔄 Processing file: ${file}`);
-                const fileResponse = await fetch(`/data/${file}`);
+                const fileResponse = await fetch(`https://muhammad-ikhan.github.io/accounts.office.cheque.inquiry/public/data/${file}`);
                 if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
                 let xmlContent = await fileResponse.text();
                 xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '').replace(/<\/?root>/g, '');
@@ -167,7 +167,7 @@ class XMLTableHandler {
         } catch (error) {
             console.error('❌ Error fetching XML:', error);
             const storedXML = localStorage.getItem('xmlData');
-            if (storedXML) {
+            if (storedXML && this.config.enableCaching) {
                 console.log('📋 Using cached XML data from local storage');
                 this.state.xmlData = storedXML;
                 const result = this.parseXMLToTable(storedXML);
@@ -198,13 +198,16 @@ class XMLTableHandler {
         console.log(`📊 Found ${entries.length} entries to display`);
         this.tableBody.innerHTML = '';
 
+        // Use document fragment for better performance
+        const fragment = document.createDocumentFragment();
         Array.from(entries).forEach((element, index) => {
             const row = this.createTableRow(element);
-            this.tableBody.appendChild(row);
+            fragment.appendChild(row);
             if (index === 0 || index === entries.length - 1 || index % 100 === 0) {
                 console.log(`📝 Processed ${index + 1}/${entries.length} rows`);
             }
         });
+        this.tableBody.appendChild(fragment);
 
         this.state.visibleRowsCount = entries.length;
         console.log('✅ XML parsing complete');
@@ -223,7 +226,14 @@ class XMLTableHandler {
 
         Object.entries(this.columns).forEach(([field, config]) => {
             const cell = document.createElement('td');
-            let value = element.getElementsByTagName(field)[0]?.textContent?.trim() || '';
+            let value = '';
+            
+            try {
+                const fieldElement = element.getElementsByTagName(field)[0];
+                value = fieldElement ? fieldElement.textContent.trim() : '';
+            } catch (error) {
+                console.warn(`⚠️ Error extracting ${field}:`, error);
+            }
 
             if (config.type === 'number' && field === 'AMOUNT') {
                 value = this.formatAmount(value);
@@ -249,7 +259,8 @@ class XMLTableHandler {
      */
     formatAmount(value) {
         try {
-            return parseFloat(value).toLocaleString('en-US');
+            const numValue = parseFloat(value.replace(/,/g, ''));
+            return !isNaN(numValue) ? numValue.toLocaleString('en-US') : '0';
         } catch (error) {
             console.warn(`⚠️ Invalid amount value: ${value}`, error);
             return '0';
@@ -262,6 +273,8 @@ class XMLTableHandler {
      * @returns {string} - CSS class name for color
      */
     getStatusColor(status) {
+        if (!status) return 'status-gray';
+        
         const statusMap = {
             'despatched through gpo': 'status-orange',
             'ready but not signed yet': 'status-green',
@@ -361,8 +374,11 @@ class XMLTableHandler {
         const searchTerm = this.state.lastSearchTerm;
         const narCategory = this.narFilter.value.toLowerCase();
         const statusFilter = this.statusFilter.value.toLowerCase();
-        const narCategoryText = this.narFilter.options[this.narFilter.selectedIndex].text;
-
+        
+        // Get text from the selected option
+        const narCategoryText = narCategory !== 'all' ? 
+            this.narFilter.options[this.narFilter.selectedIndex].text : '';
+        
         let message = `Found ${matchCount} results`;
         if (searchTerm) message += ` for "${searchTerm}"`;
         if (narCategory !== 'all') message += ` in category "${narCategoryText}"`;
@@ -399,6 +415,7 @@ class XMLTableHandler {
             this.tableContainer.style.display = 'block';
             this.emptyState.style.display = 'none';
             this.resultContainer.style.display = 'block';
+            this.resultContainer.textContent = `Showing all ${this.state.visibleRowsCount} rows`;
         }
 
         this.updatePagination();
@@ -438,9 +455,13 @@ class XMLTableHandler {
             const aValue = this.getCellValue(a, column, type);
             const bValue = this.getCellValue(b, column, type);
 
+            // Handle null/undefined values - push them to the end
+            if (aValue === null || aValue === undefined) return 1;
+            if (bValue === null || bValue === undefined) return -1;
+
             return direction === 'asc' ?
-                aValue > bValue ? 1 : -1 :
-                aValue < bValue ? 1 : -1;
+                aValue > bValue ? 1 : aValue < bValue ? -1 : 0 :
+                aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
         });
 
         this.updateSortIndicators(column, direction);
@@ -456,7 +477,7 @@ class XMLTableHandler {
      * @param {HTMLTableRowElement} row - Table row
      * @param {string} column - Column name
      * @param {string} type - Data type
-     * @returns {string|number} - Cell value
+     * @returns {string|number|null} - Cell value
      */
     getCellValue(row, column, type) {
         const cell = row.querySelector(`td[data-field="${column}"]`);
@@ -466,8 +487,12 @@ class XMLTableHandler {
         }
 
         const value = cell.textContent.trim();
+        if (!value) return type === 'number' ? 0 : '';
+        
         if (type === 'number') {
-            return parseFloat(value.replace(/,/g, '')) || 0;
+            // Remove commas and convert to float
+            const numValue = parseFloat(value.replace(/,/g, ''));
+            return isNaN(numValue) ? 0 : numValue;
         }
 
         return value.toLowerCase();
@@ -479,15 +504,25 @@ class XMLTableHandler {
      * @param {string} direction - Sort direction
      */
     updateSortIndicators(column, direction) {
-        const sortIcons = document.querySelectorAll('th[data-column] .sort-icon');
-        if (sortIcons.length > 0) {
-            sortIcons.forEach(icon => {
-                icon.textContent = '';
-            });
-        }
+        // Reset all sort indicators
+        document.querySelectorAll('th[data-column]').forEach(header => {
+            // Remove active class from all headers
+            header.classList.remove('sort-asc', 'sort-desc');
+            
+            // Clear existing sort icons
+            const sortIcon = header.querySelector('.sort-icon');
+            if (sortIcon) {
+                sortIcon.textContent = '';
+            }
+        });
 
+        // Update current header
         const currentHeader = document.querySelector(`th[data-column="${column}"]`);
         if (currentHeader) {
+            // Add appropriate class
+            currentHeader.classList.add(direction === 'asc' ? 'sort-asc' : 'sort-desc');
+            
+            // Update or create sort icon
             let sortIcon = currentHeader.querySelector('.sort-icon');
             if (!sortIcon) {
                 sortIcon = document.createElement('span');
@@ -503,9 +538,15 @@ class XMLTableHandler {
      * @param {Array<HTMLTableRowElement>} rows - Sorted rows
      */
     reorderRows(rows) {
+        // Use document fragment for better performance
+        const fragment = document.createDocumentFragment();
+        rows.forEach(row => fragment.appendChild(row));
         this.tableBody.innerHTML = '';
-        rows.forEach(row => this.tableBody.appendChild(row));
+        this.tableBody.appendChild(fragment);
         console.log(`🔄 Reordered ${rows.length} rows in table`);
+        
+        // Update pagination after reordering
+        this.updatePagination();
     }
 
     /**
@@ -652,6 +693,7 @@ class XMLTableHandler {
      * @param {Function} onClick - Click handler
      * @param {boolean} disabled - Whether button should be disabled
      * @param {boolean} active - Whether button should be marked as active
+     * @returns {HTMLButtonElement} - Created button element
      */
     createPaginationButton(text, onClick, disabled = false, active = false) {
         if (!this.paginationContainer) return null;
@@ -686,7 +728,7 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         console.log('🔄 Registering Service Worker...');
         navigator.serviceWorker
-            .register('/')})
+            .register('/service-worker.js')
             .then((registration) => console.log('✅ ServiceWorker registered successfully, scope:', registration.scope))
             .catch((err) => console.error('❌ ServiceWorker registration failed:', err));
     });
