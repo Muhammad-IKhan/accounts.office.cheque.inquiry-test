@@ -1,67 +1,7 @@
 class XMLTableHandler {
     /**
-     * Debugging function to log filter, pagination, and row visibility details
-     */
-    debugFiltersAndPagination() {
-        console.groupCollapsed('Debugging Filters and Pagination');
-
-        // Log filter criteria
-        console.log('Filter Criteria:', {
-            searchTerm: this.state.lastSearchTerm,
-            narCategory: this.narFilter ? this.narFilter.value : 'N/A',
-            statusFilter: this.statusFilter ? this.statusFilter.value : 'N/A'
-        });
-
-        // Log pagination state
-        console.log('Pagination State:', {
-            currentPage: this.state.currentPage,
-            rowsPerPage: this.state.rowsPerPage,
-            totalPages: Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage)
-        });
-
-        // Log all rows and their visibility
-        const allRows = Array.from(this.tableBody.querySelectorAll('tr'));
-        console.log('Total Rows:', allRows.length);
-
-        allRows.forEach((row, index) => {
-            const narValue = row.getAttribute('data-nar');
-            const status = row.querySelector('td[data-field="DD"]')?.textContent?.toLowerCase() || '';
-            const cells = Array.from(row.getElementsByTagName('td'));
-
-            const matchesCategory = this.narFilter ? 
-                this.narFilter.value.toLowerCase() === 'all' || narValue === this.narFilter.value.toLowerCase() :
-                true;
-            const matchesStatus = this.statusFilter ?
-                this.statusFilter.value.toLowerCase() === 'all' || status.includes(this.statusFilter.value.toLowerCase()) :
-                true;
-            const matchesSearch = !this.state.lastSearchTerm || cells.some(cell => {
-                const field = cell.getAttribute('data-field');
-                const columnConfig = this.columns[field];
-                return columnConfig?.searchable && cell.textContent.toLowerCase().includes(this.state.lastSearchTerm);
-            });
-
-            const visible = matchesCategory && matchesStatus && matchesSearch;
-            console.log(`Row ${index + 1}:`, {
-                narValue,
-                status,
-                cells: cells.map(cell => ({
-                    field: cell.getAttribute('data-field'),
-                    value: cell.textContent
-                })),
-                matchesCategory,
-                matchesStatus,
-                matchesSearch,
-                visible,
-                display: row.style.display
-            });
-        });
-
-        console.groupEnd();
-    }
-
-    /**
      * Initialize the XML Table Handler with all necessary components
-     * This handles XML data loading, parsing, filtering, sorting and pagination
+     * This handles XML data loading, parsing, filtering, sorting, and pagination
      */
     constructor() {
         console.log('🚀 Initializing XMLTableHandler...');
@@ -255,7 +195,7 @@ class XMLTableHandler {
     }
 
     /**
-     * Setup all event listeners for search, filter, pagination and sorting
+     * Setup all event listeners for search, filter, pagination, and sorting
      * Checks if elements exist before attaching listeners
      */
     initializeEventListeners() {
@@ -722,19 +662,21 @@ class XMLTableHandler {
             const narValue = row.getAttribute('data-nar');
             const status = row.querySelector('td[data-field="DD"]')?.textContent?.toLowerCase() || '';
             const cells = Array.from(row.getElementsByTagName('td'));
-        
-            const matchesCategory = narCategory === 'all' || narValue === narCategory;
-            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+            
+            // Check category match
+            const matchesCategory = narCategory === 'all' || narValue === narCategory;  
+            // Check status match
+            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);  
+            // Check search term match
             const matchesSearch = !searchTerm || cells.some(cell => {
                 const field = cell.getAttribute('data-field');
+                // Ensure columns exists and has the field
+                if (!this.columns || !this.columns[field]) {
+                    return false;
+                }
                 const columnConfig = this.columns[field];
                 return columnConfig?.searchable && cell.textContent.toLowerCase().includes(searchTerm);
             });
-        
-            const visible = matchesCategory && matchesStatus && matchesSearch;
-            row.style.display = visible ? '' : 'none'; // Ensure this line is correct
-            if (visible) matchCount++;
-        });
 
             // Determine visibility based on filter criteria
             const visible = matchesCategory && matchesStatus && matchesSearch;
@@ -910,7 +852,7 @@ class XMLTableHandler {
         }
     }
 
-        /**
+    /**
      * Reorder table rows after sorting
      * @param {Array<HTMLTableRowElement>} rows - Sorted rows
      */
@@ -919,8 +861,67 @@ class XMLTableHandler {
         rows.forEach(row => this.tableBody.appendChild(row));
         console.log(`🔄 Reordered ${rows.length} rows in table`);
     }
-}
 
+    /**
+     * Debugging function to log filter, pagination, and row visibility details
+     */
+    debugFiltersAndPagination() {
+        console.groupCollapsed('Debugging Filters and Pagination');
+
+        // Log filter criteria
+        console.log('Filter Criteria:', {
+            searchTerm: this.state.lastSearchTerm,
+            narCategory: this.narFilter ? this.narFilter.value : 'N/A',
+            statusFilter: this.statusFilter ? this.statusFilter.value : 'N/A'
+        });
+
+        // Log pagination state
+        console.log('Pagination State:', {
+            currentPage: this.state.currentPage,
+            rowsPerPage: this.state.rowsPerPage,
+            totalPages: Math.ceil(this.state.visibleRowsCount / this.state.rowsPerPage)
+        });
+
+        // Log all rows and their visibility
+        const allRows = Array.from(this.tableBody.querySelectorAll('tr'));
+        console.log('Total Rows:', allRows.length);
+
+        allRows.forEach((row, index) => {
+            const narValue = row.getAttribute('data-nar');
+            const status = row.querySelector('td[data-field="DD"]')?.textContent?.toLowerCase() || '';
+            const cells = Array.from(row.getElementsByTagName('td'));
+
+            const matchesCategory = this.narFilter ? 
+                this.narFilter.value.toLowerCase() === 'all' || narValue === this.narFilter.value.toLowerCase() :
+                true;
+            const matchesStatus = this.statusFilter ?
+                this.statusFilter.value.toLowerCase() === 'all' || status.includes(this.statusFilter.value.toLowerCase()) :
+                true;
+            const matchesSearch = !this.state.lastSearchTerm || cells.some(cell => {
+                const field = cell.getAttribute('data-field');
+                const columnConfig = this.columns[field];
+                return columnConfig?.searchable && cell.textContent.toLowerCase().includes(this.state.lastSearchTerm);
+            });
+
+            const visible = matchesCategory && matchesStatus && matchesSearch;
+            console.log(`Row ${index + 1}:`, {
+                narValue,
+                status,
+                cells: cells.map(cell => ({
+                    field: cell.getAttribute('data-field'),
+                    value: cell.textContent
+                })),
+                matchesCategory,
+                matchesStatus,
+                matchesSearch,
+                visible,
+                display: row.style.display
+            });
+        });
+
+        console.groupEnd();
+    }
+}
 
 // Initialize handler when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
