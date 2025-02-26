@@ -332,7 +332,7 @@ class XMLTableHandler {
                 console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
         // });
         };
-    }
+    });
 
     //      // Next Button
     //     this.createPaginationButton('Next', () => {
