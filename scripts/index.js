@@ -82,18 +82,23 @@ class XMLTableHandler {
             'searchBtn': 'searchBtn',
             'rowsPerPage': 'rowsPerPageSelect'
         };
-    
+
         for (const [id, prop] of Object.entries(requiredElements)) {
             const element = document.getElementById(id);
             if (!element) {
-                throw new Error(`Required element #${id} not found in DOM`);
+                console.error(`❌ Required element #${id} not found in DOM`); // Log if not found
+                //throw new Error(`Required element #${id} not found in DOM`); // Don't throw error, allow to continue
+                this[prop] = null; // Assign null to avoid further errors
+                console.warn(`⚠️ Assigning null to this.${prop} due to missing element`);
+            } else {
+                this[prop] = element;
+                console.log(`✓ Found element #${id}`);
             }
-            this[prop] = element;
-            console.log(`✓ Found element #${id}`);
         }
-    
+
+        // ADD THIS LINE:
         console.log('🔍 After finding, this.pagination:', this.pagination);
-    
+
         console.groupEnd();
     }
 
@@ -266,9 +271,15 @@ class XMLTableHandler {
      * @param {number} totalPages - Total number of pages
      */
     renderPaginationControls(totalPages) {
-        console.log('renderPaginationControls() called');
+        // ADD THIS LINE:
         console.log('Inside renderPaginationControls, this.pagination:', this.pagination);
-        const controls = this.paginationContainer;
+
+        const controls = this.pagination;
+         if (!controls) {
+             console.error("❌ controls is null or undefined in renderPaginationControls!");
+             return; // Exit if controls is null
+         }
+
         controls.innerHTML = '';
 
         if (totalPages <= 1) {
@@ -307,6 +318,14 @@ class XMLTableHandler {
         }
 
         // Next Button
+        // this.createPaginationButton('Next', () => {
+        //     if (this.state.currentPage < totalPages) {
+        //         this.state.currentPage++;
+        //         console.log(`➡️ Moving to next page: ${this.state.currentPage`});
+        //         });
+        //     }
+
+         // Next Button
         this.createPaginationButton('Next', () => {
             if (this.state.currentPage < totalPages) {
                 this.state.currentPage++;
@@ -315,6 +334,9 @@ class XMLTableHandler {
             }
         }, this.state.currentPage === totalPages);
     }
+
+
+            
 
     /**
      * Create a pagination button with appropriate handlers
@@ -617,9 +639,7 @@ class XMLTableHandler {
     showError(message) {
         console.error('❌ Error:', message);
         this.resultContainer.innerHTML = `
-            <div class="alert alert-danger">
-                ${message}
-            </div>
+            ${message}
         `;
         this.resultContainer.style.display = 'block';
     }
@@ -708,7 +728,6 @@ class XMLTableHandler {
 
 // Initialize handler when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOMContentLoaded event fired'); // Add this line
     console.log('🌐 Document loaded, initializing XMLTableHandler...');
     try {
         window.tableHandler = new XMLTableHandler();
