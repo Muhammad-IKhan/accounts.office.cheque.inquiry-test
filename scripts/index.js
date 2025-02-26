@@ -233,91 +233,93 @@ class XMLTableHandler {
      * Handles visibility of rows and rendering pagination controls
      */
     updatePagination() {
-        if (!this.state.paginationEnabled) {
-            console.log('⏩ Pagination is disabled, skipping update');
-            return;
-        }
-    
-        console.log(`📄 Updating pagination for page ${this.state.currentPage}`);
-    
-        // Get visible rows
-        const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
-            .filter(row => row.style.display !== 'none');
-    
-        console.log(`👁️ Found ${visibleRows.length} visible rows`);
-    
-        // Calculate total pages
-        const totalPages = Math.ceil(visibleRows.length / this.state.rowsPerPage);
-        this.state.currentPage = Math.min(this.state.currentPage, totalPages || 1);
-    
-        console.log(`📚 Total pages: ${totalPages}, Current page: ${this.state.currentPage}`);
-    
-        // Update row visibility based on current page
-        const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
-        const endIndex = startIndex + this.state.rowsPerPage;
-    
-        visibleRows.forEach((row, index) => {
-            row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
-        });
-    
-        // Re-render pagination controls
-        this.renderPaginationControls(totalPages);
+    if (!this.state.paginationEnabled) {
+        console.log('⏩ Pagination is disabled, skipping update');
+        return;
     }
+
+    console.log(`📄 Updating pagination for page ${this.state.currentPage}`);
+
+    // Get filtered rows from state
+    const filteredRows = this.state.filteredRows || [];
+    console.log(`👁️ Found ${filteredRows.length} filtered rows`);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(filteredRows.length / this.state.rowsPerPage);
+    this.state.currentPage = Math.min(this.state.currentPage, totalPages || 1);
+
+    console.log(`📚 Total pages: ${totalPages}, Current page: ${this.state.currentPage}`);
+
+    // Hide all rows first
+    this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = 'none');
+
+    // Show rows for the current page
+    const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
+    const endIndex = startIndex + this.state.rowsPerPage;
+
+    filteredRows.slice(startIndex, endIndex).forEach(row => {
+        row.style.display = '';
+    });
+
+    // Re-render pagination controls
+    this.renderPaginationControls(totalPages);
+}
 
     /**
      * Render pagination control buttons
      * @param {number} totalPages - Total number of pages
      */
      renderPaginationControls(totalPages) {
-        console.log('Inside renderPaginationControls, this.pagination:', this.pagination);
-    
-        const controls = this.pagination;
-        if (!controls) {
-            console.error("❌ Pagination element is null or undefined!");
-            return;
-        }
-    
-        controls.innerHTML = '';
-    
-        if (totalPages <= 1) {
-            controls.style.display = 'none'; // Hide pagination if only one page
-            console.log('🔢 Hiding pagination controls (single page)');
-            return;
-        }
-    
-        controls.style.display = 'flex'; // Show pagination controls
-        console.log('🔢 Rendering pagination controls');
-    
-        // Previous Button
-        this.createPaginationButton('Previous', () => {
-            if (this.state.currentPage > 1) {
-                this.state.currentPage--;
-                console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
-                this.updatePagination();
-            }
-        }, this.state.currentPage === 1);
-    
-        // Page numbers (1 to 5 or fewer)
-        const startPage = Math.max(1, this.state.currentPage - 2);
-        const endPage = Math.min(totalPages, startPage + 4);
-    
-        for (let i = startPage; i <= endPage; i++) {
-            this.createPaginationButton(i, () => {
-                this.state.currentPage = i;
-                console.log(`🖱️ Navigating to page: ${this.state.currentPage}`);
-                this.updatePagination();
-            }, this.state.currentPage === i);
-        }
-    
-        // Next Button
-        this.createPaginationButton('Next', () => {
-            if (this.state.currentPage < totalPages) {
-                this.state.currentPage++;
-                console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
-                this.updatePagination();
-            }
-        }, this.state.currentPage === totalPages);
+    console.log('Inside renderPaginationControls, this.pagination:', this.pagination);
+
+    const controls = this.pagination;
+    if (!controls) {
+        console.error("❌ Pagination element is null or undefined!");
+        return;
     }
+
+    controls.innerHTML = '';
+
+    if (totalPages <= 1) {
+        controls.style.display = 'none'; // Hide pagination if only one page
+        console.log('🔢 Hiding pagination controls (single page)');
+        return;
+    }
+
+    controls.style.display = 'flex'; // Show pagination controls
+    console.log('🔢 Rendering pagination controls');
+
+    // Previous Button
+    this.createPaginationButton('Previous', () => {
+        if (this.state.currentPage > 1) {
+            this.state.currentPage--;
+            console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
+            this.updatePagination();
+        }
+    }, this.state.currentPage === 1);
+
+    // Page numbers (1 to 5 or fewer)
+    const startPage = Math.max(1, this.state.currentPage - 2);
+    const endPage = Math.min(totalPages, startPage + 4);
+
+    for (let i = startPage; i <= endPage; i++) {
+        this.createPaginationButton(i, () => {
+            this.state.currentPage = i;
+            console.log(`🖱️ Navigating to page: ${this.state.currentPage}`);
+            this.updatePagination();
+        }, this.state.currentPage === i);
+    }
+
+    // Next Button
+    this.createPaginationButton('Next', () => {
+        if (this.state.currentPage < totalPages) {
+            this.state.currentPage++;
+            console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
+            this.updatePagination();
+        }
+    }, this.state.currentPage === totalPages);
+}
+    
     /**
      * Create a pagination button with appropriate handlers
      * @param {string|number} text - Button text
@@ -506,104 +508,101 @@ class XMLTableHandler {
      * Apply all filters (search, category, status)
      */
     applyFilters() {
-        console.group('🔍 Applying filters...');
-        const searchTerm = this.state.lastSearchTerm;
-        const narCategory = this.narFilter.value.toLowerCase();
-        const statusFilter = this.statusFilter.value.toLowerCase();
-    
-        console.log(`🔍 Filter criteria: search="${searchTerm}", category="${narCategory}", status="${statusFilter}"`);
-    
-        // Reset pagination to the first page
-        this.state.currentPage = 1;
-    
-        // Reset if no filters are applied
-        if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
-            console.log('🔄 No filters active, resetting table');
-            return this.resetTable();
-        }
-    
-        // Show table and hide empty state
-        this.tableContainer.style.display = 'block';
-        this.emptyState.style.display = 'none';
-        this.resultContainer.style.display = 'block';
-    
-        let matchCount = 0;
-    
-        // Filter rows based on search term and filters
-        this.tableBody.querySelectorAll('tr').forEach(row => {
-            const narValue = row.getAttribute('data-nar');
-            const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
-            const cells = Array.from(row.getElementsByTagName('td'));
-    
-            // Check category match
-            const matchesCategory = narCategory === 'all' || narValue === narCategory;
-            // Check status match
-            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-            // Check search term match
-            const matchesSearch = !searchTerm || cells.some(cell => {
-                const field = cell.getAttribute('data-field');
-                if (!this.columns || !this.columns[field]) return false;
-                const columnConfig = this.columns[field];
-                return columnConfig?.searchable && cell.textContent.toLowerCase().includes(searchTerm);
-            });
-    
-            // Determine visibility
-            const visible = matchesCategory && matchesStatus && matchesSearch;
-            row.style.display = visible ? '' : 'none';
-    
-            if (visible) matchCount++;
-        });
-    
-        console.log(`🔍 Filter found ${matchCount} matching rows`);
-    
-        // Update search results message
-        let message = `Found ${matchCount} results`;
-        if (searchTerm) message += ` for "${searchTerm}"`;
-        if (narCategory !== 'all') message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
-        if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
-    
-        console.log(`📊 Search results: ${message}`);
-        if (this.resultContainer) {
-            this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
-            this.resultContainer.style.display = 'block';
-        }
-    
-        // Handle pagination display
-        if (this.pagination) {
-            if (matchCount === 0) {
-                this.pagination.style.display = 'none';
-            } else {
-                this.pagination.style.display = 'flex';
-            }
-        }
-    
-        this.updatePagination(); // Update pagination after filtering
-        console.groupEnd();
+    console.group('🔍 Applying filters...');
+    const searchTerm = this.state.lastSearchTerm;
+    const narCategory = this.narFilter.value.toLowerCase();
+    const statusFilter = this.statusFilter.value.toLowerCase();
+
+    console.log(`🔍 Filter criteria: search="${searchTerm}", category="${narCategory}", status="${statusFilter}"`);
+
+    // Reset pagination to the first page
+    this.state.currentPage = 1;
+
+    // Reset if no filters are applied
+    if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
+        console.log('🔄 No filters active, resetting table');
+        return this.resetTable();
     }
 
+    // Show table and hide empty state
+    this.tableContainer.style.display = 'block';
+    this.emptyState.style.display = 'none';
+    this.resultContainer.style.display = 'block';
+
+    // Filter rows based on search term and filters
+    const allRows = Array.from(this.tableBody.querySelectorAll('tr'));
+    const filteredRows = allRows.filter(row => {
+        const narValue = row.getAttribute('data-nar');
+        const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
+        const cells = Array.from(row.getElementsByTagName('td'));
+
+        // Check category match
+        const matchesCategory = narCategory === 'all' || narValue === narCategory;
+        // Check status match
+        const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+        // Check search term match
+        const matchesSearch = !searchTerm || cells.some(cell => {
+            const field = cell.getAttribute('data-field');
+            if (!this.columns || !this.columns[field]) return false;
+            const columnConfig = this.columns[field];
+            return columnConfig?.searchable && cell.textContent.toLowerCase().includes(searchTerm);
+        });
+
+        return matchesCategory && matchesStatus && matchesSearch;
+    });
+
+    // Store filtered rows in state
+    this.state.filteredRows = filteredRows;
+    console.log(`🔍 Filter found ${filteredRows.length} matching rows`);
+
+    // Update search results message
+    let message = `Found ${filteredRows.length} results`;
+    if (searchTerm) message += ` for "${searchTerm}"`;
+    if (narCategory !== 'all') message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
+    if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
+
+    console.log(`📊 Search results: ${message}`);
+    if (this.resultContainer) {
+        this.resultContainer.textContent = filteredRows.length > 0 ? message : 'No results found.';
+        this.resultContainer.style.display = 'block';
+    }
+
+    // Handle pagination display
+    if (this.pagination) {
+        if (filteredRows.length === 0) {
+            this.pagination.style.display = 'none';
+        } else {
+            this.pagination.style.display = 'flex';
+        }
+    }
+
+    this.updatePagination(); // Update pagination after filtering
+    console.groupEnd();
+}
     /**
      * Reset table to initial state
      */
     resetTable() {
-        console.group('🔄 Resetting table to initial state');
-        try {
-            console.log('🔄 Resetting table to initial state');
-            this.searchInput.value = '';
-            this.narFilter.value = 'all';
-            this.statusFilter.value = 'all';
-            this.state.lastSearchTerm = '';
-            this.state.currentPage = 1; // Reset to the first page
+    console.group('🔄 Resetting table to initial state');
+    try {
+        console.log('🔄 Resetting table to initial state');
+        this.searchInput.value = '';
+        this.narFilter.value = 'all';
+        this.statusFilter.value = 'all';
+        this.state.lastSearchTerm = '';
+        this.state.currentPage = 1; // Reset to the first page
+        this.state.filteredRows = null; // Clear filtered rows
 
-            this.tableContainer.style.display = 'none';
-            this.emptyState.style.display = 'block';
-            this.resultContainer.style.display = 'none';
+        this.tableContainer.style.display = 'none';
+        this.emptyState.style.display = 'block';
+        this.resultContainer.style.display = 'none';
 
-            this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
-            this.updatePagination(); // Update pagination after reset
-        } finally {
-            console.groupEnd();
-        }
+        this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
+        this.updatePagination(); // Update pagination after reset
+    } finally {
+        console.groupEnd();
     }
+}
 
     /**
      * Show error message to the user
