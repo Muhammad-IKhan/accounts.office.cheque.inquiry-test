@@ -3,379 +3,524 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cheque Inquiry System</title>
+    <title>Academic Institute</title>
     <style>
-        /* Core styles */
-        :root {
-            --primary-color: #4a90e2; /* Blue */
-            --secondary-color: #f5f5f5; /* Light gray */
-            --border-color: #ddd; /* Light gray border */
-            --success-color: #28a745; /* Green */
-            --danger-color: #dc3545; /* Red */
-            --warning-color: #ffc107; /* Yellow */
-            --info-color: #17a2b8; /* Cyan */
-            --text-color: #333; /* Dark gray */
-            --background-color: #f8f9fa; /* Light background */
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: var(--background-color);
-            color: var(--text-color);
-        }
-
-        /* Container styles */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Header styles */
-        .header {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .header h1 {
-            color: var(--primary-color);
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .header span {
-            font-size: 16px;
-            color: #666;
-            margin-left: 20px;
-        }
-
-        /* Search and filter section */
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-            align-items: end;
-        }
-
-        .search-box, .filter-box {
+            background-color: #f5f5f5;
+            color: #333;
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
         }
 
-        label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        input, select {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 14px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-        }
-
-        button {
-            padding: 8px 16px;
-            background-color: var(--primary-color);
+        /* Header Styles */
+        header {
+            background-color: #1a237e;
             color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        /* Navigation Styles */
+        nav ul {
+            display: flex;
+            list-style-type: none;
+        }
+
+        nav li {
+            margin-left: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #c5cae9;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
             border: none;
-            border-radius: 4px;
+            color: white;
+            font-size: 1.5rem;
             cursor: pointer;
-            font-size: 14px;
-            height: 35px;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 50vh;
+            background-color: #333;
+            color: white;
+            overflow: hidden;
+        }
+
+        .hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #c5cae9;
+            color: #1a237e;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
             transition: background-color 0.3s ease;
         }
 
-        button:hover {
-            background-color: #357abd; /* Darker blue */
-        }
-
-        /* Table styles */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 20px;
-            display: none;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .cta-button:hover {
             background-color: white;
         }
 
-        th {
-            background-color: var(--secondary-color);
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-color);
-            position: relative;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        th:hover {
-            background-color: #eee;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        /* Status colors */
-        .status-orange { color: #fd7e14; }
-        .status-green { color: var(--success-color); }
-        .status-red { color: var(--danger-color); }
-        .status-blue { color: var(--primary-color); }
-        .status-purple { color: #6f42c1; }
-        .status-dark-red { color: #721c24; }
-        .status-yellow { color: var(--warning-color); }
-        .status-cyan { color: var(--info-color); }
-        .status-gray { color: #6c757d; }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            background-color: var(--secondary-color);
-            border-radius: 4px;
-            color: #666;
-        }
-
-        .empty-state h3 {
-            margin:0;
-            font-size: 20px;
-        }
-
-        .empty-state p {
-            margin: 10px 0 0;
-            font-size: 14px;
-        }
-
-        /* Result container */
-        .result-container {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            display: none;
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-        }
-
-        /* Alert styles */
-        .alert {
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-
-        .alert-danger {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-
-        /* Pagination styles */
-        .pagination-controls {
+        /* Main Content Area */
+        .main-container {
             display: flex;
-            gap: 5px;
-            margin-top: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 2rem auto;
+            flex: 1;
         }
 
-        .page-btn {
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            background: var(--primary-color);
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-right: 2rem;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #1a237e;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.8rem;
+        }
+
+        .sidebar a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            color: #1a237e;
+        }
+
+        .events-list {
+            margin-top: 2rem;
+        }
+
+        .event-item {
+            margin-bottom: 1rem;
+        }
+
+        .event-date {
+            font-weight: bold;
+            color: #1a237e;
+        }
+
+        /* Main Content Styles */
+        main {
+            flex: 1;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #1a237e;
+        }
+
+        .feature-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 1rem;
+            color: #1a237e;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: #1a237e;
             color: white;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
+            padding: 2rem;
+            margin-top: 2rem;
         }
 
-        .page-btn.active {
-            background: #0056b3; /* Darker blue */
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
         }
 
-        .page-btn:disabled {
-            background: #eee;
-            cursor: not-allowed;
-            color: #999;
+        .footer-column h3 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
         }
 
-        .page-ellipsis {
-            padding: 5px;
+        .footer-column ul {
+            list-style-type: none;
         }
 
-        /* Rows per page selector */
-        #rowsPerPage {
-            margin-top: 10px;
-            padding: 5px;
-            border-radius: 4px;
+        .footer-column li {
+            margin-bottom: 0.5rem;
         }
 
-        /* Responsive design */
+        .footer-column a {
+            color: #c5cae9;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .social-icons {
+            display: flex;
+            margin-top: 1rem;
+        }
+
+        .social-icons a {
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 2rem;
+            }
+        }
+
         @media (max-width: 768px) {
-            .controls {
-                grid-template-columns: 1fr;
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            .container {
-                padding: 10px;
+            nav {
+                width: 100%;
+                margin-top: 1rem;
             }
 
-            th, td {
-                padding: 8px;
+            nav ul {
+                flex-direction: column;
             }
 
-            .header h1 {
-                font-size: 20px;
+            nav li {
+                margin: 0;
+                margin-bottom: 0.5rem;
             }
 
-            .header span {
-                font-size: 14px;
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 2rem;
             }
 
-            .empty-state h3 {
-                font-size: 18px;
+            nav.closed ul {
+                display: none;
             }
 
-            .empty-state p {
-                font-size: 12px;
+            .hero h1 {
+                font-size: 2rem;
             }
-        }
 
-        /* Sort icons */
-        .sort-icon {
-            display: inline-block;
-            margin-left: 5px;
-            font-size: 12px;
+            .hero p {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div style="display: flex; align-items: center;">
-                <h1>Cheque Inquiry System:</h1>
-                <span>Board of Intermediate & Secondary Education Bannu</span>
+    <!-- Header with Navigation Menu -->
+    <header>
+        <div class="header-content">
+            <div class="logo">Academic Institute</div>
+            <button class="mobile-menu-btn">☰</button>
+            <nav id="main-nav" class="closed">
+                <ul>
+                    <li><a href="#" class="active">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Programs</a></li>
+                    <li><a href="#">Research</a></li>
+                    <li><a href="#">Student Life</a></li>
+                    <li><a href="#">Admissions</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section with Image -->
+    <section class="hero">
+        <img src="/api/placeholder/1200/600" alt="University campus" class="hero-image">
+        <div class="hero-content">
+            <h1>Excellence in Education</h1>
+            <p>Discover a world of opportunities at our prestigious institution where innovation meets tradition.</p>
+            <a href="#" class="cta-button">Apply Now</a>
+        </div>
+    </section>
+
+    <!-- Main Content Area with Sidebar -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#">Academic Calendar</a></li>
+                <li><a href="#">Library Resources</a></li>
+                <li><a href="#">Student Portal</a></li>
+                <li><a href="#">Faculty Directory</a></li>
+                <li><a href="#">Campus Map</a></li>
+            </ul>
+
+            <div class="events-list">
+                <h3>Upcoming Events</h3>
+                <div class="event-item">
+                    <div class="event-date">March 15, 2025</div>
+                    <div class="event-title">Spring Open House</div>
+                </div>
+                <div class="event-item">
+                    <div class="event-date">April 10, 2025</div>
+                    <div class="event-title">Research Symposium</div>
+                </div>
+                <div class="event-item">
+                    <div class="event-date">May 5, 2025</div>
+                    <div class="event-title">Alumni Networking Event</div>
+                </div>
             </div>
-        </div>
-         <!-- Rows Per Page Selector -->
-        <div>
-            <label for="rowsPerPage">Interface Selection</label>
-            <select id="rowsPerPage">
-                <option value="5" >Mobile</option>
-                <option value="10" selected>Desktop</option>
-                <option value="25">Office</option>
-            </select>
-        </div>
-        <!-- Controls -->
-        <div class="controls">
-            <div class="filter-box">
-                <label for="narCategory">Bill Category (Select a Category to Narrow Down)</label>
-                <select id="narCategory">
-                    <option value="all" selected>Search in All</option>
-                    <option value="TA/DA TO SUPERVISORY STAFF SSC EXAM:">Supervisory Staff SSC</option>
-                    <option value="TA/DA TO PRACTICAL EXMR: SSC">Practical Staff SSC</option>
-                    <option value="TA/DA TO INSEPCTORS SSC">Inspections Staff SSC</option>
-                    <option value="REMUNERATION RES: INSPECTORS">Resedent Inspectors</option>
-                    <option value="LABORATORY CHARGES">Laboratory Charges</option>
-                    <option value="SECRECY">Secrecy Bills</option>
-                    <option value="TA/DA TO SUPERVISORY STAFF HSSC EXAM:">Supervisory Staff HSSC</option>
-                    <option value="TA/DA TO PRACTICAL EXMR: HSSC">Practical Staff HSSC</option>
-                    <option value="TA/DA TO INSEPCTORS HSSC">Inspections Staf HSSC</option>
-                    <option value="TA/DA GENERAL">TA/DA General</option>
-                    <option value="EXPIRED CHECK RENEWED">Check Renewal</option>
-                    <option value="REFUND OF FEE">Refund Fee</option>
-                    <option value="SCHOLARSHIP">SCHOLARSHIPS</option>
-                    <option value="SPORTS">SPORTS</option>
-                    <option value="HONORARIA">Honoraria & Others</option>
-                </select>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <h2 class="section-title">Welcome to Academic Institute</h2>
+            <p>Founded in 1965, Academic Institute has been at the forefront of education and research for over 60 years. Our commitment to excellence, innovation, and student success has established us as a leading educational institution globally.</p>
+            
+            <div class="feature-cards">
+                <div class="card">
+                    <h3>World-Class Faculty</h3>
+                    <p>Learn from renowned experts and scholars who are leaders in their fields, dedicated to providing exceptional education and mentorship.</p>
+                </div>
+                <div class="card">
+                    <h3>Innovative Research</h3>
+                    <p>Our cutting-edge research facilities and programs address real-world challenges and contribute to advancements in various disciplines.</p>
+                </div>
+                <div class="card">
+                    <h3>Global Opportunities</h3>
+                    <p>Expand your horizons through international exchange programs, global internships, and cross-cultural learning experiences.</p>
+                </div>
             </div>
 
-            <div class="search-box">
-                <label for="search">Search by Name or School</label>
-                <input type="text" id="search" placeholder="Enter your name or school name...">
+            <h2 class="section-title">Latest News</h2>
+            <div class="news-item">
+                <h3>Professor Smith Receives National Science Award</h3>
+                <p>January 15, 2025</p>
+                <p>Dr. Jane Smith from our Physics Department has been recognized for her groundbreaking research in quantum mechanics with the prestigious National Science Award.</p>
             </div>
-
-            <div class="filter-box">
-                <label for="statusFilter">Filter by Status</label>
-                <select id="statusFilter">
-                    <option value="all">All Statuses</option>
-                    <option value="ready but not signed yet">Not Signed Yet</option>
-                    <option value="Cheque Ready">Cheque Ready</option>
-                    <option value="sent to chairman">Sent to Chairman</option>
-                    <option value="despatched through gpo">Despatched Through GPO Bannu</option>
-                    <option value="despatched to lakki camp office">Despatched to Lakki</option>     
-                    <option value="received by">Received by</option>
-                    <option value="processing">Processing</option>
-                </select>
+            <div class="news-item">
+                <h3>New Engineering Building Opening Ceremony</h3>
+                <p>February 10, 2025</p>
+                <p>The state-of-the-art Engineering Complex will be officially inaugurated next month, featuring advanced laboratories and collaborative workspaces.</p>
             </div>
-
-            <button id="searchBtn">Search</button>
-        </div>
-
-        
-        <!-- Empty State -->
-        <div id="emptyState" class="empty-state">
-            <h3>Welcome to Office for Live Inquiry, Updation and Information</h3>
-            <p>Use the search and filters above to find cheque information.</p>
-        </div>
-
-        <!-- Table -->
-        <div id="tableContainer" class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th data-column="NARRATION">NAME AND ADDRESS<span class="sort-icon"></span></th>
-                        <th data-column="AMOUNT">Amount <span class="sort-icon"></span></th>
-                        <th data-column="CHEQ_NO">Cheque No <span class="sort-icon"></span></th>
-                        <th data-column="NAR">IN C/O <span class="sort-icon"></span></th>
-                        <th data-column="DD">Status <span class="sort-icon"></span></th>
-                    </tr>
-                </thead>
-                <tbody id="checksTable"></tbody>
-            </table>
-        </div>
-
-        <!-- Results -->
-        <div id="result" class="result-container">
-            <span id="resultContainer"></span>
-        </div>
-
-         <!-- Pagination -->
-        <div id="paginationContainer" class="pagination-controls">
-            <span id="pagination" class="pagination-controls"></span>
-        </div>
-        <div id="pagination" class="pagination"></div>
+        </main>
     </div>
 
-    <!-- Scripts -->
-    <script src="scripts/index.js"></script>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <p>123 University Avenue</p>
+                <p>Anytown, ST 12345</p>
+                <p>Email: info@academicinstitute.edu</p>
+                <p>Phone: (123) 456-7890</p>
+            </div>
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Campus Directory</a></li>
+                    <li><a href="#">Emergency Information</a></li>
+                    <li><a href="#">Employment</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#">FB</a>
+                    <a href="#">TW</a>
+                    <a href="#">IG</a>
+                    <a href="#">LI</a>
+                </div>
+                <p>Subscribe to our newsletter</p>
+                <form>
+                    <input type="email" placeholder="Your email">
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2025 Academic Institute. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const mainNav = document.getElementById('main-nav');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mainNav.classList.toggle('closed');
+        });
+
+        // Hero image carousel - simplified version
+        let currentImage = 1;
+        const heroImage = document.querySelector('.hero-image');
+        const totalImages = 3; // Number of placeholder images to cycle through
+
+        function changeHeroImage() {
+            currentImage = currentImage % totalImages + 1;
+            heroImage.src = `/api/placeholder/1200/600?text=Campus Image ${currentImage}`;
+        }
+
+        // Change image every 5 seconds
+        setInterval(changeHeroImage, 5000);
+
+        // Animate cards on scroll
+        const cards = document.querySelectorAll('.card');
+        
+        function checkScroll() {
+            cards.forEach(card => {
+                const cardTop = card.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (cardTop < windowHeight * 0.8) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }
+            });
+        }
+
+        // Initialize cards with opacity 0
+        cards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        });
+
+        // Check on scroll and initially
+        window.addEventListener('scroll', checkScroll);
+        checkScroll();
+
+        // Current date for the events
+        const eventDates = document.querySelectorAll('.event-date');
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        // Add current year to copyright
+        document.querySelector('.copyright p').textContent = `© ${new Date().getFullYear()} Academic Institute. All Rights Reserved.`;
+    </script>
 </body>
 </html>
