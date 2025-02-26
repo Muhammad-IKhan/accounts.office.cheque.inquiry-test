@@ -16,7 +16,6 @@
             --info-color: #17a2b8; /* Cyan */
             --text-color: #333; /* Dark gray */
             --background-color: #f8f9fa; /* Light background */
-            --mobile-breakpoint: 768px;
         }
 
         body {
@@ -43,9 +42,6 @@
             margin-bottom: 20px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
-            display: flex;  /*Use flexbox for layout */
-            flex-direction: column; /*Stack vertically on small screens*/
-            align-items: flex-start; /*Align items to the start on small screens*/
         }
 
         .header h1 {
@@ -57,8 +53,7 @@
         .header span {
             font-size: 16px;
             color: #666;
-            margin-left: 0; /*Reset margin for stacking*/
-            margin-top: 5px; /* Add some spacing between header and span on small screens */
+            margin-left: 20px;
         }
 
         /* Search and filter section */
@@ -170,7 +165,7 @@
         }
 
         .empty-state h3 {
-            margin: 0;
+            margin:0;
             font-size: 20px;
         }
 
@@ -187,7 +182,6 @@
             display: none;
             background-color: var(--secondary-color);
             color: var(--text-color);
-            text-align: center; /* Center the text */
         }
 
         /* Alert styles */
@@ -244,18 +238,17 @@
         }
 
         /* Responsive design */
-        @media (max-width: var(--mobile-breakpoint)) {
-            body {
-                padding: 10px; /*Reduce body padding*/
+        @media (max-width: 768px) {
+            .controls {
+                grid-template-columns: 1fr;
             }
 
             .container {
-                padding: 10px; /*Reduce container padding*/
+                padding: 10px;
             }
 
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
+            th, td {
+                padding: 8px;
             }
 
             .header h1 {
@@ -264,18 +257,6 @@
 
             .header span {
                 font-size: 14px;
-                margin-left: 0;
-                margin-top: 5px;
-            }
-
-            .controls {
-                grid-template-columns: 1fr; /*Stack controls on top of each other*/
-                gap: 10px; /*Reduce gap*/
-            }
-
-            th, td {
-                padding: 8px;
-                font-size: 12px; /*Smaller font in table cells*/
             }
 
             .empty-state h3 {
@@ -285,14 +266,6 @@
             .empty-state p {
                 font-size: 12px;
             }
-
-            #rowsPerPage {
-                margin-bottom: 10px; /*Spacing for select box*/
-            }
-
-            .table-container {
-                 margin-top: 10px; /*Reduce table margin */
-            }
         }
 
         /* Sort icons */
@@ -300,14 +273,6 @@
             display: inline-block;
             margin-left: 5px;
             font-size: 12px;
-        }
-
-         /* Interface selection styles */
-        #rowsPerPage {
-            margin-top: 10px;
-            padding: 5px;
-            border-radius: 4px;
-            margin-bottom: 15px; /*Add margin below the select element*/
         }
     </style>
 </head>
@@ -366,7 +331,7 @@
                     <option value="Cheque Ready">Cheque Ready</option>
                     <option value="sent to chairman">Sent to Chairman</option>
                     <option value="despatched through gpo">Despatched Through GPO Bannu</option>
-                    <option value="despatched to lakki camp office">Despatched to Lakki</option>
+                    <option value="despatched to lakki camp office">Despatched to Lakki</option>     
                     <option value="received by">Received by</option>
                     <option value="processing">Processing</option>
                 </select>
@@ -375,7 +340,7 @@
             <button id="searchBtn">Search</button>
         </div>
 
-
+        
         <!-- Empty State -->
         <div id="emptyState" class="empty-state">
             <h3>Welcome to Office for Live Inquiry, Updation and Information</h3>
@@ -400,10 +365,11 @@
 
         <!-- Results -->
         <div id="result" class="result-container">
+            <span id="resultContainer"></span>
             <!-- Pagination -->
-            <span id="pagination" class="pagination-controls"></span>
+            <div id="paginationContainer" class="pagination-controls"></div>
         </div>
-
+        
     </div>
 
     <!-- Scripts -->
