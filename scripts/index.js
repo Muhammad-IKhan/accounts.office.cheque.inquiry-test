@@ -327,6 +327,7 @@ class XMLTableHandler {
         }, this.state.currentPage === totalPages);
     }
 
+
     /**
      * Create a pagination button with appropriate handlers
      * @param {string|number} text - Button text
@@ -339,7 +340,7 @@ class XMLTableHandler {
         button.textContent = text;
         button.disabled = disabled;
         button.addEventListener('click', onClick);
-        this.paginationContainer.appendChild(button);
+        this.pagination.appendChild(button);  
     }
 
     /**
