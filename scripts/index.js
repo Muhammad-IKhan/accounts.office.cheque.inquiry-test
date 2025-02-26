@@ -70,6 +70,7 @@ class XMLTableHandler {
      */
     initializeDOMElements() {
         console.group('🔍 Finding DOM elements...'); // Start a console group
+        console.log('this.pagination:', this.pagination); // Add this line
         const requiredElements = {
             'checksTable': 'tableBody',
             'search': 'searchInput',
@@ -263,6 +264,8 @@ class XMLTableHandler {
      * @param {number} totalPages - Total number of pages
      */
     renderPaginationControls(totalPages) {
+        console.log('renderPaginationControls() called'); // Add this line
+        console.log('this.pagination:', this.pagination); // Add this line
         const controls = this.paginationContainer;
         controls.innerHTML = '';
 
@@ -703,6 +706,7 @@ class XMLTableHandler {
 
 // Initialize handler when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded event fired'); // Add this line
     console.log('🌐 Document loaded, initializing XMLTableHandler...');
     try {
         window.tableHandler = new XMLTableHandler();
