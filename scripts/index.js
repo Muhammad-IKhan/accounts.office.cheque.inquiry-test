@@ -64,10 +64,6 @@ class XMLTableHandler {
         console.groupEnd(); // End the console group
     }
 
-    /**
-     * Initialize all required DOM elements
-     * Throws error if any required element is missing
-     */
     initializeDOMElements() {
         console.group('🔍 Finding DOM elements...');
         const requiredElements = {
@@ -82,26 +78,34 @@ class XMLTableHandler {
             'searchBtn': 'searchBtn',
             'rowsPerPage': 'rowsPerPageSelect'
         };
-
+    
         for (const [id, prop] of Object.entries(requiredElements)) {
             const element = document.getElementById(id);
             if (!element) {
-                console.error(`❌ Required element #${id} not found in DOM`); // Log if not found
-                //throw new Error(`Required element #${id} not found in DOM`); // Don't throw error, allow to continue
-                this[prop] = null; // Assign null to avoid further errors
+                console.error(`❌ Required element #${id} not found in DOM`); 
+                this[prop] = null;
                 console.warn(`⚠️ Assigning null to this.${prop} due to missing element`);
             } else {
                 this[prop] = element;
                 console.log(`✓ Found element #${id}`);
+                
+                // Add a special log for pagination
+                if (id === 'pagination') {
+                    console.log(`🔍 Pagination element details:`, {
+                        display: element.style.display,
+                        visibility: element.style.visibility,
+                        height: element.offsetHeight,
+                        width: element.offsetWidth,
+                        parent: element.parentElement?.tagName
+                    });
+                }
             }
         }
-
-        // ADD THIS LINE:
+    
         console.log('🔍 After finding, this.pagination:', this.pagination);
-
         console.groupEnd();
     }
-
+    
     /**
      * Initialize application state with default values
      */
@@ -239,93 +243,127 @@ class XMLTableHandler {
             console.log('⏩ Pagination is disabled, skipping update');
             return;
         }
-
+    
+        if (!this.pagination) {
+            console.error('❌ Pagination element not found!');
+            return;
+        }
+    
         console.log(`📄 Updating pagination for page ${this.state.currentPage}`);
-
+    
         // Get visible rows
         const visibleRows = Array.from(this.tableBody.querySelectorAll('tr'))
             .filter(row => row.style.display !== 'none');
-
+    
         console.log(`👁️ Found ${visibleRows.length} visible rows`);
-
+    
         // Calculate total pages
         const totalPages = Math.ceil(visibleRows.length / this.state.rowsPerPage);
         this.state.currentPage = Math.min(this.state.currentPage, totalPages || 1);
-
+    
         console.log(`📚 Total pages: ${totalPages}, Current page: ${this.state.currentPage}`);
-
+    
         // Update row visibility based on current page
         const startIndex = (this.state.currentPage - 1) * this.state.rowsPerPage;
         const endIndex = startIndex + this.state.rowsPerPage;
-
+    
         visibleRows.forEach((row, index) => {
             row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
         });
-
+    
+        // Explicitly make pagination visible and fix any style issues
+        if (this.pagination) {
+            this.pagination.style.cssText = 'display: flex !important; visibility: visible !important;';
+            // Force a reflow to ensure visibility changes take effect
+            void this.pagination.offsetHeight;
+        }
+    
         // Render pagination controls
         this.renderPaginationControls(totalPages);
-    }
+     }
 
     
-        /**
+     /**
      * Render pagination control buttons
      * @param {number} totalPages - Total number of pages
      */
     renderPaginationControls(totalPages) {
-        // ADD THIS LINE:
         console.log('Inside renderPaginationControls, this.pagination:', this.pagination);
-
+    
         const controls = this.pagination;
         if (!controls) {
             console.error("❌ controls is null or undefined in renderPaginationControls!");
             return; // Exit if controls is null
         }
-
+    
+        // First, make sure the pagination element is empty
         controls.innerHTML = '';
-
+    
         if (totalPages <= 1) {
             controls.style.display = 'none'; // Hide pagination if only one page
             console.log('🔢 Hiding pagination controls (single page)');
             return;
         }
-
+    
+        // Make sure pagination is visible
         controls.style.display = 'flex'; // Show pagination controls
         console.log('🔢 Rendering pagination controls');
-
+    
         // Previous Button
-        this.createPaginationButton('Previous', () => {
+        const prevButton = document.createElement('button');
+        prevButton.className = `page-btn${this.state.currentPage === 1 ? ' disabled' : ''}`;
+        prevButton.textContent = 'Previous';
+        prevButton.disabled = this.state.currentPage === 1;
+        prevButton.addEventListener('click', () => {
             if (this.state.currentPage > 1) {
                 this.state.currentPage--;
                 console.log(`⬅️ Moving to previous page: ${this.state.currentPage}`);
                 this.updatePagination();
             }
-        }, this.state.currentPage === 1);
-
+        });
+        controls.appendChild(prevButton);
+        console.log('Added Previous button');
+    
         // Page numbers
         let startPage = Math.max(1, this.state.currentPage - Math.floor(this.config.maxPages / 2));
         let endPage = Math.min(totalPages, startPage + this.config.maxPages - 1);
-
+    
         // Adjust startPage if endPage is too close to the beginning
         if (endPage - startPage + 1 < this.config.maxPages) {
             startPage = Math.max(1, endPage - this.config.maxPages + 1);
         }
-
+    
         for (let i = startPage; i <= endPage; i++) {
-            this.createPaginationButton(i, () => {
+            const pageButton = document.createElement('button');
+            pageButton.className = `page-btn${this.state.currentPage === i ? ' active' : ''}`;
+            pageButton.textContent = i.toString();
+            pageButton.disabled = this.state.currentPage === i;
+            pageButton.addEventListener('click', () => {
                 this.state.currentPage = i;
                 console.log(`🖱️ Navigating to page: ${this.state.currentPage}`);
                 this.updatePagination();
-            }, this.state.currentPage === i);
+            });
+            controls.appendChild(pageButton);
+            console.log(`Added page button ${i}`);
         }
-
+    
         // Next Button
-        this.createPaginationButton('Next', () => {
+        const nextButton = document.createElement('button');
+        nextButton.className = `page-btn${this.state.currentPage === totalPages ? ' disabled' : ''}`;
+        nextButton.textContent = 'Next';
+        nextButton.disabled = this.state.currentPage === totalPages;
+        nextButton.addEventListener('click', () => {
             if (this.state.currentPage < totalPages) {
                 this.state.currentPage++;
                 console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
                 this.updatePagination();
             }
-        }, this.state.currentPage === totalPages);
+        });
+        controls.appendChild(nextButton);
+        console.log('Added Next button');
+    
+        // Add a debug log to check what was added
+        console.log('Pagination now contains:', controls.innerHTML);
     }
 
 
