@@ -36,12 +36,15 @@ class XMLTableHandler {
      * Applies configuration settings for maximum pages and search term limit.
      */
     applyConfig() {
-        console.log('⚙️ Applying configurations...');
+        console.group('⚙️ Applying configurations...');
         this.config = {
             maxPages: 10, // Maximum number of page links to display in pagination
-            searchTermMinLength: 3 // Minimum length of the search term before triggering a search
+            searchTermMinLength: 3, // Minimum length of the search term before triggering a search
+            dataFilesJsonPath: '/accounts.office.cheque.inquiry/public/data/files.json', // Path to the files.json
+            dataFilesBasePath: '/accounts.office.cheque.inquiry/public/data/' // Base path for XML data files
         };
-        console.log(`⚙️ Configuration: maxPages = ${this.config.maxPages}, searchTermMinLength = ${this.config.searchTermMinLength}`);
+        console.log(`⚙️ Configuration: maxPages = ${this.config.maxPages}, searchTermMinLength = ${this.config.searchTermMinLength}, dataFilesJsonPath = ${this.config.dataFilesJsonPath}, dataFilesBasePath = ${this.config.dataFilesBasePath}`);
+        console.groupEnd();
     }
 
     /**
@@ -168,31 +171,48 @@ class XMLTableHandler {
         console.groupEnd(); // End the console group
     }
 
-    /**
-     * Handle backspace functionality in search input
-     * Resets table when appropriate
-     * @param {KeyboardEvent} e - The keyboard event
+   /**
+     * Handles backspace functionality in the search input.
+     * Resets the table when appropriate and logs actions in a collapsible console group.
+     * @param {KeyboardEvent} e - The keyboard event.
      */
     handleBackspace(e) {
-        if (e.key === 'Backspace' && this.state.tableResetEnabled) {
-            const inputBefore = this.searchInput.value.trim();
+        console.groupCollapsed('⌫ Handling Backspace Event'); // Start a collapsed console group
+        try {
+            if (e.key === 'Backspace' && this.state.tableResetEnabled) {
+                const inputBefore = this.searchInput.value.trim();
 
-            setTimeout(() => {
-                const inputAfter = this.searchInput.value.trim();
-                if (this.state.backspaceDefault && inputBefore.length > 1) {
-                    const caretPosition = this.searchInput.selectionStart;
-                    this.resetTable();
-                    this.searchInput.value = inputAfter;
-                    this.searchInput.setSelectionRange(caretPosition, caretPosition);
-                    this.state.backspaceDefault = false;
-                    console.log('⌫ Backspace triggered table reset');
-                }
-                if (inputAfter.length > 0) {
-                    this.state.backspaceDefault = true;
-                }
-            }, 0);
+                setTimeout(() => {
+                    const inputAfter = this.searchInput.value.trim();
+                    console.log(`🔍 Input before backspace: "${inputBefore}", Input after backspace: "${inputAfter}"`);
+
+                    if (this.state.backspaceDefault && inputBefore.length > 1) {
+                        const caretPosition = this.searchInput.selectionStart;
+                        this.resetTable();
+                        this.searchInput.value = inputAfter;
+                        this.searchInput.setSelectionRange(caretPosition, caretPosition);
+                        this.state.backspaceDefault = false;
+                        console.log('⌫ Backspace triggered table reset');
+                    }
+                    if (inputAfter.length > 0) {
+                        this.state.backspaceDefault = true;
+                    }
+
+                    // Check if the search term is now too short and reset if necessary
+                    if (inputAfter.length < this.config.searchTermMinLength && inputAfter.length > 0) {
+                         console.log(`🔎 Search term "${inputAfter}" is now too short after backspace. Resetting table.`);
+                        this.resetTable();
+                    }
+                    if (inputAfter.length === 0) {
+                        this.resetTable();
+                    }
+                }, 0);
+            }
+        } finally {
+            console.groupEnd(); // End the console group
         }
     }
+
 
     /**
      * Initialize pagination controls
@@ -265,8 +285,13 @@ class XMLTableHandler {
         }, this.state.currentPage === 1);
 
         // Page numbers
-        const startPage = Math.max(1, this.state.currentPage - Math.floor(this.config.maxPages / 2));
-        const endPage = Math.min(totalPages, startPage + this.config.maxPages - 1);
+        let startPage = Math.max(1, this.state.currentPage - Math.floor(this.config.maxPages / 2));
+        let endPage = Math.min(totalPages, startPage + this.config.maxPages - 1);
+
+        // Adjust startPage if endPage is too close to the beginning
+        if (endPage - startPage + 1 < this.config.maxPages) {
+            startPage = Math.max(1, endPage - this.config.maxPages + 1);
+        }
 
         for (let i = startPage; i <= endPage; i++) {
             this.createPaginationButton(i, () => {
@@ -308,16 +333,16 @@ class XMLTableHandler {
     async fetchXMLData() {
         console.group('📥 Fetching XML data...'); // Start a console group
         try {
-            const filesResponse = await fetch('/accounts.office.cheque.inquiry/public/data/${file}');
-            if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status}`);
+            const filesResponse = await fetch(this.config.dataFilesJsonPath);
+            if (!filesResponse.ok) throw new Error(`HTTP error! Status: ${filesResponse.status} - ${this.config.dataFilesJsonPath}`);
             const xmlFiles = await filesResponse.json();
             console.log(`📄 Found ${xmlFiles.length} XML files to process`);
 
             let combinedXML = '<root>';
             for (const file of xmlFiles) {
                 console.log(`🔄 Processing file: ${file}`);
-                const fileResponse = await fetch(`/accounts.office.cheque.inquiry/public/data/${file}`);
-                if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file}`);
+                const fileResponse = await fetch(this.config.dataFilesBasePath + file);
+                if (!fileResponse.ok) throw new Error(`HTTP error for file: ${file} - Status: ${fileResponse.status} - Path: ${this.config.dataFilesBasePath + file}`);
                 let xmlContent = await fileResponse.text();
                 xmlContent = xmlContent.replace(/<\?xml[^>]+\?>/, '').replace(/<\/?root>/g, '');
                 combinedXML += xmlContent;
@@ -554,19 +579,25 @@ class XMLTableHandler {
      * Reset table to initial state
      */
     resetTable() {
-        console.log('🔄 Resetting table to initial state');
-        this.searchInput.value = '';
-        this.narFilter.value = 'all';
-        this.statusFilter.value = 'all';
-        this.state.lastSearchTerm = '';
-        this.state.currentPage = 1; // Reset to the first page
+        console.group('🔄 Resetting table to initial state');
+        try {
+            console.log('🔄 Resetting table to initial state');
+            this.searchInput.value = '';
+            this.narFilter.value = 'all';
+            this.statusFilter.value = 'all';
+            this.state.lastSearchTerm = '';
+            this.state.currentPage = 1; // Reset to the first page
 
-        this.tableContainer.style.display = 'none';
-        this.emptyState.style.display = 'block';
-        this.resultContainer.style.display = 'none';
+            this.tableContainer.style.display = 'none';
+            this.emptyState.style.display = 'block';
+            this.resultContainer.style.display = 'none';
 
-        this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
-        this.updatePagination(); // Update pagination after reset
+            this.tableBody.querySelectorAll('tr').forEach(row => row.style.display = '');
+            this.updatePagination(); // Update pagination after reset
+        } finally {
+             console.groupEnd();
+        }
+
     }
 
     /**
