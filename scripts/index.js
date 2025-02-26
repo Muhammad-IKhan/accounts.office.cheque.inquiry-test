@@ -272,7 +272,7 @@ class XMLTableHandler {
             // In the updatePagination function, add more debugging:
             if (this.pagination) {
                 console.log('Pagination computed style:', window.getComputedStyle(this.pagination));
-                this.pagination.style.cssText = 'display: flex !important; visibility: visible !important; z-index: 1000 !important;';opacity: 1 !important; height: auto !important; min-height: 40px !important;';
+                this.pagination.style.cssText = 'display: flex !important; visibility: visible !important; z-index: 1000 !important; opacity: 1 !important; height: auto !important; min-height: 40px !important;';
             }
             // Add this to initializeDOMElements
             if (this.pagination) {
