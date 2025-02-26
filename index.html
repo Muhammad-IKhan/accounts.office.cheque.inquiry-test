@@ -364,7 +364,7 @@
     <!-- Header with Navigation Menu -->
     <header>
         <div class="header-content">
-            <div class="logo">BISE Bannu</div>
+            <div class="logo">Board Support Portal</div>
             <button class="mobile-menu-btn">☰</button>
             <nav id="main-nav" class="closed">
                 <ul>
@@ -494,18 +494,30 @@
             mainNav.classList.toggle('closed');
         });
 
-        // Hero image carousel - simplified version
-        let currentImage = 1;
-        const heroImage = document.querySelector('.hero-image');
-        const totalImages = 3; // Number of placeholder images to cycle through
-
+        // Hero image carousel - simplified version Array of your custom image URLs
+        const imageUrls = [
+            "https://biseb.edu.pk/images/banners/bise_1.jpg",
+            "https://biseb.edu.pk/images/banners/bise_2.jpg",
+            "https://biseb.edu.pk/images/banners/bise_3.jpg"
+        ];
+        
+        let currentImage = 0; // Start with the first image
+        const totalImages = imageUrls.length; // Total number of images
+        
         function changeHeroImage() {
-            currentImage = currentImage % totalImages + 1;
-            heroImage.src = `/api/placeholder/1200/600?text=Campus Image ${currentImage}`;
+            // Update the current image index (cycle through the array)
+            currentImage = (currentImage + 1) % totalImages;
+        
+            // Get the hero image element and update its src
+            const heroImage = document.querySelector('.hero-image');
+            if (heroImage) {
+                heroImage.src = imageUrls[currentImage];
+            }
         }
-
-        // Change image every 5 seconds
+        
+        // Call the function periodically (e.g., every 5 seconds)
         setInterval(changeHeroImage, 5000);
+
 
         // Animate cards on scroll
         const cards = document.querySelectorAll('.card');
