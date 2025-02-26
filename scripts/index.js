@@ -69,8 +69,7 @@ class XMLTableHandler {
      * Throws error if any required element is missing
      */
     initializeDOMElements() {
-        console.group('🔍 Finding DOM elements...'); // Start a console group
-        console.log('this.pagination:', this.pagination); // Add this line
+        console.group('🔍 Finding DOM elements...');
         const requiredElements = {
             'checksTable': 'tableBody',
             'search': 'searchInput',
@@ -83,7 +82,7 @@ class XMLTableHandler {
             'searchBtn': 'searchBtn',
             'rowsPerPage': 'rowsPerPageSelect'
         };
-
+    
         for (const [id, prop] of Object.entries(requiredElements)) {
             const element = document.getElementById(id);
             if (!element) {
@@ -92,7 +91,10 @@ class XMLTableHandler {
             this[prop] = element;
             console.log(`✓ Found element #${id}`);
         }
-        console.groupEnd(); // End the console group
+    
+        console.log('🔍 After finding, this.pagination:', this.pagination);
+    
+        console.groupEnd();
     }
 
     /**
@@ -264,8 +266,8 @@ class XMLTableHandler {
      * @param {number} totalPages - Total number of pages
      */
     renderPaginationControls(totalPages) {
-        console.log('renderPaginationControls() called'); // Add this line
-        console.log('this.pagination:', this.pagination); // Add this line
+        console.log('renderPaginationControls() called');
+        console.log('Inside renderPaginationControls, this.pagination:', this.pagination);
         const controls = this.paginationContainer;
         controls.innerHTML = '';
 
