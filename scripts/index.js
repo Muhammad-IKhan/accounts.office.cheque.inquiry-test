@@ -569,9 +569,14 @@ class XMLTableHandler {
         console.log(`📊 Search results: ${message}`);
         this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
 
+        // Show the result container
+        this.resultContainer.style.display = 'block';
+
         // Hide pagination if no results
         if (matchCount === 0) {
             this.paginationContainer.style.display = 'none';
+        } else {
+            this.paginationContainer.style.display = 'flex'; // Or whatever display style you need
         }
     }
 
