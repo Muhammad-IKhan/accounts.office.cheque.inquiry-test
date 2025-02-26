@@ -509,10 +509,7 @@ class XMLTableHandler {
         this.applyFilters();
     }
 
-    /**
-     * Apply all filters (search, category, status)
-     */
-    /**
+        /**
  * Apply all filters (search, category, status)
  */
 applyFilters() {
@@ -568,14 +565,32 @@ applyFilters() {
 
     console.log(`🔍 Filter found ${matchCount} matching rows`);
     
-    // Store a reference to this to ensure we have the correct scope
-    const self = this;
-    self.updateSearchResults(matchCount);
-    self.updatePagination(); // Update pagination after filtering
+    // Inline implementation of updateSearchResults function
+    // Update search results message
+    let message = `Found ${matchCount} results`;
+    if (searchTerm) message += ` for "${searchTerm}"`;
+    if (narCategory !== 'all') message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
+    if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
+
+    console.log(`📊 Search results: ${message}`);
+    if (this.resultContainer) {
+        this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
+        this.resultContainer.style.display = 'block';
+    }
+
+    // Handle pagination display
+    if (this.pagination) {
+        if (matchCount === 0) {
+            this.pagination.style.display = 'none';
+        } else {
+            this.pagination.style.display = 'flex';
+        }
+    }
     
+    this.updatePagination(); // Update pagination after filtering
     console.groupEnd(); // End the console group
 }
-
+    
     /**
      * Update search results message
      * @param {number} matchCount - Number of matching rows
