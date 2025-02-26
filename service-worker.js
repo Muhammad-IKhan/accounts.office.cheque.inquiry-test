@@ -26,7 +26,8 @@ const ASSETS_TO_CACHE  = [
   // '/accounts.office.cheque.inquiry/scripts/utilities.js',
   // '/accounts.office.cheque.inquiry/public/data/data.xml',
   '/accounts.office.cheque.inquiry/public/data/files.json',
-  // '/accounts.office.cheque.inquiry/scripts/xmlHandling.js'
+  // '/accounts.office.cheque.inquiry/scripts/xmlHandling.js',
+  https://biseb.edu.pk/images/banners/bise_3.jpg
 ];
 
 // Rest of your service worker code...
