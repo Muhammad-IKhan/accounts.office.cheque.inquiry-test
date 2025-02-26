@@ -330,7 +330,8 @@ class XMLTableHandler {
             if (this.state.currentPage < totalPages) {
                 this.state.currentPage++;
                 console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
-        });
+        // });
+        }
     }
 
     //      // Next Button
