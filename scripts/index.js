@@ -15,9 +15,6 @@ class XMLTableHandler {
             this.initializeState(); // Initialize application state
             this.initializeEventListeners(); // Setup event listeners
             this.applyConfig(); // Apply configurations for max pages and search term limit
-            this.updateSearchResults = this.updateSearchResults.bind(this);
-            this.applyFilters = this.applyFilters.bind(this);
-            this.updatePagination = this.updatePagination.bind(this);
 
             // Fetch and display data
             this.fetchXMLData().then(() => {
@@ -515,62 +512,69 @@ class XMLTableHandler {
     /**
      * Apply all filters (search, category, status)
      */
-    applyFilters() {
-        console.group('🔍 Applying filters...'); // Start a console group
-        const searchTerm = this.state.lastSearchTerm;
-        const narCategory = this.narFilter.value.toLowerCase();
-        const statusFilter = this.statusFilter.value.toLowerCase();
+    /**
+ * Apply all filters (search, category, status)
+ */
+applyFilters() {
+    console.group('🔍 Applying filters...'); // Start a console group
+    const searchTerm = this.state.lastSearchTerm;
+    const narCategory = this.narFilter.value.toLowerCase();
+    const statusFilter = this.statusFilter.value.toLowerCase();
 
-        console.log(`🔍 Filter criteria: search="${searchTerm}", category="${narCategory}", status="${statusFilter}"`);
+    console.log(`🔍 Filter criteria: search="${searchTerm}", category="${narCategory}", status="${statusFilter}"`);
 
-        // Reset pagination to the first page
-        this.state.currentPage = 1;
+    // Reset pagination to the first page
+    this.state.currentPage = 1;
 
-        // Reset if no filters are applied
-        if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
-            console.log('🔄 No filters active, resetting table');
-            return this.resetTable();
-        }
+    // Reset if no filters are applied
+    if (!searchTerm && narCategory === 'all' && statusFilter === 'all') {
+        console.log('🔄 No filters active, resetting table');
+        return this.resetTable();
+    }
 
-        // Show table and hide empty state
-        this.tableContainer.style.display = 'block';
-        this.emptyState.style.display = 'none';
-        this.resultContainer.style.display = 'block';
+    // Show table and hide empty state
+    this.tableContainer.style.display = 'block';
+    this.emptyState.style.display = 'none';
+    this.resultContainer.style.display = 'block';
 
-        let matchCount = 0;
+    let matchCount = 0;
 
-        this.tableBody.querySelectorAll('tr').forEach(row => {
-            const narValue = row.getAttribute('data-nar');
-            const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
-            const cells = Array.from(row.getElementsByTagName('td'));
+    this.tableBody.querySelectorAll('tr').forEach(row => {
+        const narValue = row.getAttribute('data-nar');
+        const status = row.querySelector('td[data-field="DD"]').textContent.toLowerCase();
+        const cells = Array.from(row.getElementsByTagName('td'));
 
-            // Check category match
-            const matchesCategory = narCategory === 'all' || narValue === narCategory;
-            // Check status match
-            const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
-            // Check search term match
-            const matchesSearch = !searchTerm || cells.some(cell => {
-                const field = cell.getAttribute('data-field');
-                // Ensure columns exists and has the field
-                if (!this.columns || !this.columns[field]) {
-                    return false;
-                }
-                const columnConfig = this.columns[field];
-                return columnConfig?.searchable && cell.textContent.toLowerCase().includes(searchTerm);
-            });
-
-            // Determine visibility
-            const visible = matchesCategory && matchesStatus && matchesSearch;
-            row.style.display = visible ? '' : 'none';
-
-            if (visible) matchCount++;
+        // Check category match
+        const matchesCategory = narCategory === 'all' || narValue === narCategory;
+        // Check status match
+        const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+        // Check search term match
+        const matchesSearch = !searchTerm || cells.some(cell => {
+            const field = cell.getAttribute('data-field');
+            // Ensure columns exists and has the field
+            if (!this.columns || !this.columns[field]) {
+                return false;
+            }
+            const columnConfig = this.columns[field];
+            return columnConfig?.searchable && cell.textContent.toLowerCase().includes(searchTerm);
         });
 
-        console.log(`🔍 Filter found ${matchCount} matching rows`);
-        this.updateSearchResults(matchCount);
-        this.updatePagination(); // Update pagination after filtering
-        console.groupEnd(); // End the console group
-    }
+        // Determine visibility
+        const visible = matchesCategory && matchesStatus && matchesSearch;
+        row.style.display = visible ? '' : 'none';
+
+        if (visible) matchCount++;
+    });
+
+    console.log(`🔍 Filter found ${matchCount} matching rows`);
+    
+    // Store a reference to this to ensure we have the correct scope
+    const self = this;
+    self.updateSearchResults(matchCount);
+    self.updatePagination(); // Update pagination after filtering
+    
+    console.groupEnd(); // End the console group
+}
 
     /**
      * Update search results message
