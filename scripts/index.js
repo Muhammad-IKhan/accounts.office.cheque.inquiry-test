@@ -324,14 +324,14 @@ class XMLTableHandler {
         //         console.log(`➡️ Moving to next page: ${this.state.currentPage`});
         //         });
         //     }
-                 // Next Button
-                this.createPaginationButton('Next', () => {
-                    if (this.state.currentPage < totalPages) {
-                        this.state.currentPage++;
-                        console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
-                        this.updatePagination();
-                    }
-                }
+
+         // Next Button
+        this.createPaginationButton('Next', () => {
+            if (this.state.currentPage < totalPages) {
+                this.state.currentPage++;
+                console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
+        });
+    }
 
     //      // Next Button
     //     this.createPaginationButton('Next', () => {
