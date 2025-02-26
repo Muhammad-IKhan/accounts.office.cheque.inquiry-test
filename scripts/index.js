@@ -262,35 +262,32 @@ class XMLTableHandler {
             row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
         });
 
-        // Render pagination controls
-        this.renderPaginationControls(totalPages);
-    }
 
-    /**
-     * Render pagination control buttons
-     * @param {number} totalPages - Total number of pages
-     */
-    renderPaginationControls(totalPages) {
-        // ADD THIS LINE:
+
+/**
+ * Render pagination control buttons
+ * @param {number} totalPages - Total number of pages
+ */
+renderPaginationControls(totalPages) {
         console.log('Inside renderPaginationControls, this.pagination:', this.pagination);
-
+    
         const controls = this.pagination;
-         if (!controls) {
-             console.error("❌ controls is null or undefined in renderPaginationControls!");
-             return; // Exit if controls is null
-         }
-
+        if (!controls) {
+            console.error("❌ controls is null or undefined in renderPaginationControls!");
+            return; // Exit if controls is null
+        }
+    
         controls.innerHTML = '';
-
+    
         if (totalPages <= 1) {
             controls.style.display = 'none'; // Hide pagination if only one page
             console.log('🔢 Hiding pagination controls (single page)');
             return;
         }
-
+    
         controls.style.display = 'flex'; // Show pagination controls
         console.log('🔢 Rendering pagination controls');
-
+    
         // Previous Button
         this.createPaginationButton('Previous', () => {
             if (this.state.currentPage > 1) {
@@ -299,16 +296,16 @@ class XMLTableHandler {
                 this.updatePagination();
             }
         }, this.state.currentPage === 1);
-
+    
         // Page numbers
         let startPage = Math.max(1, this.state.currentPage - Math.floor(this.config.maxPages / 2));
         let endPage = Math.min(totalPages, startPage + this.config.maxPages - 1);
-
+    
         // Adjust startPage if endPage is too close to the beginning
         if (endPage - startPage + 1 < this.config.maxPages) {
             startPage = Math.max(1, endPage - this.config.maxPages + 1);
         }
-
+    
         for (let i = startPage; i <= endPage; i++) {
             this.createPaginationButton(i, () => {
                 this.state.currentPage = i;
@@ -316,34 +313,16 @@ class XMLTableHandler {
                 this.updatePagination();
             }, this.state.currentPage === i);
         }
-
+    
         // Next Button
-        // this.createPaginationButton('Next', () => {
-        //     if (this.state.currentPage < totalPages) {
-        //         this.state.currentPage++;
-        //         console.log(`➡️ Moving to next page: ${this.state.currentPage`});
-        //         });
-        //     }
-
-         // Next Button
         this.createPaginationButton('Next', () => {
             if (this.state.currentPage < totalPages) {
                 this.state.currentPage++;
                 console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
-        // });
-        };
-    });
-
-    //      // Next Button
-    //     this.createPaginationButton('Next', () => {
-    //         if (this.state.currentPage < totalPages) {
-    //             this.state.currentPage++;
-    //             console.log(`➡️ Moving to next page: ${this.state.currentPage}`);
-    //             this.updatePagination();
-    //         }
-    //     }, this.state.currentPage === totalPages);
-    // }
-
+                this.updatePagination();
+            }
+        }, this.state.currentPage === totalPages);
+    }
 
             
 
