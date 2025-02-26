@@ -149,10 +149,18 @@
             text-decoration: none;
             font-weight: bold;
             transition: background-color 0.3s ease;
+            opacity: 0.8; /* Reduce initial opacity */
         }
 
         .cta-button:hover {
-            background-color: white;
+/*             background-color: white;
+            background-color: #9fa8da; /* Darker shade for hover effect */ */
+            opacity: 1; /* Fully opaque on hover */
+            
+        }
+
+        .cta-button:active {
+            transform: scale(0.95); /* Slight shrink effect when clicked */
         }
 
         /* Main Content Area */
