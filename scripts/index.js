@@ -70,6 +70,10 @@ class XMLTableHandler {
      * Throws error if any required element is missing
      */
     initializeDOMElements() {
+         this.pagination = document.getElementById('pagination');
+        if (!this.pagination) {
+            console.error("❌ Pagination element not found in DOM!");
+        }
         console.group('🔍 Finding DOM elements...');
         const requiredElements = {
             'checksTable': 'tableBody',
@@ -268,6 +272,11 @@ class XMLTableHandler {
      * @param {number} totalPages - Total number of pages
      */
     renderPaginationControls(totalPages) {
+        console.log('Inside renderPaginationControls, this.pagination:', this.pagination);
+        if (!this.pagination) {
+            console.error("❌ Pagination element is null or undefined!");
+            return;
+        }
         console.log('Inside renderPaginationControls, this.pagination:', this.pagination);
 
         const controls = this.pagination;
