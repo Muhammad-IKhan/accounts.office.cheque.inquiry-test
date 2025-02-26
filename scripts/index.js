@@ -15,6 +15,9 @@ class XMLTableHandler {
             this.initializeState(); // Initialize application state
             this.initializeEventListeners(); // Setup event listeners
             this.applyConfig(); // Apply configurations for max pages and search term limit
+            this.updateSearchResults = this.updateSearchResults.bind(this);
+            this.applyFilters = this.applyFilters.bind(this);
+            this.updatePagination = this.updatePagination.bind(this);
 
             // Fetch and display data
             this.fetchXMLData().then(() => {
