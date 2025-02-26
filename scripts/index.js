@@ -116,7 +116,7 @@ class XMLTableHandler {
             currentStatusFilter: 'all',
             lastFilterCategory: 'all',
             paginationEnabled: true,
-            rowsPerPage: 10,
+            rowsPerPage: 6,
             currentPage: 1,
             visibleRowsCount: 0,
             sortColumn: null,
@@ -266,7 +266,8 @@ class XMLTableHandler {
         this.renderPaginationControls(totalPages);
     }
 
-    /**
+    
+        /**
      * Render pagination control buttons
      * @param {number} totalPages - Total number of pages
      */
