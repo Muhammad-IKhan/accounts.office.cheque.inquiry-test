@@ -277,25 +277,18 @@ class XMLTableHandler {
             console.error("❌ Pagination element is null or undefined!");
             return;
         }
-        console.log('Inside renderPaginationControls, this.pagination:', this.pagination);
-
-        const controls = this.pagination;
-        if (!controls) {
-            console.error("❌ controls is null or undefined in renderPaginationControls!");
-            return; // Exit if controls is null
-        }
-
-        controls.innerHTML = '';
-
+    
+        this.pagination.innerHTML = ''; // Clear existing buttons
+    
         if (totalPages <= 1) {
-            controls.style.display = 'none'; // Hide pagination if only one page
+            this.pagination.style.display = 'none'; // Hide pagination if only one page
             console.log('🔢 Hiding pagination controls (single page)');
             return;
         }
-
-        controls.style.display = 'flex'; // Show pagination controls
+    
+        this.pagination.style.display = 'flex'; // Show pagination controls
         console.log('🔢 Rendering pagination controls');
-
+    
         // Previous Button
         this.createPaginationButton('Previous', () => {
             if (this.state.currentPage > 1) {
@@ -304,24 +297,16 @@ class XMLTableHandler {
                 this.updatePagination();
             }
         }, this.state.currentPage === 1);
-
+    
         // Page numbers
-        let startPage = Math.max(1, this.state.currentPage - Math.floor(this.config.maxPages / 2));
-        let endPage = Math.min(totalPages, startPage + this.config.maxPages - 1);
-
-        // Adjust startPage if endPage is too close to the beginning
-        if (endPage - startPage + 1 < this.config.maxPages) {
-            startPage = Math.max(1, endPage - this.config.maxPages + 1);
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
+        for (let i = 1; i <= totalPages; i++) {
             this.createPaginationButton(i, () => {
                 this.state.currentPage = i;
                 console.log(`🖱️ Navigating to page: ${this.state.currentPage}`);
                 this.updatePagination();
             }, this.state.currentPage === i);
         }
-
+    
         // Next Button
         this.createPaginationButton('Next', () => {
             if (this.state.currentPage < totalPages) {
