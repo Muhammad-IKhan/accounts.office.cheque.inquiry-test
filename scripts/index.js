@@ -573,25 +573,26 @@ class XMLTableHandler {
      * Update search results message
      * @param {number} matchCount - Number of matching rows
      */
+    /**
     updateSearchResults(matchCount) {
         const searchTerm = this.state.lastSearchTerm;
         const narCategory = this.narFilter.value;
         const statusFilter = this.statusFilter.value;
-
+    
         let message = `Found ${matchCount} results`;
         if (searchTerm) message += ` for "${searchTerm}"`;
         if (narCategory !== 'all') message += ` in category "${this.narFilter.options[this.narFilter.selectedIndex].text}"`;
         if (statusFilter !== 'all') message += ` with status "${statusFilter}"`;
-
+    
         console.log(`📊 Search results: ${message}`);
         this.resultContainer.textContent = matchCount > 0 ? message : 'No results found.';
-
+    
         // Show the result container
         this.resultContainer.style.display = 'block';
-
+    
         // Hide pagination if no results
         if (matchCount === 0) {
-            this.paginationContainer.style.display = 'none';
+            this.paginationContainer.style.display = 'none';  // Error is here!
         } else {
             this.paginationContainer.style.display = 'flex'; // Or whatever display style you need
         }
