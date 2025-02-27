@@ -895,4 +895,46 @@
 
             // Hero Image Carousel
             const changeHeroImage = () => {
-                hero
+                heroImage.style.transition = 'opacity 0.5s ease';
+                heroImage.style.opacity = 0;
+
+                setTimeout(() => {
+                    currentImage = (currentImage + 1) % imageUrls.length;
+                    heroImage.src = imageUrls[currentImage];
+                    heroImage.style.opacity = 0.7;
+                }, 500);
+            };
+
+            setInterval(changeHeroImage, 5000);
+
+            // Debounced Scroll Event for Back to Top Button
+            const debounce = (func, delay) => {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            };
+
+            const toggleBackToTopButton = () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.add('show');
+                } else {
+                    backToTopButton.classList.remove('show');
+                }
+            };
+
+            const debouncedToggleBackToTop = debounce(toggleBackToTopButton, 100);
+            window.addEventListener('scroll', debouncedToggleBackToTop);
+
+            backToTopButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
