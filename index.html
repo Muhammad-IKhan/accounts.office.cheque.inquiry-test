@@ -232,6 +232,16 @@
             padding-left: 0.8rem;
         }
 
+         .container > .sidebar:first-of-type {
+            background-color: #f0f0f0;
+        }
+        
+        
+        /* Target second sidebar */
+        .container > .sidebar:last-of-type {
+            background-color: #e0e0e0;
+        }
+
         .events-list {
             margin-top: 2rem;
             height: 800px;
@@ -525,7 +535,7 @@
             .sidebar {
               height: fit-content;
                 margin-bottom: 0;
-              width: 100%;
+            width: auto;/*width: 100%; */
              margin-bottom: 2rem;
              background-color: white;
               padding: 1.5rem;
@@ -713,9 +723,8 @@
     <!-- Main Content Area with Sidebar -->
     <div class="container-fluid">
         <div class="main-container">
-            <!--  Left  Sidebar -->
+            <!--  Left/ First Sidebar -->
             <aside class="sidebar">
-
                 <h3><i class="far fa-calendar-alt"></i>Updates</h3>
                 <div class="events-list"> 
                     <div class="scroll-container">
