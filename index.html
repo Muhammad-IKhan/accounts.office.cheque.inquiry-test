@@ -824,7 +824,7 @@
 
     <script>
        // Mobile menu toggle
-document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const mainNav = document.getElementById('main-nav');
     const body = document.body;
@@ -900,42 +900,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Animate cards on scroll
+    // Modified animation approach - show elements without IntersectionObserver
     const cards = document.querySelectorAll('.card');
     const newsItems = document.querySelectorAll('.news-item');
     
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate');
-                observer.unobserve(entry.target);
-            }
+    // Make all elements visible right away
+    function showElements(elements) {
+        elements.forEach(element => {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
         });
-    }, {
-        threshold: 0.1
-    });
+    }
     
-    cards.forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        observer.observe(card);
-    });
-    
-    newsItems.forEach(item => {
-        item.style.opacity = '0';
-        item.style.transform = 'translateY(20px)';
-        item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        observer.observe(item);
-    });
-    
-    // Add animate class when element comes into view
-    const elementsToAnimate = document.querySelectorAll('.animate');
-    
-    elementsToAnimate.forEach(element => {
-        element.style.opacity = '1';
-        element.style.transform = 'translateY(0)';
-    });
+    // Show all elements
+    showElements(cards);
+    showElements(newsItems);
+    showElements(document.querySelectorAll('.animate'));
 });
     </script>
 </body>
