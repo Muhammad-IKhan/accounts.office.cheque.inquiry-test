@@ -3,38 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Board Support Portal</title>
     <style>
-        /* Base Styles */
-        * {
+        /* CSS Reset (Minimalist) */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body, h1, h2, h3, h4, p, ul, li {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+        }
+        ul {
+            list-style: none;
         }
 
+        /* CSS Variables */
+        :root {
+            --primary-color: #1a237e;
+            --secondary-color: #c5cae9;
+            --text-color: #333;
+            --background-color: #f5f5f5;
+            --light-bg: #f9f9f9;
+            --border-color: #e0e0e0;
+            --font-family: 'Arial', sans-serif;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Base Styles */
         body {
-            background-color: #f5f5f5;
-            color: #333;
-            display: flex;
-            flex-direction: column;
+            font-family: var(--font-family);
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Ensure footer stays at the bottom */
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--secondary-color);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block; /* Removes extra space below image */
         }
 
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 1rem;
         }
 
         /* Header Styles */
         header {
-            background-color: #1a237e;
+            background-color: var(--primary-color);
             color: white;
             padding: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px var(--shadow-color);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -47,75 +82,70 @@
         }
 
         .logo {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: bold;
-            z-index: 1001;
         }
 
         .logo a {
-            text-decoration: none;
             color: white;
-            transition: color 0.3s ease;
         }
 
-        .logo a:hover {
-            color: #c5cae9;
-        }
-
-        /* Navigation Styles */
-        nav {
-            transition: all 0.3s ease-in-out;
-        }
-
-        nav ul {
-            display: flex;
-            list-style-type: none;
-            gap: 1.5rem;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            padding: 0.5rem 0;
-            position: relative;
-        }
-
-        nav a::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 0;
-            background-color: #c5cae9;
-            transition: width 0.3s ease;
-        }
-
-        nav a:hover::after,
-        nav a.active::after {
-            width: 100%;
-        }
-
-        nav a:hover {
-            color: #c5cae9;
-        }
-
+        /* Mobile Menu Button */
         .mobile-menu-btn {
-            display: none;
             background: none;
             border: none;
             color: white;
             font-size: 1.5rem;
             cursor: pointer;
-            z-index: 1001;
+            padding: 0; /* Remove default button padding */
+            display: block;
+        }
+
+        /* Navigation Styles */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4rem 1rem; /* Increased padding for mobile */
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1001; /* Ensure it's above other content */
+        }
+
+        nav.active {
+            transform: translateX(0);
+        }
+
+        nav ul {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            color: white;
+            font-weight: 500;
+            display: block; /* Ensure full width */
+            padding: 0.5rem 0;
+            width: 100%;
+            border-bottom: 2px solid transparent;
+            transition: border-bottom 0.3s ease;
+        }
+
+        nav a:hover,
+        nav a:focus {
+            border-bottom-color: var(--secondary-color);
         }
 
         /* Hero Section */
         .hero {
             position: relative;
-            height: 94vh;
+            height: 50vh; /* Reduced height for mobile */
             background-color: #333;
             color: white;
             overflow: hidden;
@@ -139,88 +169,85 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 2rem 0;
+            align-items: center;
+            padding: 2rem;
+            text-align: center; /* Center content on mobile */
         }
 
         .hero h1 {
-            font-size: 3rem;
+            font-size: 2rem;
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .hero p {
-            font-size: 1.2rem;
-            max-width: 600px;
+            font-size: 1rem;
+            max-width: 80%;
             margin-bottom: 2rem;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .cta-buttons {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
             gap: 1rem;
         }
 
         .cta-button {
             display: inline-block;
-            background-color: #1a237e;
+            background-color: var(--primary-color);
             color: white;
             padding: 0.8rem 1.5rem;
             border-radius: 4px;
             text-decoration: none;
             font-weight: bold;
-            transition: all 0.3s ease;
-            border: 2px solid #c5cae9;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid var(--secondary-color);
         }
 
-        .cta-button:hover {
-            background-color: #c5cae9;
-            color: #1a237e;
+        .cta-button:hover,
+        .cta-button:focus {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 10px var(--shadow-color);
         }
 
-        .cta-button:active {
-            transform: scale(0.98) translateY(-1px);
-        }
-
-        /* Main Content Area */
+        /* Main Content */
         .main-container {
             display: flex;
-            margin: 2rem auto;
-            flex: 1;
+            flex-direction: column;
             gap: 2rem;
+            padding: 2rem 1rem;
+            flex: 1; /* Take up remaining vertical space */
         }
 
-        /* Sidebar Styles */
-        .sidebar {
-            width: 300px;
+        main {
             background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--light-bg);
             padding: 1.5rem;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        /* Different styling for left and right sidebars */
-        .sidebar-left {
-            background-color: #f0f0f0;
-            height: 900px;
-        }
-        
-        .sidebar-right {
-            background-color: #e0e0e0;
-            height: fit-content;
+            box-shadow: 0 2px 5px var(--shadow-color);
         }
 
         .sidebar h3 {
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
-            border-bottom: 2px solid #1a237e;
-            color: #1a237e;
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-size: 1.2rem;
         }
 
         .sidebar ul {
-            list-style-type: none;
+            list-style: none;
         }
 
         .sidebar li {
@@ -228,97 +255,85 @@
         }
 
         .sidebar a {
-            color: #333;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            color: var(--text-color);
             display: block;
             padding: 0.5rem;
             border-radius: 4px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .sidebar a:hover {
-            color: #1a237e;
-            background-color: #f0f0f0;
+        .sidebar a:hover,
+        .sidebar a:focus {
+            background-color: var(--background-color);
+            color: var(--primary-color);
             padding-left: 0.8rem;
         }
 
-        /* Events list with improved continuous scrolling */
-        .events-list {
-            margin-top: 2rem;
-            height: 500px;
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1rem;
-            background-color: #f9f9f9;
-        }
+       /* Events List (Refactored) */
+       .events-list {
+           margin-top: 2rem;
+           border: 1px solid var(--border-color);
+           border-radius: 8px;
+           padding: 1rem;
+           background-color: var(--light-bg);
+           overflow: hidden;
+           position: relative;
+           height: 300px; /* Adjust height as needed */
+       }
 
-        .events-list h3 {
-            margin: 0 0 1rem;
-            font-size: 1.2rem;
-            color: #1a237e;
-        }
+       .events-list h3 {
+           margin: 0 0 1rem;
+           font-size: 1.2rem;
+           color: var(--primary-color);
+       }
 
-        .event-item {
-            display: flex;
-            flex-direction: column;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
+       .scroll-container {
+           animation: scroll-up 20s linear infinite;
+           padding-right: 10px; /* Space for scrollbar */
+       }
 
-        .event-date {
-            font-weight: bold;
-            color: #1a237e;
-        }
+       .event-item {
+           display: flex;
+           flex-direction: column;
+           font-size: 0.9rem;
+           margin-bottom: 1rem;
+           padding-bottom: 0.5rem;
+           border-bottom: 1px solid var(--border-color);
+       }
 
-        .event-title {
-            color: #333;
-        }
+       .event-date {
+           font-weight: bold;
+           color: var(--primary-color);
+       }
 
-        /* Improved scrolling animation without gaps */
-        @keyframes scroll-up {
-            0% {
-                transform: translateY(0);
-            }
-            100% {
-                transform: translateY(calc(-100% + 1px));
-            }
-        }
+       .event-title {
+           color: var(--text-color);
+       }
 
-        .scroll-container {
-            display: flex;
-            flex-direction: column;
-            animation: scroll-up 20s linear infinite;
-            padding-right: 10px;
-        }
+       @keyframes scroll-up {
+           0% {
+               transform: translateY(0);
+           }
 
-        /* Double the content to create seamless loop */
-        .scroll-content {
-            display: flex;
-            flex-direction: column;
-        }
+           100% {
+               transform: translateY(calc(-100% + 1px)); /* Prevent gap at the end */
+           }
+       }
 
-        .scroll-container:hover {
-            animation-play-state: paused;
-        }
+       .scroll-container:hover {
+           animation-play-state: paused;
+       }
 
-        /* Main Content Styles */
-        main {
-            flex: 1;
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+       /* Duplicate the content for a seamless loop */
+       .scroll-content:nth-child(2) {
+           margin-top: 0; /* Reset the margin for the first duplicated content */
+       }
 
+        /* Section Title */
         .section-title {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             margin-bottom: 1.5rem;
-            color: #1a237e;
+            color: var(--primary-color);
             position: relative;
             padding-bottom: 0.5rem;
         }
@@ -330,87 +345,73 @@
             left: 0;
             width: 50px;
             height: 3px;
-            background-color: #1a237e;
+            background-color: var(--primary-color);
         }
 
+        /* Feature Cards */
         .feature-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: 1fr; /* Stack on mobile */
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .card {
-            background-color: #f9f9f9;
+            background-color: var(--light-bg);
             border-radius: 8px;
             padding: 1.5rem;
-            transition: all 0.3s ease;
-            border-left: 4px solid #1a237e;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid var(--primary-color);
             height: 100%;
         }
 
-        .card:hover {
+        .card:hover,
+        .card:focus-within { /* Focus-within for keyboard navigation */
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 10px var(--shadow-color);
         }
 
         .card h3 {
             margin-bottom: 1rem;
-            color: #1a237e;
+            color: var(--primary-color);
+            font-size: 1.1rem;
         }
 
         .card-icon {
             font-size: 2.5rem;
-            color: #1a237e;
+            color: var(--primary-color);
             margin-bottom: 1rem;
-        }
-
-        .news-item {
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .news-item h3 {
-            color: #1a237e;
-            margin-bottom: 0.5rem;
-        }
-
-        .news-date {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
         }
 
         /* Footer Styles */
         footer {
-            background-color: #1a237e;
+            background-color: var(--primary-color);
             color: white;
-            padding: 3rem 0 1.5rem;
+            padding: 2rem 0;
             margin-top: 2rem;
         }
 
         .footer-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: 1fr; /* Stack on mobile */
             gap: 2rem;
-            margin-bottom: 2rem;
+            padding: 0 1rem;
         }
 
         .footer-column h3 {
             margin-bottom: 1.2rem;
             padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 1.1rem;
         }
 
         .footer-column p {
             margin-bottom: 0.8rem;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .footer-column ul {
-            list-style-type: none;
+            list-style: none;
         }
 
         .footer-column li {
@@ -418,20 +419,13 @@
         }
 
         .footer-column a {
-            color: #c5cae9;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-column a:hover {
-            color: white;
-            text-decoration: underline;
+            color: var(--secondary-color);
         }
 
         .social-icons {
             display: flex;
-            margin-top: 1rem;
             gap: 0.8rem;
+            margin-top: 1rem;
         }
 
         .social-icons a {
@@ -443,77 +437,45 @@
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.1);
             color: #fff;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
-        .social-icons a:hover {
-            background-color: #fff;
-            color: #1a237e;
+        .social-icons a:hover,
+        .social-icons a:focus {
+            background-color: white;
+            color: var(--primary-color);
             transform: translateY(-3px);
         }
 
         .social-icons i {
-            font-size: 18px;
-        }
-
-        .footer-form {
-            margin-top: 1rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .footer-form input {
-            flex: 1;
-            min-width: 180px;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 4px;
-            outline: none;
-        }
-
-        .footer-form button {
-            background-color: #c5cae9;
-            color: #1a237e;
-            border: none;
-            padding: 0.8rem 1.2rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .footer-form button:hover {
-            background-color: white;
-            transform: translateY(-2px);
+            font-size: 1rem;
         }
 
         .copyright {
             text-align: center;
             padding-top: 1.5rem;
             margin-top: 1.5rem;
-            border-top: 1px solid rgba(255,255,255,0.3);
-            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
         }
 
-        /* Back to top button */
+        /* Back to Top Button */
         .back-to-top {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background-color: #1a237e;
+            background-color: var(--primary-color);
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             text-decoration: none;
             opacity: 0;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+            box-shadow: 0 2px 5px var(--shadow-color);
             z-index: 999;
             pointer-events: none;
         }
@@ -523,133 +485,20 @@
             pointer-events: auto;
         }
 
-        .back-to-top:hover {
-            background-color: #c5cae9;
-            color: #1a237e;
+        .back-to-top:hover,
+        .back-to-top:focus {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
             transform: translateY(-3px);
         }
 
-        /* Responsive Styles - Improved */
-        @media (max-width: 992px) {
-            .main-container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                margin-bottom: 2rem;
-            }
-            
-            .sidebar-left, .sidebar-right {
-                height: fit-content;
-            }
-
-            .dnone {
-                display: none;
-            }
-            
-            .events-list {
-                height: 300px;
-            }
+        /* Accessibility */
+        a:focus,
+        button:focus {
+            outline: 2px solid var(--secondary-color);
+            outline-offset: 2px;
         }
 
-        @media (max-width: 768px) {
-            nav {
-                position: fixed;
-                top: 0;
-                right: -280px;
-                width: 280px;
-                height: 100vh;
-                background-color: #1a237e;
-                padding: 80px 2rem 2rem;
-                box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-                transition: right 0.3s ease;
-                overflow-y: auto;
-            }
-
-            nav.active {
-                right: 0;
-            }
-
-            nav ul {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            nav li {
-                width: 100%;
-            }
-
-            nav a {
-                display: block;
-                padding: 0.8rem 0;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .hero h1 {
-                font-size: 2.2rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
-            }
-
-            .cta-buttons {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .cta-button {
-                width: 100%;
-                text-align: center;
-            }
-
-            .feature-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .events-list {
-                height: 250px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero {
-                height: 70vh;
-            }
-
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            
-            .section-title {
-                font-size: 1.5rem;
-            }
-
-            .events-list {
-                height: 200px;
-            }
-            
-            footer {
-                padding: 2rem 0 1rem;
-            }
-            
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .back-to-top {
-                bottom: 20px;
-                right: 20px;
-                width: 40px;
-                height: 40px;
-            }
-        }
-
-        /* Accessibility improvements */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -662,16 +511,99 @@
             border-width: 0;
         }
 
-        /* Focus visibility improvements */
-        a:focus, button:focus {
-            outline: 2px solid #c5cae9;
-            outline-offset: 2px;
+        /* Media Queries */
+        @media (min-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+
+            .hero {
+                height: 70vh;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+                max-width: 70%;
+            }
+
+            .cta-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .main-container {
+                flex-direction: row;
+            }
+
+            main {
+                flex: 2;
+            }
+
+            .sidebar {
+                flex: 1;
+            }
+
+            .feature-cards {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+
+            .mobile-menu-btn {
+                display: none;
+            }
+
+            nav {
+                position: static;
+                transform: none;
+                background-color: transparent;
+                color: inherit;
+                padding: 0;
+                width: auto;
+                height: auto;
+            }
+
+            nav ul {
+                flex-direction: row;
+                justify-content: flex-end;
+                align-items: center;
+            }
+
+            nav a {
+                color: white;
+                padding: 0.5rem 1rem;
+                border-bottom: none;
+            }
+
+            nav a:hover,
+            nav a:focus {
+                border-bottom: 2px solid var(--secondary-color);
+            }
+        }
+
+        @media (min-width: 992px) {
+            .logo {
+                font-size: 1.8rem;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero p {
+                max-width: 60%;
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header with Navigation Menu -->
     <header>
         <div class="container">
             <div class="header-content">
@@ -681,9 +613,9 @@
                 <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
                     <i class="fas fa-bars"></i>
                 </button>
-                <nav id="main-nav" class="closed" aria-label="Main navigation">
+                <nav id="main-nav" aria-label="Main navigation">
                     <ul>
-                        <li><a href="#" class="active">Home</a></li>
+                        <li><a href="#">Home</a></li>
                         <li><a href="#">About</a></li>
                         <li><a href="https://muhammad-ikhan.github.io/accounts.office.cheque.inquiry/">Cheque Inquiry</a></li>
                         <li><a href="#">Dispatch Inquiry</a></li>
@@ -696,7 +628,6 @@
         </div>
     </header>
 
-    <!-- Hero Section with Image -->
     <section class="hero" aria-label="Welcome banner">
         <img src="https://biseb.edu.pk/images/banners/bise_3.jpg" alt="Board building exterior view" class="hero-image" id="hero-image">
         <div class="container">
@@ -718,15 +649,60 @@
         </div>
     </section>
 
-    <!-- Main Content Area with Sidebar -->
     <div class="container">
         <div class="main-container">
-            <!--  Left/ First Sidebar -->
-            <aside class="sidebar sidebar-left">
-                <h3><i class="far fa-calendar-alt" aria-hidden="true"></i> Updates</h3>
-                <div class="events-list" aria-label="Upcoming events"> 
+            <main>
+                <section class="students">
+                    <h2 class="section-title">Students Corner</h2>
+                    <div class="feature-cards">
+                        <div class="card">
+                            <div class="card-icon"><i class="fas fa-graduation-cap" aria-hidden="true"></i></div>
+                            <h3>Private Admissions Procedure information</h3>
+                            <p>Complete information about admission procedures, deadlines, and requirements for both SSC and HSSC levels. Apply online and track your application status.</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon"><i class="fas fa-file-alt" aria-hidden="true"></i></div>
+                            <h3>Applications Procedure information</h3>
+                            <p>Apply for various certificates including DMCs, provisional certificates, and character certificates. Check status of your certificate applications.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="teachers">
+                    <h2 class="section-title">Teacher Reception</h2>
+                    <div class="feature-cards">
+                        <div class="card">
+                            <div class="card-icon"><i class="fas fa-money-bill-alt" aria-hidden="true"></i></div>
+                            <h3>Bill requirements of audit information</h3>
+                            <p>Complete information about your bill status.</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <aside class="sidebar">
+                <h3>Related Links</h3>
+                <ul>
+                    <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/ssc/entry/">
+                        <i class="fas fa-user-graduate" aria-hidden="true"></i> SSC Admissions (Private)
+                    </a></li>
+                    <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/hssc/entry/">
+                        <i class="fas fa-user-graduate" aria-hidden="true"></i> HSSC Admissions (Private)
+                    </a></li>
+                    <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/OnlineDMC/">
+                        <i class="fas fa-file-alt" aria-hidden="true"></i> Online DMC Checking
+                    </a></li>
+                    <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/verification_code_search.php">
+                        <i class="fas fa-check-circle" aria-hidden="true"></i> Apply Verification Code
+                    </a></li>
+                    <li><a href="https://www.biseb.edu.pk/results.php">
+                        <i class="fas fa-poll" aria-hidden="true"></i> Online Result Checking
+                    </a></li>
+                </ul>
+
+                 <div class="events-list">
+                    <h3><i class="far fa-calendar-alt" aria-hidden="true"></i> Updates</h3>
                     <div class="scroll-container">
-                        <!-- First set of events -->
                         <div class="scroll-content">
                             <div class="event-item">
                                 <div class="event-date">April 08, 2025</div>
@@ -823,69 +799,14 @@
                     </div>
                 </div>
             </aside>
-
-            <!-- Main Content -->
-            <main>
-                <!-- Students Content -->
-                <div class="students">
-                <h2 class="section-title">Students corner</h2>
-                    <div class="feature-cards">
-                        <div class="card">
-                            <div class="card-icon"><i class="fas fa-graduation-cap" aria-hidden="true"></i></div>
-                            <h3>Private Admissions Procedure information</h3>
-                            <p>Complete information about admission procedures, deadlines, and requirements for both SSC and HSSC levels. Apply online and track your application status.</p>
-                        </div>
-                        <div class="card">
-                            <div class="card-icon"><i class="fas fa-file-alt" aria-hidden="true"></i></div>
-                            <h3>Applications Procedure information</h3>
-                            <p>Apply for various certificates including DMCs, provisional certificates, and character certificates. Check status of your certificate applications.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Teacher Reception -->
-                <div class="teachers">
-                    <h2 class="section-title">Teacher Reception</h2>
-                    <div class="feature-cards">
-                        <div class="card">
-                            <div class="card-icon"><i class="fas fa-graduation-cap" aria-hidden="true"></i></div>
-                            <h3>Bill requirements of audit information</h3>
-                            <p>Complete information about your bill status.</p>
-                        </div>
-                    </div>
-                </div>
-            </main>
-            
-            <!-- Right Sidebar -->
-            <aside class="sidebar sidebar-right">
-                <h3>Related Links</h3>
-                <ul>
-                    <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/ssc/entry/">
-                        <i class="fas fa-user-graduate" aria-hidden="true"></i> SSC Admissions (Private)
-                    </a></li>
-                    <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/hssc/entry/">
-                        <i class="fas fa-user-graduate" aria-hidden="true"></i> HSSC Admissions (Private)
-                    </a></li>
-                    <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/OnlineDMC/">
-                        <i class="fas fa-file-alt" aria-hidden="true"></i> Online DMC Checking
-                    </a></li>
-                    <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/verification_code_search.php">
-                        <i class="fas fa-check-circle" aria-hidden="true"></i> Apply Verification Code
-                    </a></li>
-                    <li><a href="https://www.biseb.edu.pk/results.php">
-                        <i class="fas fa-poll" aria-hidden="true"></i> Online Result Checking
-                    </a></li>
-                </ul>
-            </aside>
         </div>
     </div>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-column">
-                    <h3>Contact me</h3>
+                    <h3>Contact Me</h3>
                     <p><i class="fas fa-building" aria-hidden="true"></i> A/C Section BISE</p>
                     <p><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Township, Bannu</p>
                     <p><i class="fas fa-envelope" aria-hidden="true"></i> muhammadismailk9@gmail.com</p>
@@ -897,8 +818,8 @@
                         <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
                     </div>
                 </div>
-                
-                <div class="footer-column dnone">
+
+                <div class="footer-column">
                     <h3>Quick Links</h3>
                     <ul>
                         <li><a href="#">Office Directory</a></li>
@@ -908,115 +829,70 @@
                         <li><a href="#">FAQ</a></li>
                     </ul>
                 </div>
+
+                <div class="footer-column">
+                    <h3>Subscribe</h3>
+                    <p>Stay up-to-date with the latest news and updates.</p>
+                   <!-- Simple Subscribe Form (Improve with proper backend) -->
+                    <form class="subscribe-form">
+                        <input type="email" placeholder="Your email" aria-label="Email address">
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
             </div>
             <div class="copyright">
-                <p>&copy; 2025 Board Support Portal. All Rights Reserved.</p>
+                <p>© 2025 Board Support Portal. All Rights Reserved.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Back to top button -->
     <a href="#" class="back-to-top" id="back-to-top" aria-label="Back to top">
         <i class="fas fa-arrow-up"></i>
     </a>
 
     <script>
-       // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    const mainNav = document.getElementById('main-nav');
-    const body = document.body;
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const mainNav = document.getElementById('main-nav');
+            const body = document.body;
+            const heroImage = document.getElementById('hero-image');
+            const backToTopButton = document.getElementById('back-to-top');
+            const imageUrls = [
+                "https://biseb.edu.pk/images/banners/bise_1.jpg",
+                "https://biseb.edu.pk/images/banners/bise_2.jpg",
+                "https://biseb.edu.pk/images/banners/bise_3.jpg"
+            ];
+            let currentImage = 0;
 
-    mobileMenuBtn.addEventListener('click', function() {
-        mainNav.classList.toggle('active');
-        if (mobileMenuBtn.querySelector('i')) {
-            mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
-            mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
-        }
-        body.classList.toggle('menu-open');
-    });
+            // Toggle Mobile Menu
+            const toggleMenu = () => {
+                const isMenuOpen = mainNav.classList.contains('active');
+                mainNav.classList.toggle('active');
+                body.classList.toggle('menu-open');
 
-    // Close menu when clicking on a link (mobile)
-    const navLinks = document.querySelectorAll('nav a');
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            if (mainNav.classList.contains('active')) {
-                mainNav.classList.remove('active');
-                if (mobileMenuBtn.querySelector('i')) {
-                    mobileMenuBtn.querySelector('i').classList.add('fa-bars');
-                    mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+                const icon = mobileMenuBtn.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-bars', isMenuOpen);
+                    icon.classList.toggle('fa-times', !isMenuOpen);
                 }
-                body.classList.remove('menu-open');
-            }
-        });
-    });
+                mobileMenuBtn.setAttribute('aria-expanded', !isMenuOpen);
+            };
 
-    // Hero image carousel
-    const imageUrls = [
-        "https://biseb.edu.pk/images/banners/bise_1.jpg",
-        "https://biseb.edu.pk/images/banners/bise_2.jpg",
-        "https://biseb.edu.pk/images/banners/bise_3.jpg"
-    ];
-    
-    let currentImage = 0;
-    const totalImages = imageUrls.length;
-    const heroImage = document.getElementById('hero-image');
-    
-    function changeHeroImage() {
-        // Fade out current image
-        heroImage.style.opacity = 0;
-        
-        setTimeout(() => {
-            // Update the current image index
-            currentImage = (currentImage + 1) % totalImages;
-            
-            // Change the source and fade in
-            heroImage.src = imageUrls[currentImage];
-            heroImage.style.opacity = 0.7;
-        }, 500);
-    }
-    
-    // Call the function periodically
-    setInterval(changeHeroImage, 5000);
+            mobileMenuBtn.addEventListener('click', toggleMenu);
 
-    // Back to top button
-    const backToTopButton = document.getElementById('back-to-top');
-    
-    window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            backToTopButton.classList.add('show');
-        } else {
-            backToTopButton.classList.remove('show');
-        }
-    });
-    
-    backToTopButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
+            // Close Menu on Link Click (Mobile)
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    if (link.getAttribute('href').startsWith('#')) {
+                        event.preventDefault();
+                    }
+                    if (mainNav.classList.contains('active')) {
+                        toggleMenu();
+                    }
+                });
+            });
 
-    // Modified animation approach - show elements without IntersectionObserver
-    const cards = document.querySelectorAll('.card');
-    const newsItems = document.querySelectorAll('.news-item');
-    
-    // Make all elements visible right away
-    function showElements(elements) {
-        elements.forEach(element => {
-            element.style.opacity = '1';
-            element.style.transform = 'translateY(0)';
-            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        });
-    }
-    
-    // Show all elements
-    showElements(cards);
-    showElements(newsItems);
-    showElements(document.querySelectorAll('.animate'));
-});
-    </script>
-</body>
-</html>
-
+            // Hero Image Carousel
+            const changeHeroImage = () => {
+                hero
