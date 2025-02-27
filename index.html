@@ -810,121 +810,120 @@
     </a>
 
     <script>
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-            const mainNav = document.getElementById('main-nav');
-            const body = document.body;
+       // Mobile menu toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const mainNav = document.getElementById('main-nav');
+    const body = document.body;
 
-            mobileMenuBtn.addEventListener('click', function() {
-                mainNav.classList.toggle('active');
-                if (mobileMenuBtn.querySelector('i')) {
-                    mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
-                    mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
-                }
-                body.classList.toggle('menu-open');
-            });
-
-            // Close menu when clicking on a link (mobile)
-            const navLinks = document.querySelectorAll('nav a');
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    if (mainNav.classList.contains('active')) {
-                        mainNav.classList.remove('active');
-                        if (mobileMenuBtn.querySelector('i')) {
-                            mobileMenuBtn.querySelector('i').classList.add('fa-bars');
-                            mobileMenuBtn.querySelector('i').classList.remove('fa-times');
-                        }
-                        body.classList.remove('menu-open');
-                    }
-                });
-            });
-
-            // Hero image carousel
-        const imageUrls = [
-            "https://biseb.edu.pk/images/banners/bise_1.jpg",
-            "https://biseb.edu.pk/images/banners/bise_2.jpg",
-            "https://biseb.edu.pk/images/banners/bise_3.jpg"
-        ];
-        
-        let currentImage = 0;
-        const totalImages = imageUrls.length;
-        const heroImage = document.getElementById('hero-image');
-        
-        function changeHeroImage() {
-            // Fade out current image
-            heroImage.style.opacity = 0;
-            
-            setTimeout(() => {
-                // Update the current image index
-                currentImage = (currentImage + 1) % totalImages;
-                
-                // Change the source and fade in
-                heroImage.src = imageUrls[currentImage];
-                heroImage.style.opacity = 0.7;
-            }, 500);
+    mobileMenuBtn.addEventListener('click', function() {
+        mainNav.classList.toggle('active');
+        if (mobileMenuBtn.querySelector('i')) {
+            mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
+            mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
         }
-        
-        // Call the function periodically
-        setInterval(changeHeroImage, 5000);
+        body.classList.toggle('menu-open');
+    });
 
-        // Back to top button
-        const backToTopButton = document.getElementById('back-to-top');
-        
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                backToTopButton.classList.add('show');
-            } else {
-                backToTopButton.classList.remove('show');
+    // Close menu when clicking on a link (mobile)
+    const navLinks = document.querySelectorAll('nav a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            if (mainNav.classList.contains('active')) {
+                mainNav.classList.remove('active');
+                if (mobileMenuBtn.querySelector('i')) {
+                    mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+                    mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+                }
+                body.classList.remove('menu-open');
             }
         });
-        
-        backToTopButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
+    });
 
-        // Animate cards on scroll
-        const cards = document.querySelectorAll('.card');
-        const newsItems = document.querySelectorAll('.news-item');
+    // Hero image carousel
+    const imageUrls = [
+        "https://biseb.edu.pk/images/banners/bise_1.jpg",
+        "https://biseb.edu.pk/images/banners/bise_2.jpg",
+        "https://biseb.edu.pk/images/banners/bise_3.jpg"
+    ];
+    
+    let currentImage = 0;
+    const totalImages = imageUrls.length;
+    const heroImage = document.getElementById('hero-image');
+    
+    function changeHeroImage() {
+        // Fade out current image
+        heroImage.style.opacity = 0;
         
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
-        
-        cards.forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            observer.observe(card);
-        });
-        
-        newsItems.forEach(item => {
-            item.style.opacity = '0';
-            item.style.transform = 'translateY(20px)';
-            item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            observer.observe(item);
-        });
-        
-        // Add animate class when element comes into view
-        document.addEventListener('DOMContentLoaded', function() {
-            const elementsToAnimate = document.querySelectorAll('.animate');
+        setTimeout(() => {
+            // Update the current image index
+            currentImage = (currentImage + 1) % totalImages;
             
-            elementsToAnimate.forEach(element => {
-                element.style.opacity = '1';
-                element.style.transform = 'translateY(0)';
-            });
+            // Change the source and fade in
+            heroImage.src = imageUrls[currentImage];
+            heroImage.style.opacity = 0.7;
+        }, 500);
+    }
+    
+    // Call the function periodically
+    setInterval(changeHeroImage, 5000);
+
+    // Back to top button
+    const backToTopButton = document.getElementById('back-to-top');
+    
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            backToTopButton.classList.add('show');
+        } else {
+            backToTopButton.classList.remove('show');
+        }
+    });
+    
+    backToTopButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
         });
+    });
+
+    // Animate cards on scroll
+    const cards = document.querySelectorAll('.card');
+    const newsItems = document.querySelectorAll('.news-item');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+    
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        observer.observe(card);
+    });
+    
+    newsItems.forEach(item => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        observer.observe(item);
+    });
+    
+    // Add animate class when element comes into view
+    const elementsToAnimate = document.querySelectorAll('.animate');
+    
+    elementsToAnimate.forEach(element => {
+        element.style.opacity = '1';
+        element.style.transform = 'translateY(0)';
+    });
+});
     </script>
 </body>
 </html>
