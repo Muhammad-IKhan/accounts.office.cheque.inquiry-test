@@ -199,7 +199,17 @@
             padding: 1.5rem;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            height: 900px; /* height: fit-content; */
+        }
+
+        /* Different styling for left and right sidebars */
+        .sidebar-left {
+            background-color: #f0f0f0;
+            height: 900px;
+        }
+        
+        .sidebar-right {
+            background-color: #e0e0e0;
+            height: fit-content;
         }
 
         .sidebar h3 {
@@ -232,20 +242,11 @@
             padding-left: 0.8rem;
         }
 
-         .container > .sidebar:first-of-type {
-            background-color: #f0f0f0;
-        }
-        
-        
-        /* Target second sidebar */
-        .container > .sidebar:last-of-type {
-            background-color: #e0e0e0;
-        }
-
+        /* Events list with improved continuous scrolling */
         .events-list {
             margin-top: 2rem;
-            height: 800px;
-            width: 300px;
+            height: 500px;
+            width: 100%;
             overflow: hidden;
             position: relative;
             border: 1px solid #e0e0e0;
@@ -278,20 +279,27 @@
             color: #333;
         }
 
-        .scroll-container {
-            display: flex;
-            flex-direction: column;
-            animation: scroll-up 15s linear infinite;
-            padding-right: 10px;
-        }
-
+        /* Improved scrolling animation without gaps */
         @keyframes scroll-up {
             0% {
                 transform: translateY(0);
             }
             100% {
-                transform: translateY(-50%);
+                transform: translateY(calc(-100% + 1px));
             }
+        }
+
+        .scroll-container {
+            display: flex;
+            flex-direction: column;
+            animation: scroll-up 20s linear infinite;
+            padding-right: 10px;
+        }
+
+        /* Double the content to create seamless loop */
+        .scroll-content {
+            display: flex;
+            flex-direction: column;
         }
 
         .scroll-container:hover {
@@ -521,31 +529,28 @@
             transform: translateY(-3px);
         }
 
-        /* Responsive Styles */
+        /* Responsive Styles - Improved */
         @media (max-width: 992px) {
             .main-container {
                 flex-direction: column;
             }
 
-         
+            .sidebar {
+                width: 100%;
+                margin-bottom: 2rem;
+            }
+            
+            .sidebar-left, .sidebar-right {
+                height: fit-content;
+            }
+
             .dnone {
                 display: none;
-              }
-
-            .sidebar {
-              height: fit-content;
-                margin-bottom: 0;
-            width: auto;/*width: 100%; */
-             margin-bottom: 2rem;
-             background-color: white;
-              padding: 1.5rem;
-              border-radius: 8px;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             }
-        }
-
-        .events-list {
-              height: fit-content;
+            
+            .events-list {
+                height: 300px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -561,13 +566,6 @@
                 transition: right 0.3s ease;
                 overflow-y: auto;
             }
-                .events-list {
-                      height: fit-content;
-                }
-
-                .dnone {
-                display: none;
-              }
 
             nav.active {
                 right: 0;
@@ -612,15 +610,9 @@
             .feature-cards {
                 grid-template-columns: 1fr;
             }
-            .sidebar {
-              height: fit-content;
-            width: 100%;
-             margin-bottom: 2rem;
-             background-color: white;
-              padding: 1.5rem;
-              border-radius: 8px;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                margin-bottom: 0;
+            
+            .events-list {
+                height: 250px;
             }
         }
 
@@ -637,21 +629,9 @@
                 font-size: 1.5rem;
             }
 
-            .sidebar {
-              height: fit-content;
-             background-color: white;
-              padding: 1.5rem;
-              border-radius: 8px;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                margin-bottom: 0;
+            .events-list {
+                height: 200px;
             }
-                .dnone {
-                display: none;
-              }
-
-                .events-list {
-                      height: fit-content;
-                }
             
             footer {
                 padding: 2rem 0 1rem;
@@ -668,6 +648,25 @@
                 height: 40px;
             }
         }
+
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Focus visibility improvements */
+        a:focus, button:focus {
+            outline: 2px solid #c5cae9;
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
@@ -677,12 +676,12 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <a href="#">Board Support Portal</a>
+                    <a href="#" aria-label="Board Support Portal Home">Board Support Portal</a>
                 </div>
-                <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
                     <i class="fas fa-bars"></i>
                 </button>
-                <nav id="main-nav" class="closed">
+                <nav id="main-nav" class="closed" aria-label="Main navigation">
                     <ul>
                         <li><a href="#" class="active">Home</a></li>
                         <li><a href="#">About</a></li>
@@ -698,21 +697,21 @@
     </header>
 
     <!-- Hero Section with Image -->
-    <section class="hero">
-        <img src="https://biseb.edu.pk/images/banners/bise_3.jpg" alt="Board image" class="hero-image" id="hero-image">
+    <section class="hero" aria-label="Welcome banner">
+        <img src="https://biseb.edu.pk/images/banners/bise_3.jpg" alt="Board building exterior view" class="hero-image" id="hero-image">
         <div class="container">
             <div class="hero-content">
                 <h1>Welcome to Board Support Portal</h1>
                 <p>Making education services easier and more accessible for the public</p>
                 <div class="cta-buttons">
                     <a href="https://www.facebook.com/BISEBannuKPGovt" class="cta-button">
-                        <i class="fab fa-facebook-f"></i> Board FB Page
+                        <i class="fab fa-facebook-f" aria-hidden="true"></i> Board FB Page
                     </a>
                     <a href="https://biseb.edu.pk/" class="cta-button">
-                        <i class="fas fa-globe"></i> Board Website
+                        <i class="fas fa-globe" aria-hidden="true"></i> Board Website
                     </a>
                     <a href="http://portal.biseb.edu.pk/biseb_portal/login/?no_auth" class="cta-button">
-                        <i class="fas fa-sign-in-alt"></i> Board Portal
+                        <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Board Portal
                     </a>
                 </div>
             </div>
@@ -720,63 +719,110 @@
     </section>
 
     <!-- Main Content Area with Sidebar -->
-    <div class="container-fluid">
+    <div class="container">
         <div class="main-container">
             <!--  Left/ First Sidebar -->
-            <aside class="sidebar">
-                <h3><i class="far fa-calendar-alt"></i>Updates</h3>
-                <div class="events-list"> 
+            <aside class="sidebar sidebar-left">
+                <h3><i class="far fa-calendar-alt" aria-hidden="true"></i> Updates</h3>
+                <div class="events-list" aria-label="Upcoming events"> 
                     <div class="scroll-container">
-                        <div class="event-item">
-                            <div class="event-date">April 08, 2025</div>
-                            <div class="event-title">SSC Annual Examination Part I</div>
+                        <!-- First set of events -->
+                        <div class="scroll-content">
+                            <div class="event-item">
+                                <div class="event-date">April 08, 2025</div>
+                                <div class="event-title">SSC Annual Examination Part I</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">May 15, 2025</div>
+                                <div class="event-title">HSSC Annual Examination Part I</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">June 10, 2025</div>
+                                <div class="event-title">SSC Practical Examinations</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">July 05, 2025</div>
+                                <div class="event-title">HSSC Practical Examinations</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">August 12, 2025</div>
+                                <div class="event-title">SSC Result Announcement</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">September 20, 2025</div>
+                                <div class="event-title">HSSC Result Announcement</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">October 15, 2025</div>
+                                <div class="event-title">SSC Supplementary Examination</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">November 10, 2025</div>
+                                <div class="event-title">HSSC Supplementary Examination</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">December 05, 2025</div>
+                                <div class="event-title">New Session Registration</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">January 15, 2026</div>
+                                <div class="event-title">Annual Sports Festival</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">February 10, 2026</div>
+                                <div class="event-title">Inter-College Competitions</div>
+                            </div>
                         </div>
-                        <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
-                        </div>
-                         <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
-                        </div>
-                         <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
-                        </div>
-                         <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
-                        </div>
-                         <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
-                        </div>
-                         <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
-                        </div>
-                         <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
-                        </div>
-                         <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
-                        </div>
-                         <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
-                        </div>
-                         <div class="event-item">
-                            <div class="event-date">May 0, 000</div>
-                            <div class="event-title">HSSC Annual Examination Part I</div>
+                        <!-- Duplicate content for seamless looping -->
+                        <div class="scroll-content">
+                            <div class="event-item">
+                                <div class="event-date">April 08, 2025</div>
+                                <div class="event-title">SSC Annual Examination Part I</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">May 15, 2025</div>
+                                <div class="event-title">HSSC Annual Examination Part I</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">June 10, 2025</div>
+                                <div class="event-title">SSC Practical Examinations</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">July 05, 2025</div>
+                                <div class="event-title">HSSC Practical Examinations</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">August 12, 2025</div>
+                                <div class="event-title">SSC Result Announcement</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">September 20, 2025</div>
+                                <div class="event-title">HSSC Result Announcement</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">October 15, 2025</div>
+                                <div class="event-title">SSC Supplementary Examination</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">November 10, 2025</div>
+                                <div class="event-title">HSSC Supplementary Examination</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">December 05, 2025</div>
+                                <div class="event-title">New Session Registration</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">January 15, 2026</div>
+                                <div class="event-title">Annual Sports Festival</div>
+                            </div>
+                            <div class="event-item">
+                                <div class="event-date">February 10, 2026</div>
+                                <div class="event-title">Inter-College Competitions</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </aside>
-            
-
-            
 
             <!-- Main Content -->
             <main>
@@ -784,54 +830,49 @@
                 <h2 class="section-title">Students corner</h2>
                 <div class="feature-cards">
                     <div class="card">
-                        <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
-                        <h3>Private Admissions Procedure informations</h3>
+                        <div class="card-icon"><i class="fas fa-graduation-cap" aria-hidden="true"></i></div>
+                        <h3>Private Admissions Procedure information</h3>
                         <p>Complete information about admission procedures, deadlines, and requirements for both SSC and HSSC levels. Apply online and track your application status.</p>
-                
                     </div>
                     <div class="card">
-                        <div class="card-icon"><i class="fas fa-file-alt"></i></div>
-                        <h3>Applicatons Procedure informations</h3>
+                        <div class="card-icon"><i class="fas fa-file-alt" aria-hidden="true"></i></div>
+                        <h3>Applications Procedure information</h3>
                         <p>Apply for various certificates including DMCs, provisional certificates, and character certificates. Check status of your certificate applications.</p>
                     </div>
                 </div>
                 
-                <!-- Teacher Receiption -->
-                <h2 class="section-title">Teacher Receiption</h2>
+                <!-- Teacher Reception -->
+                <h2 class="section-title">Teacher Reception</h2>
                 <div class="feature-cards">
                     <div class="card">
-                        <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
-                        <h3>Bill requirments of audit information</h3>
-                        <p>Complete information about  your bill status.</p>
+                        <div class="card-icon"><i class="fas fa-graduation-cap" aria-hidden="true"></i></div>
+                        <h3>Bill requirements of audit information</h3>
+                        <p>Complete information about your bill status.</p>
                     </div>
                 </div>
-
-                
             </main>
-
             
-             <!-- Right Sidebar -->
-            <aside class="sidebar">
+            <!-- Right Sidebar -->
+            <aside class="sidebar sidebar-right">
                 <h3>Related Links</h3>
                 <ul>
                     <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/ssc/entry/">
-                        <i class="fas fa-user-graduate"></i> SSC Admissions (Private)
+                        <i class="fas fa-user-graduate" aria-hidden="true"></i> SSC Admissions (Private)
                     </a></li>
                     <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/hssc/entry/">
-                        <i class="fas fa-user-graduate"></i> HSSC Admissions (Private)
+                        <i class="fas fa-user-graduate" aria-hidden="true"></i> HSSC Admissions (Private)
                     </a></li>
                     <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/OnlineDMC/">
-                        <i class="fas fa-file-alt"></i> Online DMC Checking
+                        <i class="fas fa-file-alt" aria-hidden="true"></i> Online DMC Checking
                     </a></li>
                     <li><a href="https://portal.biseb.edu.pk/biseb_online_admission/verification_code_search.php">
-                        <i class="fas fa-check-circle"></i> Apply Verification Code
+                        <i class="fas fa-check-circle" aria-hidden="true"></i> Apply Verification Code
                     </a></li>
                     <li><a href="https://www.biseb.edu.pk/results.php">
-                        <i class="fas fa-poll"></i> Online Result Checking
+                        <i class="fas fa-poll" aria-hidden="true"></i> Online Result Checking
                     </a></li>
                 </ul>
             </aside>
-            
         </div>
     </div>
 
@@ -841,16 +882,16 @@
             <div class="footer-content">
                 <div class="footer-column">
                     <h3>Contact me</h3>
-                    <p><i class="fas fa-building"></i> A/C Section BISE</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Township, Bannu</p>
-                    <p><i class="fas fa-envelope"></i> muhammadismailk9@gmail.com</p>
-                    <p><i class="fas fa-phone"></i> 0300 807-9466</p>
+                    <p><i class="fas fa-building" aria-hidden="true"></i> A/C Section BISE</p>
+                    <p><i class="fas fa-map-marker-alt" aria-hidden="true"></i> Township, Bannu</p>
+                    <p><i class="fas fa-envelope" aria-hidden="true"></i> muhammadismailk9@gmail.com</p>
+                    <p><i class="fas fa-phone" aria-hidden="true"></i> 0300 807-9466</p>
                     <div class="social-icons">
-                        <a href="https://www.facebook.com/BISEBannuKPGovt" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                </div>
+                        <a href="https://www.facebook.com/BISEBannuKPGovt" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+                    </div>
                 </div>
                 
                 <div class="footer-column dnone">
@@ -974,3 +1015,4 @@
     </script>
 </body>
 </html>
+
